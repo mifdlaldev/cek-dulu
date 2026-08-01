@@ -1,0 +1,20 @@
+{
+  "name": "cek-dulu",
+  "version": "1.0.0",
+  "description": "Chatbot edukasi kewaspadaan keuangan digital berbasis Gemini 2.5 Flash",
+  "main": "index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^1.10.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0"
+  }
+}
