@@ -313,6 +313,7 @@ Role valid: `"user"` dan `"model"`.
 | File | Isi |
 |---|---|
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Alur kontribusi, batasan yang terkunci, gate sebelum PR |
+| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Kode etik, termasuk ketentuan khusus domain: jangan menghakimi korban |
 | [`SECURITY.md`](SECURITY.md) | Pelaporan kerentanan, penanganan kredensial, keterbatasan yang diketahui |
 | [`NOTICE.md`](NOTICE.md) | Lingkup lisensi, atribusi materi & data lembaga resmi |
 | [`LICENSE`](LICENSE) | MIT |

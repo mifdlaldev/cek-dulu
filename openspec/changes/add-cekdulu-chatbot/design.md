@@ -202,7 +202,7 @@ tidak sebanding dengan risiko menyebarkan angka kedaluwarsa.
 
 ### D-10 — Verifikasi manual terdokumentasi, tanpa test framework
 
-**Keputusan:** 12 skenario uji ditulis dengan ID, input, dan ekspektasi. Dijalankan manual.
+**Keputusan:** 13 skenario uji ditulis dengan ID, input, dan ekspektasi. Dijalankan manual.
 Tidak ada Jest/Vitest/Supertest.
 
 **Alasan:** materi tidak membahas test framework, dan `package.json` di slide (S2 p.31,
