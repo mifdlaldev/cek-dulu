@@ -5,10 +5,10 @@
 # Cek Dulu — Chatbot Edukasi Kewaspadaan Keuangan Digital
 
 [![CI](https://github.com/mifdlaldev/cek-dulu/actions/workflows/ci.yml/badge.svg)](https://github.com/mifdlaldev/cek-dulu/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-spesifikasi%20selesai-blue)](openspec/changes/add-cekdulu-chatbot/tasks.md)
+[![Status](https://img.shields.io/badge/status-backend%20selesai%20%C2%B7%20frontend%20berjalan-orange)](openspec/changes/add-cekdulu-chatbot/tasks.md)
 [![Requirement](https://img.shields.io/badge/requirement-32%20tertelusur-brightgreen)](openspec/changes/add-cekdulu-chatbot/design.md)
 [![Node.js](https://img.shields.io/badge/node-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org/en/download)
-[![Gemini](https://img.shields.io/badge/Gemini-2.5%20Flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev/gemini-api/docs)
+[![Gemini](https://img.shields.io/badge/Gemini-Flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev/gemini-api/docs)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
 
 Final Project jalur **[Developers] AI Productivity and AI API Integration for Developers**,
@@ -56,17 +56,24 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 
 ## Status
 
-| Item | Status |
-|---|---|
-| Materi PDF (4 file, 234 halaman) | ✅ Dibaca & diekstrak penuh ke `docs/` |
-| Riset lapangan + sitasi | ✅ `docs/RISET-LAPANGAN.md` |
-| Use case terpilih | ✅ **Cek Dulu** — `docs/USE-CASE-CEKDULU.md` |
-| Spesifikasi (32 requirement) | ✅ `openspec/changes/add-cekdulu-chatbot/` |
-| Metodologi + 5 gate verifikasi | ✅ `docs/METODOLOGI.md` |
-| Backend (`index.js`) | ⬜ Belum — Fase B `tasks.md` |
-| Frontend (`public/`) | ⬜ Belum — Fase D `tasks.md` |
-| Verifikasi 5 gate | ⬜ Belum — Fase E `tasks.md` |
-| Submit ke form | ⬜ Belum — Fase F `tasks.md` |
+| Fase | Item | Status |
+|---|---|---|
+| — | Materi PDF (4 file, 234 halaman) | ✅ Dibaca & diekstrak penuh ke `docs/` |
+| — | Riset lapangan + sitasi | ✅ `docs/RISET-LAPANGAN.md` |
+| — | Use case terpilih | ✅ **Cek Dulu** — `docs/USE-CASE-CEKDULU.md` |
+| — | Spesifikasi (32 requirement) | ✅ `openspec/changes/add-cekdulu-chatbot/` |
+| — | Metodologi + 5 gate verifikasi | ✅ `docs/METODOLOGI.md` |
+| A | Inisialisasi proyek (`package.json`, 4 dependency) | ✅ Selesai |
+| B | Backend (`index.js`) — 20 requirement | ✅ Selesai |
+| C | Uji backend via `curl` + guardrail | ✅ Selesai — **UJI-03 lulus** |
+| D | Frontend (`public/`) — 12 requirement UI | ⬜ Belum |
+| E | Verifikasi 5 gate penuh + 13 skenario | 🟡 Sebagian — Gate 1, 2, 3, 5 lulus; Gate 4 menunggu Fase D |
+| F | Screenshot UI + submit ke form | ⬜ Belum |
+
+Progres task: **24 dari 59** selesai (`tasks.md`).
+
+Bukti verifikasi mentah — output terminal, `curl`, dan kutipan jawaban bot:
+[`docs/QA-REPORT.md`](docs/QA-REPORT.md).
 
 ---
 
@@ -82,7 +89,7 @@ openspec/
 ├── specs/                         # Spec aktif (terisi setelah implementasi diarsipkan)
 └── changes/add-cekdulu-chatbot/
     ├── proposal.md                # WHY: masalah, scope, 19 non-goals
-    ├── design.md                  # HOW: 14 keputusan + alternatif ditolak + matriks sumber
+    ├── design.md                  # HOW: 16 keputusan + alternatif ditolak + matriks sumber
     ├── tasks.md                   # STEPS: 59 task dalam 6 fase
     └── specs/
         ├── web-server/spec.md     # WS-01 … WS-05
@@ -132,7 +139,7 @@ Jawaban siap pakai untuk kedua pertanyaan wajib: `docs/USE-CASE-CEKDULU.md` §2.
 
 ---
 
-## Stack Target
+## Stack
 
 | Item | Nilai |
 |---|---|
@@ -179,23 +186,25 @@ tepat saat kredibilitas paling dibutuhkan. Justifikasi:
 
 ---
 
-## Struktur Target
+## Struktur
+
+Tanda ⬜ menandai berkas yang belum dibuat (Fase D).
 
 ```
 Project-Akhir-Hacktiv8/
-├── public/
-│   ├── index.html
-│   ├── script.js
-│   └── style.css
-├── .env                 # GEMINI_API_KEY=... (JANGAN di-commit)
-├── .env.example
-├── .gitignore
-├── index.js
-├── package.json
-├── AGENTS.md
-├── README.md
-├── docs/
-└── openspec/
+├── index.js                  ✅ Backend — 20 requirement
+├── package.json              ✅ 4 dependency, ESM
+├── public/                   ⬜ Frontend (Fase D)
+│   ├── index.html            ⬜
+│   ├── script.js             ⬜
+│   └── style.css             ⬜
+├── .env                      🔒 Tidak di-commit
+├── .env.example              ✅
+├── .gitignore                ✅
+├── AGENTS.md                 ✅ Aturan kerja anti-halusinasi
+├── README.md                 ✅
+├── docs/                     ✅ Materi, riset, use case, metodologi, kendala, QA
+└── openspec/                 ✅ Spesifikasi 32 requirement
 ```
 
 ---
@@ -203,13 +212,12 @@ Project-Akhir-Hacktiv8/
 ## Setup
 
 ```bash
-npm init -y
-npm install express dotenv cors @google/genai
+npm install
 ```
 
-Tambahkan `"type": "module"` ke `package.json`.
+Empat dependency sudah tercatat di `package.json`, jadi `npm install` cukup.
 
-Buat `.env`:
+Salin `.env.example` menjadi `.env`, lalu isi kunci API:
 
 ```
 GEMINI_API_KEY=your_credential_key
@@ -240,13 +248,22 @@ package-lock.json
 ## Menjalankan
 
 ```bash
-node index.js
-# log akan menampilkan http://localhost:3000
+npm start
+# atau: node index.js
+```
+
+Keluaran yang diharapkan:
+
+```
+Cek Dulu siap di http://localhost:3000
 ```
 
 Buka `http://localhost:3000/` di browser.
 
-Uji endpoint langsung:
+> Saat ini halaman tersebut masih mengembalikan `404` karena folder `public/` belum dibuat
+> (Fase D). Endpoint API sudah berfungsi dan dapat diuji langsung dengan `curl` di bawah.
+
+Uji endpoint:
 
 ```bash
 curl -i -X POST http://localhost:3000/api/chat \
@@ -261,6 +278,9 @@ curl -i -X POST http://localhost:3000/api/chat \
   -H 'Content-Type: application/json' -d '{}'
 # expect 500 {"error":"Messages must be an array!"}
 ```
+
+Hasil nyata kedua perintah di atas, beserta kutipan jawaban bot:
+[`docs/QA-REPORT.md`](docs/QA-REPORT.md).
 
 ---
 
@@ -323,13 +343,14 @@ Role valid: `"user"` dan `"model"`.
 | [`docs/MATERI-SESI-3.md`](docs/MATERI-SESI-3.md) | Sesi 3 — chatbot, parameter, system instruction, frontend |
 | [`docs/TOOLS-DAN-LINK.md`](docs/TOOLS-DAN-LINK.md) | Tools + versi + **seluruh URL** yang diekstrak dari PDF |
 
-**Use case & metodologi:**
+**Use case, metodologi, dan bukti:**
 
 | File | Isi |
 |---|---|
 | [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) | Persona, guardrail, naskah `systemInstruction`, 13 skenario uji |
 | [`docs/RISET-LAPANGAN.md`](docs/RISET-LAPANGAN.md) | Data eksternal + sitasi URL resmi |
 | [`docs/KENDALA-API.md`](docs/KENDALA-API.md) | **Kenapa model berbeda dari materi** + rate limit Free tier + strategi hemat kuota |
+| [`docs/QA-REPORT.md`](docs/QA-REPORT.md) | **Bukti verifikasi mentah** — output terminal, `curl`, kutipan jawaban bot |
 | [`docs/METODOLOGI.md`](docs/METODOLOGI.md) | Alur spec-driven + 5 gate verifikasi |
 | [`docs/FINAL-PROJECT.md`](docs/FINAL-PROJECT.md) | Requirement form, checklist submit |
 

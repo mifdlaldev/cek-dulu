@@ -99,18 +99,18 @@ Catatan footer form: "Jangan pernah mengirimkan sandi melalui Google Formulir."
 
 ## 4. CHECKLIST KESIAPAN SUBMIT
 
-Backend:
-- [ ] `package.json` ada `"type": "module"`
-- [ ] Dependencies: `express`, `dotenv`, `cors`, `@google/genai` (tambah `multer` kalau pakai endpoint file)
-- [ ] `index.js` inisialisasi `new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })`
-- [ ] `const GEMINI_MODEL = "gemini-2.5-flash"`
-- [ ] `app.use(cors())` dan `app.use(express.json())`
-- [ ] `app.use(express.static(path.join(__dirname, 'public')))`
-- [ ] Endpoint `POST /api/chat` baca `{ conversation }`, balas `{ result }`
-- [ ] `config` berisi `temperature` + `systemInstruction` sesuai use case pilihan
-- [ ] Server listen di port 3000
+Backend — **selesai**, diverifikasi di `docs/QA-REPORT.md`:
+- [x] `package.json` ada `"type": "module"`
+- [x] Dependencies: `express`, `dotenv`, `cors`, `@google/genai` — tanpa `multer` karena tidak ada endpoint file
+- [x] `index.js` inisialisasi `new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })`
+- [x] `const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'` — materi menetapkan `gemini-2.5-flash`, tetapi model itu ditutup Google (`KENDALA-API.md` §1)
+- [x] `app.use(cors())` dan `app.use(express.json())`
+- [x] `app.use(express.static(path.join(__dirname, 'public')))`
+- [x] Endpoint `POST /api/chat` baca `{ conversation }`, balas `{ result }`
+- [x] `config` berisi `temperature` + `topP` + `topK` + `systemInstruction` sesuai use case
+- [x] Server listen di port 3000
 
-Frontend (`public/`):
+Frontend (`public/`) — **belum dikerjakan** (Fase D):
 - [ ] `index.html` punya `#chat-form`, `#user-input`, `#chat-box`
 - [ ] `script.js` kirim body `{ conversation: [{ role, text }] }` — **bukan** `{ messages: [{ role, content }] }`
 - [ ] `script.js` baca `data.result`
@@ -118,25 +118,29 @@ Frontend (`public/`):
 - [ ] Fallback error: `"Sorry, no response received."` / `"Failed to get response from server."`
 - [ ] `style.css` mengatur tampilan chatbot
 
-Repo:
-- [ ] `.gitignore` isi: `/node_modules`, `.env`, `package-lock.json`
-- [ ] `.env` **TIDAK** ter-commit
-- [ ] `README.md` menjelaskan cara install + run
-- [ ] Screenshot UI sudah diambil
+Repo — **sebagian selesai**:
+- [x] `.gitignore` isi: `/node_modules`, `.env`, `package-lock.json`
+- [x] `.env` **TIDAK** ter-commit — diverifikasi termasuk terhadap riwayat commit
+- [x] `README.md` menjelaskan cara install + run
+- [ ] Screenshot UI sudah diambil — menunggu Fase D
 
 Verifikasi nyata (bukan asumsi):
-- [ ] `node index.js` → server hidup, log muncul
-- [ ] `curl -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{"conversation":[{"role":"user","text":"halo"}]}'` → dapat `{ "result": ... }`
-- [ ] Buka `http://localhost:3000/` di browser, kirim pesan → balasan muncul di UI
-- [ ] Cek console browser tidak ada error
+- [x] `node index.js` → server hidup, log muncul tanpa nilai kredensial
+- [x] `curl -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{"conversation":[{"role":"user","text":"halo"}]}'` → dapat `{ "result": ... }`
+- [x] `curl` dengan body `{}` → `500 {"error":"Messages must be an array!"}`
+- [x] UJI-03 guardrail legalitas → bot menolak menilai entitas
+- [ ] Buka `http://localhost:3000/` di browser, kirim pesan → balasan muncul di UI — menunggu Fase D
+- [ ] Cek console browser tidak ada error — menunggu Fase D
+
+Bukti mentah seluruh verifikasi: `docs/QA-REPORT.md`.
 
 Kesiapan isi form:
-- [ ] Nama project ditentukan → **Cek Dulu**
-- [ ] Jawaban "Siapa target pengguna" siap → `USE-CASE-CEKDULU.md` §2
-- [ ] Jawaban "Bagaimana chatbot membantu pengguna" siap → `USE-CASE-CEKDULU.md` §2
-- [ ] File UI: **1 file** PDF atau image, **≤ 1 MB**
-- [ ] 13 skenario uji `USE-CASE-CEKDULU.md` §5 sudah dijalankan, termasuk UJI-03 (guardrail legalitas)
-- [ ] Nomor telepon format `628...` tanpa `+` atau `-`
+- [x] Nama project ditentukan → **Cek Dulu**
+- [x] Jawaban "Siapa target pengguna" siap → `USE-CASE-CEKDULU.md` §2
+- [x] Jawaban "Bagaimana chatbot membantu pengguna" siap → `USE-CASE-CEKDULU.md` §2
+- [ ] File UI: **1 file** PDF atau image, **≤ 1 MB** — menunggu Fase D
+- [ ] 13 skenario uji `USE-CASE-CEKDULU.md` §5 dijalankan — UJI-03 dan UJI-08 sudah lulus, sisanya menunggu Fase D
+- [ ] Nomor telepon format `628...` tanpa `+` atau `-` — diisi saat submit
 
 ---
 

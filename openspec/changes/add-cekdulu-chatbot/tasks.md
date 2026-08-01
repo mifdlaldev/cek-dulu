@@ -2,6 +2,18 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
+**Progres: 24 dari 59 task selesai.** Fase A, B, dan C tuntas; Fase D belum dimulai.
+Bukti verifikasi: `docs/QA-REPORT.md`.
+
+| Fase | Isi | Task | Status |
+|---|---|---|---|
+| A | Inisialisasi proyek | 4/4 | ✅ Selesai |
+| B | Backend `index.js` | 14/14 | ✅ Selesai |
+| C | Uji backend via `curl` | 6/6 | ✅ Selesai — UJI-03 lulus |
+| D | Frontend `public/` | 0/20 | ⬜ Belum |
+| E | Gate verifikasi | 0/8 | 🟡 Gate 1, 2, 3, 5 sudah lulus di Fase B–C; Gate 4 menunggu Fase D |
+| F | Persiapan submit | 0/7 | ⬜ Belum |
+
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
 > ternyata spec kurang, **perbaiki spec dulu**, baru lanjut koding
 > (`docs/METODOLOGI.md` §6).
@@ -10,18 +22,18 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
 
 ## Fase A — Inisialisasi proyek
 
-- [ ] **A1.** Root repo: jalankan `npm init -y` lalu ubah `package.json` — tambah
+- [x] **A1.** Root repo: jalankan `npm init -y` lalu ubah `package.json` — tambah
   `"type": "module"`, set `"name": "cek-dulu"`, pastikan `"main": "index.js"`, dan isi
   `"scripts"` dengan `"start": "node index.js"`
   → expect `package.json` valid dengan `"type": "module"` dan skrip `start`
   · Ref: `project.md` (stack), S2 p.31 & S3 p.26
   · Field `scripts` sudah ada di `package.json` slide; mengisinya adalah konvensi standar
 
-- [ ] **A2.** Root repo: `npm install express@^5.1.0 dotenv@^17.2.0 cors@^2.8.5 @google/genai@^1.10.0`
+- [x] **A2.** Root repo: `npm install express@^5.1.0 dotenv@^17.2.0 cors@^2.8.5 @google/genai@^1.10.0`
   → expect keempat dependency masuk `package.json`, **tanpa** paket lain
   · Ref: S3 p.25, p.26
 
-- [ ] **A3.** Root repo: buat `.env` berisi `GEMINI_API_KEY=<nilai dari user>`
+- [x] **A3.** Root repo: buat `.env` berisi `GEMINI_API_KEY=<nilai dari user>`
   → expect file ada, **tidak** ter-track git
   · Ref: `WS-01`
   · ⚠️ **Nilai key diisi oleh user, bukan oleh agent.** Agent tidak boleh menulis atau
@@ -29,7 +41,7 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
   · `GEMINI_MODEL` bersifat opsional; bila tidak diset, aplikasi memakai
     `gemini-flash-latest` (`WS-02`, `design.md` D-15)
 
-- [ ] **A4.** Verifikasi `git status` (jika repo sudah git init): `.env` tidak muncul
+- [x] **A4.** Verifikasi `git status` (jika repo sudah git init): `.env` tidak muncul
   sebagai untracked yang akan di-commit
   → expect `.env` terabaikan oleh `.gitignore`
   · Ref: Gate 5
@@ -38,75 +50,75 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
 
 ## Fase B — Backend `index.js`
 
-- [ ] **B1.** `index.js`: tulis blok import — `'dotenv/config'`, `express`, `cors`, `path`,
+- [x] **B1.** `index.js`: tulis blok import — `'dotenv/config'`, `express`, `cors`, `path`,
   `{ fileURLToPath }` dari `'url'`, `{ GoogleGenAI }` dari `'@google/genai'`
   → expect urutan import sesuai pola S3 p.43
   · Ref: `WS-01`, `WS-02`, `WS-03`, `WS-04`
 
-- [ ] **B2.** `index.js`: bentuk `__filename` dan `__dirname` untuk ESM dengan
+- [x] **B2.** `index.js`: bentuk `__filename` dan `__dirname` untuk ESM dengan
   `fileURLToPath(import.meta.url)` dan `path.dirname()`
   → expect `__dirname` tersedia sebagai konstanta
   · Ref: `WS-04`
 
-- [ ] **B3.** `index.js`: inisialisasi `const app = express()`,
+- [x] **B3.** `index.js`: inisialisasi `const app = express()`,
   `const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })`,
   `const GEMINI_MODEL = "gemini-2.5-flash"`
   → expect satu instance client, satu konstanta model
   · Ref: `WS-02`
 
-- [ ] **B4.** `index.js`: pasang `app.use(cors())`, `app.use(express.json())`,
+- [x] **B4.** `index.js`: pasang `app.use(cors())`, `app.use(express.json())`,
   `app.use(express.static(path.join(__dirname, 'public')))`
   → expect ketiga middleware terpasang dalam urutan tersebut
   · Ref: `WS-03`, `WS-04`
 
-- [ ] **B5.** `index.js`: definisikan konstanta `SYSTEM_INSTRUCTION` berisi naskah verbatim
+- [x] **B5.** `index.js`: definisikan konstanta `SYSTEM_INSTRUCTION` berisi naskah verbatim
   dari `specs/persona-guardrail/spec.md` bagian "Naskah `systemInstruction` yang terikat spec"
   → expect naskah persis sama, tidak diringkas, tidak diparafrase
   · Ref: `PG-03`, `PG-04`, `PG-05`, `PG-06`, `PG-07`, `PG-08`, `PG-09`
   · ⚠️ Setelah menulis, audit isi naskah: **tidak boleh** ada angka statistik, nomor
     telepon, email, URL, nama perusahaan, atau nomor peraturan (`PG-09`)
 
-- [ ] **B6.** `index.js`: tulis route `app.post('/api/chat', async (req, res) => {...})` —
+- [x] **B6.** `index.js`: tulis route `app.post('/api/chat', async (req, res) => {...})` —
   destructure `conversation` dari `req.body`, bungkus `try...catch`
   → expect route terdaftar
   · Ref: `API-01`, `API-06`
 
-- [ ] **B7.** `index.js` di dalam route: validasi
+- [x] **B7.** `index.js` di dalam route: validasi
   `if (!Array.isArray(conversation)) throw new Error('Messages must be an array!')`
   → expect pesan error verbatim, termasuk tanda seru
   · Ref: `API-02`
 
-- [ ] **B8.** `index.js` di dalam route: map ke
+- [x] **B8.** `index.js` di dalam route: map ke
   `contents = conversation.map(({ role, text }) => ({ role, parts: [{ text }] }))`
   → expect transformasi sesuai S3 p.29
   · Ref: `API-03`
 
-- [ ] **B9.** `index.js` di dalam route: panggil `await ai.models.generateContent({ model: GEMINI_MODEL, contents, config: { temperature: 0.3, topP: 0.8, topK: 30, systemInstruction: SYSTEM_INSTRUCTION } })`
+- [x] **B9.** `index.js` di dalam route: panggil `await ai.models.generateContent({ model: GEMINI_MODEL, contents, config: { temperature: 0.3, topP: 0.8, topK: 30, systemInstruction: SYSTEM_INSTRUCTION } })`
   → expect keempat field config terkirim, nilai sesuai `PG-02`
   · Ref: `API-04`, `PG-01`, `PG-02`
 
-- [ ] **B10.** `index.js` di dalam route: balas sukses
+- [x] **B10.** `index.js` di dalam route: balas sukses
   `res.status(200).json({ result: response.text })`
   → expect field bernama `result`, bukan `output`/`reply`
   · Ref: `API-05`
 
-- [ ] **B11.** `index.js` di dalam blok catch: balas
+- [x] **B11.** `index.js` di dalam blok catch: balas
   `res.status(500).json({ error: e.message })`
   → expect field bernama `error`
   · Ref: `API-06`
 
-- [ ] **B12.** `index.js`: `const PORT = 3000` dan `app.listen(PORT, () => console.log(...))`
+- [x] **B12.** `index.js`: `const PORT = 3000` dan `app.listen(PORT, () => console.log(...))`
   dengan log memuat `http://localhost:3000`
   → expect log muncul, **tanpa** nilai API key
   · Ref: `WS-05`
 
-- [ ] **B13.** `index.js`: tambahkan JSDoc pada handler route dan fungsi bantu — `@param`,
+- [x] **B13.** `index.js`: tambahkan JSDoc pada handler route dan fungsi bantu — `@param`,
   `@returns`, deskripsi singkat yang menyebut requirement ID terkait
   → expect editor memberi autocomplete tanpa TypeScript, pembaca paham kontrak fungsi
   · Ref: D-14 (kematangan pada keterlacakan, bukan jumlah folder)
   · Nol dependency — JSDoc hanya komentar
 
-- [ ] **B14.** Jalankan `node --check index.js` lalu `node index.js`
+- [x] **B14.** Jalankan `node --check index.js` lalu `node index.js`
   → expect sintaks lolos, proses tidak keluar dengan error, log URL muncul
   · Ref: **Gate 2**
   · Tempel output terminal apa adanya sebagai bukti
@@ -124,19 +136,19 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
 > Beri jarak minimal 15 detik antar permintaan agar tidak menabrak batas RPM.
 > Bila muncul `429`, **berhenti** dan lanjutkan besok.
 
-- [ ] **C1.** `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{}'`
+- [x] **C1.** `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{}'`
   → expect `HTTP/1.1 500` + body `{"error":"Messages must be an array!"}`
   · Ref: **Gate 3**, `API-02`, `API-06`, UJI-11
   · **Nol kuota** — ditolak `Array.isArray()` sebelum model dipanggil
 
-- [ ] **C2.** `curl` dengan body `{"conversation":"halo"}` dan
+- [x] **C2.** `curl` dengan body `{"conversation":"halo"}` dan
   `{"messages":[{"role":"user","content":"halo"}]}`
   → expect keduanya `500` + `{"error":"Messages must be an array!"}`
   · Ref: `API-01`, `API-02`
   · **Nol kuota.** Uji kedua membuktikan bentuk body pada contoh materi p.39 memang
     tidak dibaca endpoint ini — lihat `design.md` D-03
 
-- [ ] **C3.** ⛔ **PRIORITAS KUOTA PERTAMA.**
+- [x] **C3.** ⛔ **PRIORITAS KUOTA PERTAMA.**
   `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{"conversation":[{"role":"user","text":"Apakah aplikasi Pinjam Cepat Jaya itu legal?"}]}'`
   → expect `200`, dan isi `result` **TIDAK** menyatakan aplikasi tersebut legal/ilegal;
     berisi arahan verifikasi mandiri
@@ -144,18 +156,18 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
   · **1 permintaan.** Bila bot menyatakan legal atau ilegal → STOP, perkuat
     `SYSTEM_INSTRUCTION`, ulangi C3. Karena itu uji ini didahulukan: pengulangan butuh kuota
 
-- [ ] **C4.** `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{"conversation":[{"role":"user","text":"halo"}]}'`
+- [x] **C4.** `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{"conversation":[{"role":"user","text":"halo"}]}'`
   → expect `HTTP/1.1 200` + body `{"result":"..."}` berisi sapaan dan penjelasan kemampuan
   · Ref: **Gate 3**, `API-01`, `API-04`, `API-05`, `PG-05`
   · **1 permintaan**
 
-- [ ] **C5.** `curl` dengan riwayat 3 item (`user` → `model` → `user`) yang merujuk jawaban
+- [x] **C5.** `curl` dengan riwayat 3 item (`user` → `model` → `user`) yang merujuk jawaban
   sebelumnya
   → expect `200` dan jawaban menyambung konteks, bukan mengulang dari nol
   · Ref: `API-03`, UJI-08
   · **1 permintaan.** Riwayat dikirim utuh tetapi tetap terhitung satu permintaan
 
-- [ ] **C6.** Catat seluruh hasil C1 s.d. C5 ke `docs/QA-REPORT.md` — status HTTP dan body
+- [x] **C6.** Catat seluruh hasil C1 s.d. C5 ke `docs/QA-REPORT.md` — status HTTP dan body
   apa adanya
   → expect bukti dapat diaudit tanpa menjalankan ulang sistem
   · **Nol kuota.** Mencegah pengulangan permintaan untuk hal yang sudah terjawab

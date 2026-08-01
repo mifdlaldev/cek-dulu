@@ -32,12 +32,16 @@ Proyek ini terikat materi pelatihan. Hal berikut **terkunci**:
 |---|---|
 | Dependency | Tepat empat: `express`, `dotenv`, `cors`, `@google/genai` |
 | SDK | `@google/genai` — **bukan** `@google/generative-ai` |
-| Model | `gemini-2.5-flash` |
+| Model | `process.env.GEMINI_MODEL ?? 'gemini-flash-latest'` — lihat [`docs/KENDALA-API.md`](docs/KENDALA-API.md) |
 | Endpoint | `POST /api/chat` saja |
 | Body request | `{ conversation: [{ role, text }] }` |
 | Body respons | `{ result }` atau `{ error }` |
 | Frontend | Vanilla JS, tanpa framework, tanpa build step |
 | Port | 3000 |
+
+> Materi menetapkan `gemini-2.5-flash`, tetapi model tersebut ditutup Google untuk akun baru.
+> Nilai model dibaca dari environment variable sehingga pemilik akun lama tetap dapat
+> mengikuti materi apa adanya. Bukti dan alasan: `docs/KENDALA-API.md` §1, keputusan D-15.
 
 Menambah dependency, mengganti SDK, atau mengubah kontrak API akan ditolak — bukan
 karena preferensi, tetapi karena melanggar batasan materi yang menjadi acuan penilaian.

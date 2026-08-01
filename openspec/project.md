@@ -28,10 +28,12 @@
 | SDK Gemini | `@google/genai` `^1.10.0` | S3 p.26 |
 | CORS | `cors` `^2.8.5` | S3 p.26 |
 | Env loader | `dotenv` `^17.2.0` | S3 p.26 |
-| Model | `gemini-2.5-flash` | S3 p.28 |
+| Model (materi) | `gemini-2.5-flash` — **ditutup Google untuk akun baru** | S3 p.28 |
+| Model (dipakai) | `process.env.GEMINI_MODEL ?? 'gemini-flash-latest'` | `docs/KENDALA-API.md` §1, `design.md` D-15 |
 | Frontend | Vanilla JS — HTML + CSS + JS, **tanpa framework** | S3 p.34, p.37 |
 | Port | `3000` | S3 p.28 |
-| Env var | `GEMINI_API_KEY` | S2 p.32, S3 p.27 |
+| Env var wajib | `GEMINI_API_KEY` | S2 p.32, S3 p.27 |
+| Env var opsional | `GEMINI_MODEL` | `design.md` D-15 |
 
 **Dependency tambahan = DILARANG** tanpa persetujuan eksplisit user. Termasuk:
 test framework, TypeScript, bundler, linter, markdown renderer, UI library, ORM.
@@ -90,24 +92,29 @@ adalah `{ conversation: [{ role, text }] }`. Lihat `AGENTS.md` §3.2.
 
 ---
 
-## Struktur file target
+## Struktur file
+
+Tanda ⬜ menandai berkas yang belum dibuat.
 
 ```
 Project-Akhir-Hacktiv8/
-├── public/
-│   ├── index.html
-│   ├── script.js
-│   └── style.css
-├── .env                  <- JANGAN commit, JANGAN tulis nilainya ke output
-├── .env.example
-├── .gitignore
-├── index.js
-├── package.json
-├── AGENTS.md
-├── README.md
-├── docs/
-└── openspec/
+├── index.js              ✅ Backend, 20 requirement
+├── package.json          ✅ 4 dependency, ESM
+├── public/               ⬜ Fase D
+│   ├── index.html        ⬜
+│   ├── script.js         ⬜
+│   └── style.css         ⬜
+├── .env                  🔒 JANGAN commit, JANGAN tulis nilainya ke output
+├── .env.example          ✅
+├── .gitignore            ✅
+├── AGENTS.md             ✅
+├── README.md             ✅
+├── docs/                 ✅
+└── openspec/             ✅
 ```
+
+Progres task terkini: `openspec/changes/add-cekdulu-chatbot/tasks.md`.
+Bukti verifikasi: `docs/QA-REPORT.md`.
 
 ---
 

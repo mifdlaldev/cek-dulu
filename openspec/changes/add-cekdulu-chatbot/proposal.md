@@ -3,9 +3,12 @@
 | Meta | Nilai |
 |---|---|
 | ID change | `add-cekdulu-chatbot` |
-| Status | **Proposed** — belum ada kode |
-| Tanggal | 1 Agustus 2026 |
-| Kapabilitas tersentuh | `web-server`, `chat-api`, `persona-guardrail`, `chat-ui` |
+| Status | **In progress** — Fase A, B, C selesai; Fase D (frontend) belum |
+| Tanggal dibuat | 1 Agustus 2026 |
+| Terakhir diperbarui | 1 Agustus 2026 |
+| Kapabilitas tersentuh | `web-server` ✅, `chat-api` ✅, `persona-guardrail` ✅, `chat-ui` ⬜ |
+| Progres task | 24 dari 59 (`tasks.md`) |
+| Bukti verifikasi | `docs/QA-REPORT.md` |
 
 ---
 
@@ -56,28 +59,34 @@ prinsip Etika AI Sesi 1 p.99: Transparansi, Akuntabilitas, Keamanan.
 
 Proyek greenfield. Semua kapabilitas berstatus **ADDED**.
 
-| Kapabilitas | Isi | Requirement |
-|---|---|---|
-| `web-server` | Bootstrap Express, muat env, middleware CORS + JSON, sajikan `public/` sebagai static, listen port 3000 | `WS-01` … `WS-05` |
-| `chat-api` | Endpoint `POST /api/chat`: validasi array, transformasi ke format Gemini, panggil `generateContent()`, balas `{ result }` / `{ error }` | `API-01` … `API-06` |
-| `persona-guardrail` | `systemInstruction` persona "Cek Dulu" + `temperature`/`topP`/`topK` + 8 larangan | `PG-01` … `PG-09` |
-| `chat-ui` | Halaman chat Vanilla JS: form, riwayat multi-turn, indikator berpikir, fallback error, disclaimer, aksesibilitas, design token | `UI-01` … `UI-12` |
+| Kapabilitas | Isi | Requirement | Status |
+|---|---|---|---|
+| `web-server` | Bootstrap Express, muat env, middleware CORS + JSON, sajikan `public/` sebagai static, listen port 3000 | `WS-01` … `WS-05` | ✅ Selesai |
+| `chat-api` | Endpoint `POST /api/chat`: validasi array, transformasi ke format Gemini, panggil `generateContent()`, balas `{ result }` / `{ error }` | `API-01` … `API-06` | ✅ Selesai |
+| `persona-guardrail` | `systemInstruction` persona "Cek Dulu" + `temperature`/`topP`/`topK` + 8 larangan | `PG-01` … `PG-09` | ✅ Selesai — UJI-03 lulus |
+| `chat-ui` | Halaman chat Vanilla JS: form, riwayat multi-turn, indikator berpikir, fallback error, disclaimer, aksesibilitas, design token | `UI-01` … `UI-12` | ⬜ Belum (Fase D) |
 
-Berkas yang akan dibuat:
+Berkas yang sudah dibuat:
 
 ```
-index.js
-package.json
-public/index.html
-public/script.js
-public/style.css
-docs/QA-REPORT.md          (bukti verifikasi, ditulis pada Fase E)
-.github/workflows/ci.yml   (sudah ada)
+index.js                   ✅ 20 requirement backend
+package.json               ✅ 4 dependency, ESM, tanpa devDependencies
+docs/KENDALA-API.md        ✅ Kendala model dan kuota, bukti mentah
+docs/QA-REPORT.md          ✅ Bukti verifikasi Gate 1, 2, 3, 5 + UJI-03, UJI-08
+.github/workflows/ci.yml   ✅ Lima job, tanpa npm install
+```
+
+Berkas yang belum dibuat:
+
+```
+public/index.html          ⬜ Fase D
+public/script.js           ⬜ Fase D
+public/style.css           ⬜ Fase D
 ```
 
 Berkas yang sudah ada dan tidak diubah oleh change ini: `AGENTS.md`, `README.md`,
-`docs/**` (kecuali `QA-REPORT.md`), `.gitignore`, `.env.example`, `LICENSE`, `NOTICE.md`,
-`SECURITY.md`, `CONTRIBUTING.md`.
+`docs/**` (kecuali `KENDALA-API.md` dan `QA-REPORT.md`), `.gitignore`, `.env.example`,
+`LICENSE`, `NOTICE.md`, `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`.
 
 ---
 

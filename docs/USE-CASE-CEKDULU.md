@@ -158,7 +158,7 @@ Use case ini **tidak menambah** apa pun di luar materi:
 | Endpoint | `POST /api/chat` saja | Sesi 3 p.29 |
 | Body request | `{ conversation: [{ role, text }] }` | Sesi 3 p.29, p.31 |
 | Response | `{ result }` / `{ error }` | Sesi 3 p.29 |
-| Model | `gemini-2.5-flash` | Sesi 3 p.28 |
+| Model | `process.env.GEMINI_MODEL ?? 'gemini-flash-latest'` ⚠️ | Sesi 3 p.28 menetapkan `gemini-2.5-flash`, tetapi model itu ditutup Google — lihat `KENDALA-API.md` §1 dan `design.md` D-15 |
 | Frontend | Vanilla JS di `public/` | Sesi 3 p.34 |
 | Port | 3000 | Sesi 3 p.28 |
 | Penyimpanan | **Tidak ada** — riwayat hanya di memori browser | Materi tidak membahas DB (`FAKTA-TERVERIFIKASI.md` §J) |

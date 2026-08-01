@@ -68,24 +68,34 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ FASE 2 — SPESIFIKASI                              [SEDANG JALAN]│
-│ Tulis proposal, spec delta per kapabilitas, design, tasks       │
+│ FASE 2 — SPESIFIKASI                                   [SELESAI]│
+│ Tulis proposal, spec delta per kapabilitas, design, tasks        │
 │ Output: openspec/project.md                                     │
 │         openspec/changes/add-cekdulu-chatbot/{proposal,design,   │
 │                                               tasks}.md          │
 │         openspec/changes/add-cekdulu-chatbot/specs/*/spec.md    │
-│ GATE: tidak ada kode ditulis sebelum fase ini selesai           │
+│ Hasil: 32 requirement, 16 keputusan, 19 non-goals               │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ FASE 3 — IMPLEMENTASI                                   [BELUM] │
+│ FASE 3 — IMPLEMENTASI                             [SEDANG JALAN]│
 │ Kerjakan tasks.md berurutan. Setiap task rujuk requirement ID.  │
-│ Dilarang menulis kode yang tidak punya requirement.             │
+│ Fase A inisialisasi proyek         SELESAI  4/4 task            │
+│ Fase B backend index.js            SELESAI 14/14 task           │
+│ Fase C uji backend via curl        SELESAI  6/6 task            │
+│ Fase D frontend public/            BELUM    0/20 task           │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ FASE 4 — VERIFIKASI                                     [BELUM] │
+│ FASE 4 — VERIFIKASI                                   [SEBAGIAN]│
 │ Jalankan 5 gate §5. Bukti = output nyata, bukan klaim.          │
+│ Gate 1 keterlacakan   LULUS                                     │
+│ Gate 2 server hidup   LULUS                                     │
+│ Gate 3 kontrak API    LULUS                                     │
+│ Gate 4 guardrail & UI SEBAGIAN — UJI-03 dan UJI-08 lulus,       │
+│                       sisanya menunggu Fase D                   │
+│ Gate 5 kebersihan     LULUS                                     │
+│ Output: docs/QA-REPORT.md                                       │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -94,6 +104,10 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │ Screenshot UI → 1 file ≤1 MB. Isi form.                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+> Status di atas diperbarui setiap kali satu fase tuntas. Rincian per task:
+> `openspec/changes/add-cekdulu-chatbot/tasks.md`. Bukti verifikasi:
+> `docs/QA-REPORT.md`.
 
 ---
 

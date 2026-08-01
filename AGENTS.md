@@ -33,9 +33,15 @@ tapi berdasarkan requirement ber-ID yang punya sumber tertulis.
 
 Cara kerja lengkap + 5 gate verifikasi → `docs/METODOLOGI.md`.
 
+**Progres saat ini: Fase A, B, dan C selesai; Fase D (frontend) belum dimulai.**
+Backend `index.js` sudah diimplementasikan dan diverifikasi — 24 dari 59 task tuntas.
+Bukti mentah di `docs/QA-REPORT.md`. Sebelum mengerjakan apa pun, cek status per task di
+`openspec/changes/add-cekdulu-chatbot/tasks.md`.
+
 **`PG-03` adalah gate mutlak:** bot dilarang menyatakan sebuah perusahaan/aplikasi legal
-atau ilegal. Kalau uji UJI-03 gagal, implementasi dinyatakan **gagal** dan
-`systemInstruction` wajib diperkuat sebelum pekerjaan dilanjutkan.
+atau ilegal. Uji UJI-03 sudah dijalankan pada 1 Agustus 2026 dan **lulus** — kutipan jawaban
+bot ada di `docs/QA-REPORT.md`. Bila di kemudian hari uji ini gagal, implementasi dinyatakan
+**gagal** dan `systemInstruction` wajib diperkuat sebelum pekerjaan dilanjutkan.
 
 ---
 
@@ -204,6 +210,7 @@ Ini bukan inkonsistensi di dalam materi, tetapi **materi versus kondisi API aktu
 | `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 13 skenario uji |
 | `docs/RISET-LAPANGAN.md` | Data eksternal + sitasi URL resmi |
 | `docs/KENDALA-API.md` | Model materi ditutup Google + rate limit + strategi hemat kuota |
+| `docs/QA-REPORT.md` | Bukti verifikasi mentah — output terminal, `curl`, kutipan jawaban bot |
 | `docs/METODOLOGI.md` | Alur kerja spec-driven + 5 gate verifikasi |
 | `openspec/project.md` | Konteks & batasan proyek untuk agent |
 | `openspec/changes/add-cekdulu-chatbot/` | Requirement yang sedang dibangun |
