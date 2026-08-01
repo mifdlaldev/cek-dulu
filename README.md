@@ -1,5 +1,11 @@
 # Cek Dulu — Chatbot Edukasi Kewaspadaan Keuangan Digital
 
+[![Status](https://img.shields.io/badge/status-spesifikasi%20selesai-blue)](openspec/changes/add-cekdulu-chatbot/tasks.md)
+[![Requirement](https://img.shields.io/badge/requirement-30%20tertelusur-brightgreen)](openspec/changes/add-cekdulu-chatbot/design.md)
+[![Node.js](https://img.shields.io/badge/node-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org/en/download)
+[![Gemini](https://img.shields.io/badge/Gemini-2.5%20Flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev/gemini-api/docs)
+[![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
+
 Final Project jalur **[Developers] AI Productivity and AI API Integration for Developers**,
 program **Maju Bareng AI** oleh Hacktiv8 (didukung Google.org & Asian Development Bank,
 kolaborasi AVPN).
@@ -272,11 +278,21 @@ Role valid: `"user"` dan `"model"`.
 | [`docs/METODOLOGI.md`](docs/METODOLOGI.md) | Alur spec-driven + 5 gate verifikasi |
 | [`docs/FINAL-PROJECT.md`](docs/FINAL-PROJECT.md) | Requirement form, checklist submit |
 
+**Tata kelola repo:**
+
+| File | Isi |
+|---|---|
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Alur kontribusi, batasan yang terkunci, gate sebelum PR |
+| [`SECURITY.md`](SECURITY.md) | Pelaporan kerentanan, penanganan kredensial, keterbatasan yang diketahui |
+| [`NOTICE.md`](NOTICE.md) | Lingkup lisensi, atribusi materi & data lembaga resmi |
+| [`LICENSE`](LICENSE) | MIT |
+
 ---
 
 ## Materi Sumber
 
-Empat PDF di root repo:
+Empat PDF materi pelatihan (**tidak diredistribusi** — dikecualikan `.gitignore` karena
+berhak cipta penyelenggara):
 
 | File | Halaman |
 |---|---|
@@ -285,9 +301,11 @@ Empat PDF di root repo:
 | `Sesi 2 - Materi Developers.pdf` | 68 |
 | `Sesi 3 - Materi Developers.pdf` | 58 |
 
-Semua isi `docs/` diekstrak dari file-file ini, termasuk slide yang isinya berupa
-screenshot/gambar (kode, Postman, UI, chart) — teksnya sudah dibaca dari render gambar,
-bukan hanya text layer PDF.
+Seluruh isi `docs/` diekstrak dari berkas-berkas ini dengan mencantumkan nomor halaman,
+termasuk 68 slide yang isinya berupa screenshot (kode, Postman, UI, grafik) — teksnya
+dibaca dari render gambar, bukan hanya dari text layer PDF.
+
+Atribusi lengkap: [`NOTICE.md`](NOTICE.md)
 
 ---
 
@@ -301,6 +319,10 @@ bukan hanya text layer PDF.
   model. Keputusan D-07 di `design.md`.
 - Tidak ada penyimpanan percakapan di server. Riwayat hanya di memori browser, hilang saat
   halaman di-reload.
+
+**Keterbatasan yang diketahui:** aplikasi ini tidak memiliki autentikasi dan rate
+limiting — keduanya di luar cakupan materi. Karena itu aplikasi **hanya untuk dijalankan
+lokal** di `localhost:3000`. Detail: [`SECURITY.md`](SECURITY.md).
 
 ---
 
@@ -325,4 +347,16 @@ Sumber verbatim: siaran pers Satgas PASTI — `docs/RISET-LAPANGAN.md` §7.
 Cek Dulu adalah alat **edukasi**. Bukan nasihat keuangan, hukum, atau investasi
 profesional. Chatbot ini tidak menilai legalitas perusahaan atau aplikasi mana pun.
 Verifikasi dan keputusan akhir tetap tanggung jawab pengguna.
+
+Untuk memastikan status legalitas suatu penawaran keuangan, hubungi Otoritas Jasa Keuangan
+melalui kanal resmi di atas.
+
+---
+
+## Lisensi
+
+[MIT](LICENSE) — berlaku untuk kode dan dokumentasi yang ditulis dalam repositori ini.
+Materi pelatihan Hacktiv8 dan data lembaga resmi yang dirujuk memiliki kepemilikan
+tersendiri; lihat [`NOTICE.md`](NOTICE.md).
+
 

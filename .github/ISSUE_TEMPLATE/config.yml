@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Kanal resmi Otoritas Jasa Keuangan
+    url: https://www.ojk.go.id/id/Default.aspx
+    about: Untuk memverifikasi legalitas penawaran keuangan atau melaporkan penipuan, hubungi OJK. Repositori ini tidak melayani pertanyaan legalitas.
+  - name: Kebijakan keamanan
+    url: https://github.com/mifdlaldev/cek-dulu/security/policy
+    about: Untuk melaporkan kerentanan keamanan, jangan buat issue publik.

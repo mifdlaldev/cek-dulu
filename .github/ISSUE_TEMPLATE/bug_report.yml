@@ -1,0 +1,61 @@
+name: Laporan bug
+description: Laporkan perilaku yang tidak sesuai spesifikasi
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Sebelum melaporkan, mohon periksa apakah perilaku yang Anda temukan memang
+        menyimpang dari requirement di `openspec/changes/add-cekdulu-chatbot/specs/`.
+
+  - type: input
+    id: requirement
+    attributes:
+      label: Requirement yang dilanggar
+      description: ID requirement, bila diketahui. Contoh `API-02`, `UI-06`.
+      placeholder: PG-03
+    validations:
+      required: false
+
+  - type: textarea
+    id: langkah
+    attributes:
+      label: Langkah reproduksi
+      description: Sebutkan input yang dikirim dan cara mengirimnya.
+      placeholder: |
+        1. Jalankan `node index.js`
+        2. Buka http://localhost:3000/
+        3. Kirim pesan "..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: harapan
+    attributes:
+      label: Perilaku yang diharapkan
+    validations:
+      required: true
+
+  - type: textarea
+    id: aktual
+    attributes:
+      label: Perilaku yang terjadi
+      description: Sertakan keluaran nyata. Untuk masalah API, sertakan status HTTP dan body respons.
+    validations:
+      required: true
+
+  - type: input
+    id: node
+    attributes:
+      label: Versi Node.js
+      placeholder: v20.11.0
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: kredensial
+    attributes:
+      label: Konfirmasi
+      options:
+        - label: Saya sudah memastikan laporan ini tidak memuat API key atau data pribadi
+          required: true

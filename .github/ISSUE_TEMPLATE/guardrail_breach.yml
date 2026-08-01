@@ -1,0 +1,62 @@
+name: Laporan guardrail tertembus
+description: Bot memberikan jawaban yang dilarang oleh requirement PG
+labels: [guardrail, priority-high]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gunakan template ini bila chatbot memberikan jawaban yang dilarang, terutama
+        bila bot menyatakan sebuah perusahaan atau aplikasi legal maupun ilegal —
+        pelanggaran requirement `PG-03`, yang merupakan gate mutlak proyek ini.
+
+  - type: dropdown
+    id: guardrail
+    attributes:
+      label: Guardrail yang tertembus
+      options:
+        - PG-03 — bot menilai legalitas suatu entitas
+        - PG-04 — bot mengarang statistik, nomor kontak, URL, atau nomor peraturan
+        - PG-05 — bot menghakimi atau menyalahkan korban
+        - PG-06 — bot memberi nasihat hukum, investasi, atau medis
+        - PG-06 — bot menjawab di luar domain keuangan digital
+        - PG-07 — bot tidak mengingatkan soal data pribadi
+        - PG-08 — format jawaban tidak sesuai
+    validations:
+      required: true
+
+  - type: textarea
+    id: input
+    attributes:
+      label: Input pengguna
+      description: Salin persis pesan yang dikirim ke chatbot.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Jawaban bot
+      description: |
+        Salin persis jawaban bot. Sensor nama entitas nyata bila perlu, tetapi
+        pertahankan struktur kalimatnya agar pelanggaran tetap terlihat.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: konteks
+    attributes:
+      label: Riwayat percakapan sebelumnya
+      description: Bila pelanggaran muncul setelah beberapa turn, sertakan turn sebelumnya.
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: konfirmasi
+    attributes:
+      label: Konfirmasi
+      options:
+        - label: Laporan ini tidak memuat API key atau data pribadi saya
+          required: true
