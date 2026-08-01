@@ -3,11 +3,11 @@
 | Meta | Nilai |
 |---|---|
 | ID change | `add-cekdulu-chatbot` |
-| Status | **In progress** — Fase A, B, C, D selesai; Gate 4 penuh menunggu kuota API |
+| Status | **Verified** — Fase A sampai E selesai, kelima gate lulus, 13/13 skenario lulus. Sisa Fase F |
 | Tanggal dibuat | 1 Agustus 2026 |
 | Terakhir diperbarui | 1 Agustus 2026 |
 | Kapabilitas tersentuh | `web-server` ✅, `chat-api` ✅, `persona-guardrail` ✅, `chat-ui` ✅ |
-| Progres task | 44 dari 59 (`tasks.md`) |
+| Progres task | 52 dari 59 (`tasks.md`) |
 | Bukti verifikasi | `docs/QA-REPORT.md` |
 
 ---

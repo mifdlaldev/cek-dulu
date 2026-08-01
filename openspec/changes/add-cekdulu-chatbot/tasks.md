@@ -2,8 +2,9 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 44 dari 59 task selesai.** Fase A, B, C, dan D tuntas; Fase E tersisa Gate 4
-penuh, Fase F belum dimulai. Bukti verifikasi: `docs/QA-REPORT.md`.
+**Progres: 52 dari 59 task selesai.** Fase A sampai E tuntas — kelima gate verifikasi
+LULUS dan 13 dari 13 skenario uji lulus. Sisa hanya Fase F: screenshot dan submit.
+Bukti verifikasi: `docs/QA-REPORT.md`.
 
 | Fase | Isi | Task | Status |
 |---|---|---|---|
@@ -11,7 +12,7 @@ penuh, Fase F belum dimulai. Bukti verifikasi: `docs/QA-REPORT.md`.
 | B | Backend `index.js` | 14/14 | ✅ Selesai |
 | C | Uji backend via `curl` | 6/6 | ✅ Selesai — UJI-03 lulus |
 | D | Frontend `public/` | 20/20 | ✅ Selesai — diverifikasi di browser nyata |
-| E | Gate verifikasi | 0/8 | 🟡 Gate 1, 2, 3, 5 lulus; Gate 4 sebagian (8 dari 13 skenario terbukti), sisanya menunggu kuota harian |
+| E | Gate verifikasi | 8/8 | ✅ Selesai — 5 gate lulus, 13/13 skenario lulus |
 | F | Persiapan submit | 0/7 | ⬜ Belum |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
@@ -293,7 +294,7 @@ penuh, Fase F belum dimulai. Bukti verifikasi: `docs/QA-REPORT.md`.
 
 ## Fase E — Gate verifikasi
 
-- [ ] **E1.** **Gate 1 — Keterlacakan.** Periksa `design.md` §3: semua 32 requirement punya
+- [x] **E1.** **Gate 1 — Keterlacakan.** Periksa `design.md` §3: semua 32 requirement punya
   kolom sumber terisi; tidak ada kode di `index.js` / `script.js` yang tidak dirujuk
   requirement mana pun
   → expect nol requirement tanpa sumber, nol kode tanpa requirement
@@ -301,13 +302,13 @@ penuh, Fase F belum dimulai. Bukti verifikasi: `docs/QA-REPORT.md`.
     `UI-01`..`UI-12`) sudah tercentang di Fase B dan D
   · CI job `traceability` menjalankan pemeriksaan ini otomatis pada setiap push
 
-- [ ] **E2.** **Gate 2 — Server hidup.** `node index.js`, tempel output terminal
+- [x] **E2.** **Gate 2 — Server hidup.** `node index.js`, tempel output terminal
   → expect log URL, tanpa error, tanpa nilai API key
 
-- [ ] **E3.** **Gate 3 — Kontrak API.** Ulangi C1 dan C2, tempel status + body apa adanya
+- [x] **E3.** **Gate 3 — Kontrak API.** Ulangi C1 dan C2, tempel status + body apa adanya
   → expect `200 {result}` dan `500 {"error":"Messages must be an array!"}`
 
-- [ ] **E4.** **Gate 4 — Guardrail & UI.** Buka `http://localhost:3000/` di browser
+- [x] **E4.** **Gate 4 — Guardrail & UI.** Buka `http://localhost:3000/` di browser
   sungguhan. Jalankan **13 skenario** `docs/USE-CASE-CEKDULU.md` §5 satu per satu. Catat
   lulus/gagal + kutipan jawaban bot untuk tiap skenario
   → expect 13/13 lulus; **UJI-03 lulus mutlak**
@@ -317,23 +318,23 @@ penuh, Fase F belum dimulai. Bukti verifikasi: `docs/QA-REPORT.md`.
     uji berkuota. Hasil C3 s.d. C5 boleh dipakai sebagai bukti agar tidak mengulang
     permintaan yang sama. Bila `429` muncul, catat progres dan lanjutkan besok
 
-- [ ] **E5.** **Gate 4b — Console browser.** Selama Gate 4, buka DevTools Console
+- [x] **E5.** **Gate 4b — Console browser.** Selama Gate 4, buka DevTools Console
   → expect nol error JavaScript, nol 404 aset
 
-- [ ] **E6.** **Gate 4c — Aksesibilitas.** Verifikasi `UI-11`: navigasi penuh dengan Tab
+- [x] **E6.** **Gate 4c — Aksesibilitas.** Verifikasi `UI-11`: navigasi penuh dengan Tab
   (UJI-13), fokus kembali ke input setelah kirim, indikator fokus terlihat, kontras teks
   diperiksa dengan DevTools, halaman diperbesar 200%, dan `prefers-reduced-motion`
   disimulasikan lewat DevTools Rendering
   → expect seluruh butir `UI-11` terpenuhi
   · Ref: `UI-11`, UJI-13
 
-- [ ] **E7.** **Gate 5 — Kebersihan repo.** Periksa: `.env` tidak ter-track;
+- [x] **E7.** **Gate 5 — Kebersihan repo.** Periksa: `.env` tidak ter-track;
   `package.json` hanya berisi 4 dependency dan tanpa `devDependencies`; tidak ada file
   temporer; nilai API key tidak muncul di file mana pun yang akan di-commit
   → expect `git status` bersih dari `.env`; tempel isi `dependencies` dari `package.json`
   · CI job `hygiene` dan `constraints` menjalankan pemeriksaan ini otomatis
 
-- [ ] **E8.** **Dokumentasikan bukti.** Tulis `docs/QA-REPORT.md` berisi: output `node index.js`,
+- [x] **E8.** **Dokumentasikan bukti.** Tulis `docs/QA-REPORT.md` berisi: output `node index.js`,
   output kedua `curl` apa adanya (status + body), dan tabel 13 skenario dengan input,
   kutipan jawaban bot, serta verdict lulus/gagal
   → expect laporan dapat diaudit ulang pihak lain tanpa menjalankan sistem

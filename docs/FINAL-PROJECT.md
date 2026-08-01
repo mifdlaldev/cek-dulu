@@ -140,7 +140,7 @@ Kesiapan isi form:
 - [x] Jawaban "Siapa target pengguna" siap → `USE-CASE-CEKDULU.md` §2
 - [x] Jawaban "Bagaimana chatbot membantu pengguna" siap → `USE-CASE-CEKDULU.md` §2
 - [ ] File UI: **1 file** PDF atau image, **≤ 1 MB** — Fase F
-- [ ] 13 skenario uji `USE-CASE-CEKDULU.md` §5 dijalankan — 8 sudah lulus (UJI-01, 02, 03, 08, 10, 11, 12, 13), 5 sisanya menunggu kuota API harian
+- [x] 13 skenario uji `USE-CASE-CEKDULU.md` §5 dijalankan — **13/13 lulus**, termasuk UJI-03 guardrail legalitas
 - [ ] Nomor telepon format `628...` tanpa `+` atau `-` — diisi saat submit
 
 ---

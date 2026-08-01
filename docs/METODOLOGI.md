@@ -87,19 +87,18 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ FASE 4 — VERIFIKASI                                   [SEBAGIAN]│
+│ FASE 4 — VERIFIKASI                                    [SELESAI]│
 │ Jalankan 5 gate §5. Bukti = output nyata, bukan klaim.          │
 │ Gate 1 keterlacakan   LULUS                                     │
 │ Gate 2 server hidup   LULUS                                     │
 │ Gate 3 kontrak API    LULUS                                     │
-│ Gate 4 guardrail & UI SEBAGIAN — 8 dari 13 skenario terbukti,    │
-│                       5 sisanya menunggu kuota API harian       │
+│ Gate 4 guardrail & UI LULUS — 13 dari 13 skenario                │
 │ Gate 5 kebersihan     LULUS                                     │
 │ Output: docs/QA-REPORT.md                                       │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ FASE 5 — ARSIP & SUBMIT                                 [BELUM] │
+│ FASE 5 — ARSIP & SUBMIT                            [SEDANG JALAN]│
 │ Pindahkan spec delta ke openspec/specs/ sebagai spec aktif.     │
 │ Screenshot UI → 1 file ≤1 MB. Isi form.                         │
 └─────────────────────────────────────────────────────────────────┘

@@ -33,12 +33,11 @@ tapi berdasarkan requirement ber-ID yang punya sumber tertulis.
 
 Cara kerja lengkap + 5 gate verifikasi → `docs/METODOLOGI.md`.
 
-**Progres saat ini: Fase A, B, C, dan D selesai; aplikasi sudah berjalan utuh.**
+**Progres saat ini: Fase A sampai E selesai; kelima gate verifikasi LULUS.**
 Backend `index.js` dan frontend `public/` sudah diimplementasikan dan diverifikasi di
-browser nyata — 44 dari 59 task tuntas. Gate 4 terbukti 8 dari 13 skenario; lima sisanya
-menunggu kuota API harian, bukan menunggu kode. Bukti mentah di `docs/QA-REPORT.md`.
-Sebelum mengerjakan apa pun, cek status per task di
-`openspec/changes/add-cekdulu-chatbot/tasks.md`.
+browser nyata — 52 dari 59 task tuntas, dan **13 dari 13 skenario uji lulus**. Sisa hanya
+Fase F: screenshot dan submit. Bukti mentah di `docs/QA-REPORT.md`. Sebelum mengerjakan apa
+pun, cek status per task di `openspec/changes/add-cekdulu-chatbot/tasks.md`.
 
 **`PG-03` adalah gate mutlak:** bot dilarang menyatakan sebuah perusahaan/aplikasi legal
 atau ilegal. Uji UJI-03 sudah dijalankan pada 1 Agustus 2026 dan **lulus** — kutipan jawaban

@@ -5,8 +5,9 @@
 # Cek Dulu — Chatbot Edukasi Kewaspadaan Keuangan Digital
 
 [![CI](https://github.com/mifdlaldev/cek-dulu/actions/workflows/ci.yml/badge.svg)](https://github.com/mifdlaldev/cek-dulu/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-aplikasi%20berjalan-brightgreen)](openspec/changes/add-cekdulu-chatbot/tasks.md)
+[![Status](https://img.shields.io/badge/status-terverifikasi%2013%2F13%20uji-brightgreen)](openspec/changes/add-cekdulu-chatbot/tasks.md)
 [![Requirement](https://img.shields.io/badge/requirement-32%20tertelusur-brightgreen)](openspec/changes/add-cekdulu-chatbot/design.md)
+[![Gate](https://img.shields.io/badge/5%20gate%20verifikasi-lulus-brightgreen)](docs/QA-REPORT.md)
 [![Aksesibilitas](https://img.shields.io/badge/WCAG%202.1-AA%20terverifikasi-blue)](docs/QA-REPORT.md)
 [![Node.js](https://img.shields.io/badge/node-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org/en/download)
 [![Gemini](https://img.shields.io/badge/Gemini-Flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev/gemini-api/docs)
@@ -68,16 +69,17 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | B | Backend (`index.js`) — 20 requirement | ✅ Selesai |
 | C | Uji backend via `curl` + guardrail | ✅ Selesai — **UJI-03 lulus** |
 | D | Frontend (`public/`) — 12 requirement UI | ✅ Selesai — diverifikasi di browser nyata |
-| E | Verifikasi 5 gate penuh + 13 skenario | 🟡 Sebagian — Gate 1, 2, 3, 5 lulus; Gate 4 terbukti 8 dari 13 skenario |
+| E | Verifikasi 5 gate + 13 skenario uji | ✅ **Selesai — 13/13 skenario lulus** |
 | F | Screenshot UI + submit ke form | ⬜ Belum |
 
-Progres task: **44 dari 59** selesai (`tasks.md`).
+Progres task: **52 dari 59** selesai (`tasks.md`).
 
-Aplikasi sudah berjalan utuh: buka `http://localhost:3000/`, kirim pesan, dan chatbot
-menjawab. Lima skenario uji sisanya menunggu kuota API harian — bukan menunggu kode.
+Aplikasi berjalan utuh dan **seluruh gate verifikasi terpenuhi**: buka
+`http://localhost:3000/`, kirim pesan, chatbot menjawab. Tiga belas skenario uji dijalankan
+di browser sungguhan, termasuk `PG-03` yang melarang bot menilai legalitas entitas.
 
 Bukti verifikasi mentah — output terminal, `curl`, hasil inspeksi browser, dan kutipan
-jawaban bot: [`docs/QA-REPORT.md`](docs/QA-REPORT.md).
+jawaban bot untuk setiap skenario: [`docs/QA-REPORT.md`](docs/QA-REPORT.md).
 
 ---
 
