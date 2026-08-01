@@ -14,9 +14,16 @@
 | Versi demo di slide | `v23.7.0` (`node -v`) | S2 p.9, S3 p.9 |
 | Module system | ESM — `"type": "module"` | S2 p.31, S3 p.26 |
 | SDK Gemini | `@google/genai` `^1.10.0` | S2 p.31, S3 p.26 |
-| Model | `gemini-2.5-flash` | S2 p.34, S3 p.28 |
+| Model | `gemini-2.5-flash` ⚠️ lihat catatan | S2 p.34, S3 p.28 |
 | Port | `3000` | S2 p.34, S3 p.28 |
 | Env var | `GEMINI_API_KEY` | S2 p.32, S3 p.27 |
+
+> ⚠️ **Catatan model.** Nilai `gemini-2.5-flash` di tabel ini adalah nilai **verbatim dari
+> materi**. Pada 1 Agustus 2026 model tersebut mengembalikan HTTP 404 untuk akun baru dengan
+> pesan `no longer available to new users`. Implementasi repo ini memakai
+> `gemini-flash-latest` sebagai nilai bawaan, dapat ditimpa lewat environment variable
+> `GEMINI_MODEL`. Bukti mentah: `docs/KENDALA-API.md` §1. Keputusan: `design.md` D-15.
+> Lihat juga `AGENTS.md` §3.7.
 
 Perintah install SDK (S2 p.19):
 

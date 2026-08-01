@@ -255,6 +255,13 @@ Jujur tentang apa yang **tidak** dijamin:
   dependency, jadi di luar cakupan. Keterbatasan ini diakui, bukan disembunyikan.
 - **Angka riset akan kedaluwarsa.** Semua angka di `RISET-LAPANGAN.md` adalah snapshot
   per tanggal siaran pers. Itu sebabnya angka tidak ditanam di prompt.
+- **Kuota API membatasi verifikasi.** Free tier hanya 20 permintaan per hari untuk model
+  Text-out. Gate 4 karena itu dijalankan dengan urutan prioritas sadar kuota, dan mungkin
+  terbagi ke dua hari. Detail: `KENDALA-API.md` §2, keputusan D-16.
+- **Materi dapat tertinggal dari kondisi API.** Model `gemini-2.5-flash` yang ditetapkan
+  materi sudah ditutup Google untuk akun baru. Ini menegaskan mengapa Gate 2 dan Gate 3
+  harus dijalankan sungguhan, bukan diasumsikan: masalah semacam ini hanya terlihat saat
+  kode benar-benar dieksekusi. Bukti: `KENDALA-API.md` §1, keputusan D-15.
 - **Due date masih ambigu.** Slide S3 p.52 vs PDF Final Project p.2 berbeda
   (Sesi 3 vs Sesi 5). Keputusan sementara di `FINAL-PROJECT.md` §3; sebaiknya
   dikonfirmasi ke instruktur.

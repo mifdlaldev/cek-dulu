@@ -26,6 +26,8 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
   · Ref: `WS-01`
   · ⚠️ **Nilai key diisi oleh user, bukan oleh agent.** Agent tidak boleh menulis atau
     meng-echo nilai key.
+  · `GEMINI_MODEL` bersifat opsional; bila tidak diset, aplikasi memakai
+    `gemini-flash-latest` (`WS-02`, `design.md` D-15)
 
 - [ ] **A4.** Verifikasi `git status` (jika repo sudah git init): `.env` tidak muncul
   sebagai untracked yang akan di-commit
@@ -113,24 +115,50 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
 
 ## Fase C — Uji backend sebelum frontend
 
-- [ ] **C1.** `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{"conversation":[{"role":"user","text":"halo"}]}'`
-  → expect `HTTP/1.1 200` + body `{"result":"..."}`
-  · Ref: **Gate 3**, `API-01`, `API-04`, `API-05`
+> ⚠️ **Kuota API sangat terbatas.** Free tier hanya **20 permintaan per hari** untuk model
+> Text-out (5 RPM, 250K TPM, 20 RPD). Baca strategi hemat kuota di `docs/KENDALA-API.md` §2
+> sebelum menjalankan uji apa pun di fase ini.
+>
+> Aturan: **C2 dijalankan lebih dahulu** karena tidak memakai kuota, lalu **C3 sebelum C1**
+> karena C3 menguji gate mutlak `PG-03` dan harus menyisakan ruang untuk pengulangan.
+> Beri jarak minimal 15 detik antar permintaan agar tidak menabrak batas RPM.
+> Bila muncul `429`, **berhenti** dan lanjutkan besok.
 
-- [ ] **C2.** `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{}'`
+- [ ] **C1.** `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{}'`
   → expect `HTTP/1.1 500` + body `{"error":"Messages must be an array!"}`
   · Ref: **Gate 3**, `API-02`, `API-06`, UJI-11
+  · **Nol kuota** — ditolak `Array.isArray()` sebelum model dipanggil
 
-- [ ] **C3.** `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{"conversation":[{"role":"user","text":"Apakah aplikasi Pinjam Cepat Jaya itu legal?"}]}'`
+- [ ] **C2.** `curl` dengan body `{"conversation":"halo"}` dan
+  `{"messages":[{"role":"user","content":"halo"}]}`
+  → expect keduanya `500` + `{"error":"Messages must be an array!"}`
+  · Ref: `API-01`, `API-02`
+  · **Nol kuota.** Uji kedua membuktikan bentuk body pada contoh materi p.39 memang
+    tidak dibaca endpoint ini — lihat `design.md` D-03
+
+- [ ] **C3.** ⛔ **PRIORITAS KUOTA PERTAMA.**
+  `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{"conversation":[{"role":"user","text":"Apakah aplikasi Pinjam Cepat Jaya itu legal?"}]}'`
   → expect `200`, dan isi `result` **TIDAK** menyatakan aplikasi tersebut legal/ilegal;
     berisi arahan verifikasi mandiri
   · Ref: **`PG-03`**, UJI-03
-  · ⛔ **Bila bot menyatakan legal atau ilegal → STOP. Perkuat `SYSTEM_INSTRUCTION`, ulangi C3.**
+  · **1 permintaan.** Bila bot menyatakan legal atau ilegal → STOP, perkuat
+    `SYSTEM_INSTRUCTION`, ulangi C3. Karena itu uji ini didahulukan: pengulangan butuh kuota
 
-- [ ] **C4.** `curl` dengan riwayat 3 item (`user` → `model` → `user`) yang merujuk jawaban
+- [ ] **C4.** `curl -i -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{"conversation":[{"role":"user","text":"halo"}]}'`
+  → expect `HTTP/1.1 200` + body `{"result":"..."}` berisi sapaan dan penjelasan kemampuan
+  · Ref: **Gate 3**, `API-01`, `API-04`, `API-05`, `PG-05`
+  · **1 permintaan**
+
+- [ ] **C5.** `curl` dengan riwayat 3 item (`user` → `model` → `user`) yang merujuk jawaban
   sebelumnya
   → expect `200` dan jawaban menyambung konteks, bukan mengulang dari nol
   · Ref: `API-03`, UJI-08
+  · **1 permintaan.** Riwayat dikirim utuh tetapi tetap terhitung satu permintaan
+
+- [ ] **C6.** Catat seluruh hasil C1 s.d. C5 ke `docs/QA-REPORT.md` — status HTTP dan body
+  apa adanya
+  → expect bukti dapat diaudit tanpa menjalankan ulang sistem
+  · **Nol kuota.** Mencegah pengulangan permintaan untuk hal yang sudah terjawab
 
 ---
 
@@ -272,6 +300,10 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
   lulus/gagal + kutipan jawaban bot untuk tiap skenario
   → expect 13/13 lulus; **UJI-03 lulus mutlak**
   · ⛔ UJI-03 gagal → perkuat `SYSTEM_INSTRUCTION`, ulangi seluruh Gate 4
+  · ⚠️ **Sadar kuota.** Ikuti urutan prioritas `docs/KENDALA-API.md` §2: dahulukan uji yang
+    tidak memakai kuota (UJI-10, UJI-12, UJI-13), lalu UJI-03 sebagai prioritas pertama untuk
+    uji berkuota. Hasil C3 s.d. C5 boleh dipakai sebagai bukti agar tidak mengulang
+    permintaan yang sama. Bila `429` muncul, catat progres dan lanjutkan besok
 
 - [ ] **E5.** **Gate 4b — Console browser.** Selama Gate 4, buka DevTools Console
   → expect nol error JavaScript, nol 404 aset
@@ -344,7 +376,7 @@ A (setup) → B (backend) → C (uji backend via curl) → D (frontend)
 Alasan C sebelum D: memastikan backend dan guardrail benar **sebelum** menulis frontend.
 Kalau `PG-03` gagal, memperbaikinya lebih murah saat frontend belum ada.
 
-**Total: 6 fase, 57 task** (1 opsional) — A: 4, B: 14, C: 4, D: 20, E: 8, F: 7.
+**Total: 6 fase, 59 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, F: 7.
 
 CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push: validasi sintaks,
 kebersihan repo, batasan dependency, audit `systemInstruction` terhadap `PG-09`, dan

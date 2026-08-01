@@ -107,7 +107,8 @@ secara otomatis pada setiap push — tanpa `npm install`. Pembagian tugas CI ver
 | Item | Nilai | Sumber |
 |---|---|---|
 | SDK | `@google/genai` `^1.10.0` | S2 p.31, S3 p.26 |
-| Model | `gemini-2.5-flash` | S2 p.34, S3 p.28 |
+| Model (materi) | `gemini-2.5-flash` — **ditutup Google untuk akun baru** | S2 p.34, S3 p.28 |
+| Model (dipakai repo) | `process.env.GEMINI_MODEL ?? 'gemini-flash-latest'` | `docs/KENDALA-API.md` §1, `design.md` D-15 |
 | Node.js | v18+ (demo pakai v23.7.0) | S2 p.8–9 |
 | Module system | `"type": "module"` di package.json | S2 p.31, S3 p.26 |
 | Port | 3000 | S2 p.34, S3 p.28 |
@@ -119,6 +120,11 @@ secara otomatis pada setiap push — tanpa `npm install`. Pembagian tugas CI ver
 | Static serve | `app.use(express.static(path.join(__dirname, 'public')))` | S3 p.43 |
 
 Detail lengkap → `docs/SPEC-API.md`.
+
+**Kuota API sangat terbatas.** Free tier hanya **20 permintaan per hari** untuk model
+Text-out. Sebelum menjalankan uji apa pun yang memanggil model, baca strategi hemat kuota di
+`docs/KENDALA-API.md` §2. Jangan mengulang permintaan untuk menguji hal yang sudah terjawab.
+Bila muncul `429`, **berhenti** — memaksa hanya memperpanjang blokir.
 
 ---
 
@@ -159,6 +165,17 @@ Materi punya beberapa inkonsistensi internal. Keputusan repo ini:
 - Muncul hanya di S2 p.58 (screenshot Gemini Code Assist). Bukan bagian kode utama slide.
 - **KEPUTUSAN: opsional. Kode utama pakai `response.text` langsung.**
 
+### 3.7 Model `gemini-2.5-flash` ditutup Google
+Ini bukan inkonsistensi di dalam materi, tetapi **materi versus kondisi API aktual**.
+
+- Materi menetapkan `const GEMINI_MODEL = "gemini-2.5-flash"` (S2 p.34, S3 p.28)
+- Uji nyata 1 Agustus 2026 → HTTP 404: `This model models/gemini-2.5-flash is no longer available to new users`
+- `gemini-2.5-flash-lite` juga 404. `gemini-flash-latest` berhasil
+- **KEPUTUSAN: `process.env.GEMINI_MODEL ?? 'gemini-flash-latest'`.**
+  Pemilik akun lama cukup menulis `GEMINI_MODEL=gemini-2.5-flash` di `.env` untuk mengikuti
+  materi apa adanya, tanpa mengubah kode.
+- Bukti mentah: `docs/KENDALA-API.md` §1. Keputusan: `design.md` D-15. Requirement: `WS-02`.
+
 ---
 
 ## 4. GAYA KERJA
@@ -186,6 +203,7 @@ Materi punya beberapa inkonsistensi internal. Keputusan repo ini:
 | `docs/FINAL-PROJECT.md` | Requirement + kriteria submit final project |
 | `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 13 skenario uji |
 | `docs/RISET-LAPANGAN.md` | Data eksternal + sitasi URL resmi |
+| `docs/KENDALA-API.md` | Model materi ditutup Google + rate limit + strategi hemat kuota |
 | `docs/METODOLOGI.md` | Alur kerja spec-driven + 5 gate verifikasi |
 | `openspec/project.md` | Konteks & batasan proyek untuk agent |
 | `openspec/changes/add-cekdulu-chatbot/` | Requirement yang sedang dibangun |

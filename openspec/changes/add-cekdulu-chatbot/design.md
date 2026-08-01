@@ -340,12 +340,99 @@ hanya menambah waktu jalan tanpa informasi baru.
 
 ---
 
+### D-15 — Model dibaca dari environment, bawaan `gemini-flash-latest`
+
+**Keputusan:** `const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest';`
+
+**Alasan:** materi menetapkan literal `"gemini-2.5-flash"` (S2 p.34, S3 p.28). Saat uji
+positif Fase C dijalankan pada 1 Agustus 2026, model itu mengembalikan HTTP 404:
+
+> This model models/gemini-2.5-flash is no longer available to new users. Please update your
+> code to use a newer model for the latest features and improvements.
+
+Ini bukan kesalahan implementasi. Nama model dipanggil dengan benar; Google menutup akses
+model tersebut untuk akun yang baru dibuat, dan materi disusun sebelum penutupan berlaku.
+
+Hasil uji pemanggilan nyata pada kandidat pengganti tercatat di `docs/KENDALA-API.md` §1.
+Ringkasnya: `gemini-2.5-flash` dan `gemini-2.5-flash-lite` mengembalikan 404;
+`gemini-2.0-flash` dan `gemini-2.5-pro` mengembalikan 429 karena kuota;
+`gemini-flash-latest` berhasil. Alias tersebut resmi dari Google
+(`displayName: "Gemini Flash Latest"`, `description: "Latest release of Gemini Flash"`) dan
+selalu menunjuk rilis Flash terbaru — kelas model yang sama dengan yang dimaksud Sesi 2 p.15
+ketika memilih Flash karena hemat biaya dan cepat.
+
+**Mengapa environment variable, bukan sekadar mengganti satu string:**
+
+1. Materi tetap dapat diikuti. Pemilik akun lama yang masih memiliki akses
+   `gemini-2.5-flash` cukup menulis satu baris di `.env` tanpa menyentuh kode.
+2. Tahan terhadap penutupan berikutnya. Google terbukti dapat menutup model kapan saja;
+   penggantian tidak lagi memerlukan perubahan kode.
+3. Konsisten dengan maksud materi. S3 p.28 menyebut nama model disimpan dalam satu konstanta
+   "agar mudah diganti di satu tempat". Membacanya dari environment memenuhi maksud itu
+   lebih baik, bukan menyimpang darinya.
+
+**Ditolak:** mengganti literal menjadi `"gemini-flash-latest"` tanpa jalur override. Itu
+memutus kemampuan mengikuti materi apa adanya bagi yang akunnya masih mendukung.
+
+**Ditolak:** mempertahankan `"gemini-2.5-flash"` dan menunggu. Model mengembalikan 404,
+bukan 429 — artinya penutupan bersifat permanen bagi akun baru, bukan sekadar kuota habis.
+
+**Ditolak:** mencoba beberapa model berurutan dengan fallback otomatis di dalam kode. Setiap
+percobaan memakan kuota, dan kuota Free tier hanya 20 permintaan per hari (lihat D-16).
+Fallback justru mempercepat habisnya kuota.
+
+`WS-02` diamandemen mengikuti keputusan ini.
+
+---
+
+### D-16 — Strategi pengujian sadar kuota, tanpa retry otomatis
+
+**Keputusan:** rencana pengujian disusun berdasarkan konsumsi kuota, dengan `UJI-03`
+mendapat prioritas pertama. Tidak menambahkan retry otomatis, cache, maupun rate limiting
+di sisi aplikasi.
+
+**Alasan:** dasbor Google AI Studio menunjukkan batas Free tier untuk model Text-out:
+**5 RPM, 250K TPM, dan 20 RPD**. Batas paling mengikat adalah **RPD — hanya 20 permintaan
+per hari**. Angka TPM terlihat besar tetapi tidak relevan; RPD tercapai lebih dahulu.
+
+Konsekuensinya, kuota harus dibelanjakan dengan sengaja. Tiga aturan yang diambil:
+
+*Pertama, dahulukan uji yang tidak memakai kuota.* Sebagian besar verifikasi tidak menyentuh
+API sama sekali — validasi input kosong ditolak browser, body tanpa `conversation` ditolak
+`Array.isArray()` sebelum model dipanggil, uji server mati tidak mengirim permintaan, dan
+seluruh pemeriksaan aksesibilitas serta tampilan bersifat inspeksi. Daftar lengkapnya di
+`docs/KENDALA-API.md` §2.
+
+*Kedua, `UJI-03` diuji lebih dahulu.* Requirement `PG-03` adalah gate mutlak: bila bot
+menyatakan sebuah entitas legal atau ilegal, implementasi dinyatakan gagal dan prompt wajib
+diperkuat. Menguji ini terakhir berisiko kehabisan kuota tepat saat pengulangan dibutuhkan.
+
+*Ketiga, jangan mengulang permintaan untuk hal yang sudah terjawab.* Hasil dicatat sekali di
+`docs/QA-REPORT.md`, lalu lanjut.
+
+**Ditolak: retry otomatis dengan exponential backoff.** Menambah kompleksitas, dan justru
+**memperbanyak** permintaan tepat saat kuota kritis. Kegagalan sudah ditangani `API-06` di
+backend dan ditampilkan jelas oleh `UI-06` di antarmuka — pengguna mendapat umpan balik yang
+benar tanpa mekanisme tambahan.
+
+**Ditolak: cache respons.** Memerlukan penyimpanan, dan itu non-goal proyek. Selain itu
+percakapan bersifat kontekstual sehingga tingkat kena cache akan sangat rendah.
+
+**Ditolak: rate limiting di sisi aplikasi.** Non-goal, tidak dibahas materi, dan batas
+sebenarnya sudah ditegakkan Google. Menambahkannya hanya menduplikasi penegakan yang ada.
+
+**Konsekuensi yang diterima:** verifikasi Gate 4 berjalan lebih lambat dan mungkin terbagi
+ke dua hari bila kuota habis. Itu pertukaran yang wajar; alternatifnya adalah memaksa
+permintaan dan memperpanjang blokir.
+
+---
+
 ## 3. Matriks keterlacakan requirement → sumber
 
 | Req | Isi singkat | Sumber |
 |---|---|---|
 | `WS-01` | Muat `.env`, var `GEMINI_API_KEY` | S3 p.28; S2 p.32; S3 p.27 |
-| `WS-02` | Client `GoogleGenAI` + `GEMINI_MODEL` | S3 p.28 |
+| `WS-02` | Client `GoogleGenAI` + `GEMINI_MODEL` dari env, bawaan `gemini-flash-latest` | S3 p.28, diamandemen D-15 ⚠️ model materi ditutup Google |
 | `WS-03` | `cors()` + `express.json()` | S3 p.28, p.43 |
 | `WS-04` | `express.static` + `__dirname` ESM | S3 p.34, p.43 |
 | `WS-05` | Listen port 3000 + log | S3 p.28, p.30, p.44 |
@@ -379,7 +466,9 @@ hanya menambah waktu jalan tanpa informasi baru.
 
 **32 requirement, semuanya punya sumber.** Dua di antaranya (`UI-11`, `UI-12`) berbasis
 **interpretasi prinsip** dari materi, bukan kutipan langsung — ditandai `⚠️` dan alasannya
-tertulis penuh di D-12 dan D-13. Sisanya merujuk nomor halaman langsung.
+tertulis penuh di D-12 dan D-13. Satu requirement (`WS-02`) **diamandemen dari nilai materi**
+karena model yang ditetapkan materi ditutup Google; bukti dan alasan di `docs/KENDALA-API.md`
+§1 dan keputusan D-15. Sisanya merujuk nomor halaman langsung.
 
 ---
 
@@ -417,6 +506,7 @@ otomatis oleh CI (D-14).
 |---|---|
 | Bot melanggar `PG-03` pada input yang tidak terduga | Tidak bisa dijamin 0%. Mitigasi: prompt absolut + `temperature` rendah + disclaimer UI + uji manual |
 | Prompt injection lewat teks tawaran yang ditempel pengguna | Dampak terbatas — bot hanya menghasilkan teks, tidak ada aksi berbahaya yang bisa dipicu. Tidak ada eksekusi kode, tidak ada akses data |
-| Kuota API habis saat demo | Di luar kendali kode. Mitigasi: `gemini-2.5-flash` dipilih materi justru karena paling hemat (S2 p.15) |
+| Kuota API habis saat demo | **Nyata dan terukur.** Free tier hanya 20 permintaan per hari. Mitigasi: strategi pengujian sadar kuota (D-16), dan `UI-06` menampilkan pesan gagal yang jelas alih-alih membuat antarmuka menggantung |
+| Model yang dipakai ditutup Google | **Sudah terjadi** pada `gemini-2.5-flash`. Mitigasi: model dibaca dari environment variable (D-15) sehingga penggantian tidak memerlukan perubahan kode |
 | Model mengembalikan format tidak sesuai instruksi | Ditangani `UI-06` (fallback bila `result` tidak ada) |
 | Angka di `RISET-LAPANGAN.md` kedaluwarsa | Diterima. Angka tidak masuk prompt (D-09); tanggal akses dicatat |

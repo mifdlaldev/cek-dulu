@@ -39,24 +39,53 @@ Nama variabel yang dipakai WAJIB `GEMINI_API_KEY`.
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S3 p.28 |
+| Sumber | S3 p.28; diamandemen oleh `design.md` D-15 dan `docs/KENDALA-API.md` §1 |
 | Berkas | `index.js` |
 
 Sistem WAJIB menginisialisasi client dengan
 `new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })`.
 
-Nama model WAJIB disimpan dalam satu konstanta `GEMINI_MODEL` bernilai
-`"gemini-2.5-flash"`, agar bisa diganti di satu tempat (alasan eksplisit S3 p.28:
-"Mendefinisikan variabel global untuk model Gemini default agar mudah diganti di satu
-tempat").
+Nama model WAJIB disimpan dalam satu konstanta `GEMINI_MODEL`, agar bisa diganti di satu
+tempat (alasan eksplisit S3 p.28: "Mendefinisikan variabel global untuk model Gemini default
+agar mudah diganti di satu tempat").
+
+Nilai konstanta WAJIB dibaca dari environment variable `GEMINI_MODEL` dengan nilai bawaan
+`"gemini-flash-latest"`:
+
+```javascript
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest';
+```
 
 Import yang dipakai WAJIB `import { GoogleGenAI } from '@google/genai';`.
 
-#### Scenario: inisialisasi client
-- **Given** `GEMINI_API_KEY` tersedia di environment
+> **Amandemen dari nilai materi.** Materi menetapkan literal `"gemini-2.5-flash"`
+> (S2 p.34, S3 p.28). Pada 1 Agustus 2026 model tersebut mengembalikan HTTP 404 dengan
+> pesan `This model models/gemini-2.5-flash is no longer available to new users` untuk akun
+> yang baru dibuat. Bukti mentah dan hasil uji model alternatif tercatat di
+> `docs/KENDALA-API.md` §1; alasan pemilihan pola environment variable tercatat sebagai
+> keputusan D-15 di `design.md`.
+>
+> Pola ini menjaga materi tetap dapat diikuti: pemilik akun lama yang masih memiliki akses
+> `gemini-2.5-flash` cukup menulis `GEMINI_MODEL=gemini-2.5-flash` di `.env` tanpa mengubah
+> kode.
+
+#### Scenario: inisialisasi client dengan nilai bawaan
+- **Given** `GEMINI_MODEL` tidak diset di environment
 - **When** modul `index.js` dievaluasi
 - **Then** terdapat satu instance client Gemini bernama `ai`
-- **And** terdapat konstanta `GEMINI_MODEL` bernilai `"gemini-2.5-flash"`
+- **And** konstanta `GEMINI_MODEL` bernilai `"gemini-flash-latest"`
+
+#### Scenario: model ditimpa lewat environment
+- **Given** `.env` memuat `GEMINI_MODEL=gemini-2.5-flash`
+- **When** modul `index.js` dievaluasi
+- **Then** konstanta `GEMINI_MODEL` bernilai `"gemini-2.5-flash"`
+- **And** tidak ada perubahan kode yang diperlukan untuk itu
+
+#### Scenario: model tidak tersedia bagi kunci API
+- **Given** `GEMINI_MODEL` menunjuk model yang sudah ditutup Google
+- **When** client mengirim permintaan ke `POST /api/chat`
+- **Then** server merespons `500` dengan pesan galat dari SDK (`API-06`)
+- **And** proses server tetap berjalan
 
 #### Scenario: API SDK lama ditolak
 - **Given** pengembang hendak menambah kode pemanggilan model

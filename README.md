@@ -83,7 +83,7 @@ openspec/
 └── changes/add-cekdulu-chatbot/
     ├── proposal.md                # WHY: masalah, scope, 19 non-goals
     ├── design.md                  # HOW: 14 keputusan + alternatif ditolak + matriks sumber
-    ├── tasks.md                   # STEPS: 57 task dalam 6 fase
+    ├── tasks.md                   # STEPS: 59 task dalam 6 fase
     └── specs/
         ├── web-server/spec.md     # WS-01 … WS-05
         ├── chat-api/spec.md       # API-01 … API-06
@@ -140,13 +140,23 @@ Jawaban siap pakai untuk kedua pertanyaan wajib: `docs/USE-CASE-CEKDULU.md` §2.
 | Module system | ESM (`"type": "module"`) |
 | Backend | Express 5 |
 | SDK Gemini | `@google/genai` ^1.10.0 |
-| Model | `gemini-2.5-flash` |
+| Model | `gemini-flash-latest` ⚠️ lihat catatan di bawah |
 | Frontend | Vanilla JS (HTML + CSS + JS) di folder `public/` |
 | Port | 3000 |
 | Parameter | `temperature: 0.3`, `topP: 0.8`, `topK: 30` |
 | Tipe fungsi | JSDoc — kontrak terdokumentasi tanpa TypeScript |
 | Styling | CSS custom properties (design token), arah restrained kontras tinggi |
 | Aksesibilitas | WCAG 2.1 AA untuk butir yang dapat diverifikasi manual |
+
+> ⚠️ **Model berbeda dari materi, dan itu disengaja.** Materi menetapkan `gemini-2.5-flash`,
+> tetapi model tersebut mengembalikan HTTP 404 bagi akun yang baru dibuat dengan pesan
+> `no longer available to new users` — diuji 1 Agustus 2026. Repo ini memakai
+> `process.env.GEMINI_MODEL ?? 'gemini-flash-latest'`, yaitu alias resmi Google yang selalu
+> menunjuk rilis Flash terbaru. Pemilik akun lama cukup menulis `GEMINI_MODEL=gemini-2.5-flash`
+> di `.env` untuk mengikuti materi apa adanya, tanpa mengubah kode.
+>
+> Bukti mentah, hasil uji lima model, dan angka rate limit: [`docs/KENDALA-API.md`](docs/KENDALA-API.md).
+> Keputusan: [`design.md`](openspec/changes/add-cekdulu-chatbot/design.md) D-15.
 
 Tepat **4 dependency**: `express`, `dotenv`, `cors`, `@google/genai`. Tidak ada tambahan,
 termasuk tanpa `devDependencies`. Tanpa database, tanpa test framework, tanpa TypeScript,
@@ -206,6 +216,16 @@ GEMINI_API_KEY=your_credential_key
 ```
 
 API key didapat dari `https://aistudio.google.com/u/0/api-keys` → tombol **Create API key**.
+
+Variabel `GEMINI_MODEL` bersifat opsional. Bila tidak diset, aplikasi memakai
+`gemini-flash-latest`. Lihat [`.env.example`](.env.example) dan
+[`docs/KENDALA-API.md`](docs/KENDALA-API.md).
+
+> **Kuota Free tier sangat terbatas: 20 permintaan per hari** untuk model Text-out
+> (5 RPM, 250K TPM, 20 RPD). Bila muncul `429 You exceeded your current quota`, itu bukan
+> galat aplikasi — antarmuka akan menampilkan `Failed to get response from server.` sesuai
+> requirement `UI-06`. Strategi hemat kuota saat pengembangan:
+> [`docs/KENDALA-API.md`](docs/KENDALA-API.md) §2.
 
 `.gitignore`:
 
@@ -290,7 +310,7 @@ Role valid: `"user"` dan `"model"`.
 | [`openspec/project.md`](openspec/project.md) | Batasan stack & aturan yang selalu berlaku |
 | [`openspec/changes/add-cekdulu-chatbot/proposal.md`](openspec/changes/add-cekdulu-chatbot/proposal.md) | Scope & non-goals |
 | [`openspec/changes/add-cekdulu-chatbot/design.md`](openspec/changes/add-cekdulu-chatbot/design.md) | Keputusan teknis + alternatif ditolak + matriks sumber |
-| [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 57 task dalam 6 fase |
+| [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 59 task dalam 6 fase |
 
 **Referensi materi:**
 
@@ -309,6 +329,7 @@ Role valid: `"user"` dan `"model"`.
 |---|---|
 | [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) | Persona, guardrail, naskah `systemInstruction`, 13 skenario uji |
 | [`docs/RISET-LAPANGAN.md`](docs/RISET-LAPANGAN.md) | Data eksternal + sitasi URL resmi |
+| [`docs/KENDALA-API.md`](docs/KENDALA-API.md) | **Kenapa model berbeda dari materi** + rate limit Free tier + strategi hemat kuota |
 | [`docs/METODOLOGI.md`](docs/METODOLOGI.md) | Alur spec-driven + 5 gate verifikasi |
 | [`docs/FINAL-PROJECT.md`](docs/FINAL-PROJECT.md) | Requirement form, checklist submit |
 

@@ -27,9 +27,17 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // ==== Client Gemini dan model terpusat ==== (WS-01, WS-02)
-// Nama model disimpan dalam satu konstanta agar dapat diganti di satu tempat.
+// Nama model dibaca dari environment agar dapat diganti tanpa menyentuh kode.
+//
+// Materi menetapkan literal "gemini-2.5-flash" (Sesi 2 p.34, Sesi 3 p.28), namun model
+// tersebut mengembalikan HTTP 404 bagi akun baru dengan pesan
+// "no longer available to new users" — diuji pada 1 Agustus 2026. Bukti mentah tercatat di
+// docs/KENDALA-API.md bagian 1, alasan pemilihan pola ini di design.md keputusan D-15.
+//
+// Pemilik akun lama yang masih memiliki akses model asli cukup menulis
+// GEMINI_MODEL=gemini-2.5-flash di .env untuk mengikuti materi apa adanya.
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest';
 
 // ==== Parameter generasi ==== (PG-02)
 // Nilai dipilih berdasarkan panduan materi Sesi 3 p.21: nilai temperature rendah
