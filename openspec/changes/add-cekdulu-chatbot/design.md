@@ -234,6 +234,112 @@ jelas bahwa itu keputusan, bukan halusinasi.
 
 ---
 
+### D-12 — Arah visual restrained, menolak "aesthetic risk"
+
+**Keputusan:** arah desain **restrained, kontras tinggi, tipografi tenang**. Menolak arah
+brutalist, maximalist, retro-futuristic, dan eksperimen tipografi berat.
+
+**Alasan:** panduan desain frontend modern umumnya mendorong pengambilan risiko estetis agar
+antarmuka tidak terasa generik. Nasihat itu ditulis untuk portfolio, landing page, dan
+produk yang bersaing memperebutkan perhatian — konteks di mana "tidak terlupakan" adalah
+tujuan yang benar.
+
+Konteks Cek Dulu berbeda secara mendasar. Penggunanya **sedang cemas**: baru menerima pesan
+yang mungkin penipuan, atau sudah kehilangan uang. Bagi audiens ini, kualitas antarmuka
+diukur dari **keterbacaan, ketenangan, dan kredibilitas** — bukan dari keunikan visual.
+Antarmuka eksperimental pada alat kewaspadaan finansial terasa seperti mainan, dan itu
+menurunkan kepercayaan tepat pada momen kepercayaan paling dibutuhkan.
+
+Ada juga alasan struktural: seluruh nilai proyek ini bertumpu pada bot **menahan diri** —
+tidak menilai legalitas, tidak mengarang angka, tidak memberi nasihat di luar kompetensi
+(`PG-03` s.d. `PG-06`). Antarmuka yang berteriak bertentangan dengan pesan itu. Bentuk
+mengikuti sikap.
+
+**Yang membedakan ini dari desain malas:** presisi. Skala tipografi konsisten, spacing
+berirama dari satu satuan dasar, state lengkap (hover, focus, disabled, loading, error),
+kontras lulus WCAG AA, token terpusat. "Minimal yang digarap serius" dan "minimal karena
+tidak digarap" terlihat berbeda pada detail-detail itu — dan detail itulah yang menjadi
+requirement `UI-10`, `UI-11`, `UI-12`.
+
+**Ditolak:** mengambil satu risiko estetis demi menghindari kesan generik. Pada domain ini,
+risiko tersebut merugikan pengguna.
+
+---
+
+### D-13 — Aksesibilitas sebagai requirement, bukan tambahan
+
+**Keputusan:** aksesibilitas ditetapkan sebagai requirement `UI-11` dengan lima skenario
+uji, setara requirement fungsional lainnya.
+
+**Alasan:** materi pelatihan **tidak membahas aksesibilitas web**. Saya nyatakan itu terbuka
+agar tidak ada kesan requirement ini dikutip dari materi.
+
+Dasar pembenarannya dua lapis.
+
+*Lapis pertama — prinsip yang ada di materi.* S1 p.99 mencantumkan **Keadilan**: "AI harus
+memperlakukan semua pengguna secara adil—tanpa memandang gender, ras, atau latar belakang."
+Prinsip itu ditulis untuk perilaku model, tetapi tidak ada alasan prinsipiil untuk berhenti
+di model dan mengabaikan pintu masuknya. Model yang adil di belakang antarmuka yang tidak
+terjangkau tetap menghasilkan layanan yang tidak adil.
+
+*Lapis kedua — konsistensi dengan use case sendiri.* Target pengguna Cek Dulu mencakup orang
+lanjut usia dan berliterasi rendah — kelompok yang justru paling sering menjadi sasaran
+penawaran ilegal. Kelompok yang sama lebih mungkin memakai pembesaran teks, mengandalkan
+kontras tinggi, atau menggunakan screen reader. Membangun alat perlindungan yang tidak
+terjangkau oleh kelompok yang paling perlu dilindungi adalah kegagalan pada premisnya
+sendiri, bukan kekurangan kosmetik.
+
+**Ditolak:** memperlakukan aksesibilitas sebagai polish opsional di akhir pekerjaan. Yang
+ditunda sampai akhir hampir selalu tidak dikerjakan, dan menambal ARIA di atas markup yang
+sudah jadi menghasilkan hasil lebih buruk daripada merancangnya sejak awal.
+
+**Cakupan yang diambil:** WCAG 2.1 level AA untuk hal-hal yang dapat diverifikasi manual —
+kontras, urutan fokus, label, pengumuman live region, dukungan pembesaran,
+`prefers-reduced-motion`. Audit menyeluruh dengan alat otomatis di luar cakupan karena
+memerlukan dependency.
+
+---
+
+### D-14 — Struktur backend tetap satu berkas; CI ringan tanpa dependency
+
+**Keputusan:** menolak layered architecture untuk backend (lihat juga D-01). Menambahkan CI
+GitHub Actions yang **tidak menginstal dependency apa pun**.
+
+**Alasan menolak layering:** ini poin yang mudah salah dinilai. Menambah
+`routes/` → `controllers/` → `services/` → `repositories/` pada backend satu endpoint
+sepanjang ±60 baris menghasilkan enam berkas dengan indirection yang tidak menambah
+kejelasan. Pola enterprise yang ditempel ke masalah yang tidak membutuhkannya adalah tanda
+pengalaman yang kurang, bukan lebih. Materi menyebut `index.js` sebagai "central controller"
+(S2 p.34), dan pada skala ini itu keputusan yang tepat.
+
+Kematangan rekayasa pada proyek ini terletak pada **keterlacakan dan verifikasi** —
+requirement bersumber, keputusan berargumen, gate berbukti — bukan pada jumlah folder.
+
+**Isi CI yang dipilih:**
+
+| Job | Alat | Kenapa aman |
+|---|---|---|
+| Validasi sintaks `index.js` | `node --check` | Bawaan Node, tanpa install |
+| Validasi sintaks `public/script.js` | `node --check` | Sama |
+| Pastikan `.env` tidak ter-track | `git ls-files` | Bawaan git |
+| Pastikan hanya 4 dependency | `node` membaca `package.json` | Tanpa install |
+| Pastikan tidak ada `innerHTML` di frontend | `grep` | Menegakkan D-07 secara otomatis |
+| Pastikan `systemInstruction` bebas data presisi | `grep` pola nomor telepon/email/URL | Menegakkan `PG-09` secara otomatis |
+
+Dua job terakhir yang membuat CI ini bermanfaat, bukan sekadar hiasan: keduanya menjaga
+keputusan desain agar tidak diam-diam dilanggar pada perubahan berikutnya.
+
+**Ditolak:** `npm ci` + ESLint + Prettier + Vitest. Ketiganya dependency baru di luar
+batasan materi, dan CI yang menginstal `node_modules` untuk memeriksa berkas sepanjang 60
+baris tidak sebanding.
+
+**Ditolak:** matriks Node multi-versi. Materi menetapkan v18+ satu baseline; matriks di sini
+hanya menambah waktu jalan tanpa informasi baru.
+
+**Catatan:** materi tidak menyebut CI. Ini tambahan sadar, sama seperti D-11.
+
+---
+
 ## 3. Matriks keterlacakan requirement → sumber
 
 | Req | Isi singkat | Sumber |
@@ -268,8 +374,12 @@ jelas bahwa itu keputusan, bukan halusinasi.
 | `UI-08` | Disclaimer permanen | S2 p.67; S1 p.99 (Transparansi) |
 | `UI-09` | Kanal resmi statis | `RISET-LAPANGAN.md` §7 |
 | `UI-10` | Pembeda peran, scroll, responsif | S3 p.10, p.14, p.34 |
+| `UI-11` | Aksesibilitas — ARIA live, fokus, kontras, reduced-motion | S1 p.99 (Keadilan) + D-13 ⚠️ interpretasi |
+| `UI-12` | Design token + arah visual restrained | S3 p.34 + D-12 ⚠️ interpretasi |
 
-**30 requirement, semuanya punya sumber.** Tidak ada requirement tanpa rujukan.
+**32 requirement, semuanya punya sumber.** Dua di antaranya (`UI-11`, `UI-12`) berbasis
+**interpretasi prinsip** dari materi, bukan kutipan langsung — ditandai `⚠️` dan alasannya
+tertulis penuh di D-12 dan D-13. Sisanya merujuk nomor halaman langsung.
 
 ---
 
@@ -289,11 +399,15 @@ jelas bahwa itu keputusan, bukan halusinasi.
 | UJI-10 | `UI-01` |
 | UJI-11 | `API-02`, `API-06` |
 | UJI-12 | `UI-06` |
+| UJI-13 | `UI-11` |
 
-Requirement yang diverifikasi lewat gate lain (bukan 12 skenario UI):
+Requirement yang diverifikasi lewat gate lain (bukan 13 skenario UI):
 `WS-01` s.d. `WS-05` → Gate 2; `API-01`, `API-04`, `API-05` → Gate 3;
-`PG-01`, `PG-02`, `PG-09`, `UI-08`, `UI-10` → inspeksi kode & halaman;
+`PG-01`, `PG-02`, `PG-09`, `UI-08`, `UI-10`, `UI-12` → inspeksi kode & halaman;
 `PG-07` → uji ad-hoc saat Gate 4.
+
+Sebagian `PG-09`, `UI-12` (larangan `innerHTML`), dan kebersihan dependency juga dijaga
+otomatis oleh CI (D-14).
 
 ---
 

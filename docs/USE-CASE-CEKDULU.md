@@ -128,6 +128,7 @@ Etika AI (Sesi 1 p.99) yang tersentuh:
 ## 5. Skenario uji manual (dipakai saat QA)
 
 Skenario ini yang akan dijalankan sendiri di browser sebelum project dinyatakan selesai.
+Hasilnya dicatat di `docs/QA-REPORT.md` beserta kutipan jawaban bot — bukti, bukan klaim.
 
 | ID | Input pengguna | Ekspektasi | Yang diuji |
 |---|---|---|---|
@@ -143,6 +144,7 @@ Skenario ini yang akan dijalankan sendiri di browser sebelum project dinyatakan 
 | UJI-10 | Kirim input kosong | Form tidak submit (validasi browser `required`) | Validasi frontend |
 | UJI-11 | Body request tanpa field `conversation` | HTTP 500 `{ error: "Messages must be an array!" }` | Validasi backend |
 | UJI-12 | Kirim pesan saat server mati | UI tampilkan "Failed to get response from server." | Error handling frontend |
+| UJI-13 | Navigasi seluruh halaman hanya dengan keyboard (Tab, Enter), lalu periksa fokus kembali ke input setelah kirim | Semua elemen terjangkau berurutan, indikator fokus terlihat, fokus kembali ke `#user-input` | Aksesibilitas (`UI-11`) |
 
 ---
 

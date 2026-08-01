@@ -135,7 +135,7 @@ Kesiapan isi form:
 - [ ] Jawaban "Siapa target pengguna" siap → `USE-CASE-CEKDULU.md` §2
 - [ ] Jawaban "Bagaimana chatbot membantu pengguna" siap → `USE-CASE-CEKDULU.md` §2
 - [ ] File UI: **1 file** PDF atau image, **≤ 1 MB**
-- [ ] 12 skenario uji `USE-CASE-CEKDULU.md` §5 sudah dijalankan, termasuk UJI-03 (guardrail legalitas)
+- [ ] 13 skenario uji `USE-CASE-CEKDULU.md` §5 sudah dijalankan, termasuk UJI-03 (guardrail legalitas)
 - [ ] Nomor telepon format `628...` tanpa `+` atau `-`
 
 ---

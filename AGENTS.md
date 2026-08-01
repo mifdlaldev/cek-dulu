@@ -28,7 +28,7 @@ tapi berdasarkan requirement ber-ID yang punya sumber tertulis.
 - Kode yang tidak punya requirement ID → **jangan ditulis**.
 - Spec ternyata salah/kurang di tengah implementasi → **perbaiki spec dulu**, baru koding.
   Dilarang koding menyimpang lalu memperbaiki spec agar cocok.
-- Ada 30 requirement (`WS-*`, `API-*`, `PG-*`, `UI-*`). Semua punya sumber. Matriks
+- Ada 32 requirement (`WS-*`, `API-*`, `PG-*`, `UI-*`). Semua punya sumber. Matriks
   keterlacakan di `design.md` §3.
 
 Cara kerja lengkap + 5 gate verifikasi → `docs/METODOLOGI.md`.
@@ -86,11 +86,19 @@ Lima gate `docs/METODOLOGI.md` §5, semuanya wajib dengan **bukti output nyata**
 1. **Keterlacakan** — setiap requirement punya sumber tertulis.
 2. **Server hidup** — `node index.js` jalan, log muncul, tempel outputnya.
 3. **Kontrak API** — `curl` positif → `200 {result}`; `curl` negatif → `500 {error}`.
-4. **Guardrail & UI** — 12 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser
-   sungguhan; **UJI-03 lulus mutlak**.
-5. **Kebersihan repo** — `.env` tidak ter-track, hanya 4 dependency, tidak ada file temporer.
+4. **Guardrail & UI** — 13 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser
+   sungguhan; **UJI-03 lulus mutlak**. Termasuk verifikasi aksesibilitas `UI-11`.
+5. **Kebersihan repo** — `.env` tidak ter-track, hanya 4 dependency, tanpa `devDependencies`,
+   tidak ada file temporer.
+
+Ditambah satu syarat: hasil verifikasi ditulis ke **`docs/QA-REPORT.md`** berisi bukti mentah
+— output terminal, output `curl` apa adanya, dan kutipan jawaban bot per skenario.
 
 "Seharusnya jalan" ≠ terverifikasi. Klaim tanpa output = tidak sah.
+
+CI (`.github/workflows/ci.yml`) menjaga Gate 1, Gate 5, `PG-09`, dan larangan `innerHTML`
+secara otomatis pada setiap push — tanpa `npm install`. Pembagian tugas CI versus manual:
+`docs/METODOLOGI.md` §5.1.
 
 ---
 
@@ -176,7 +184,7 @@ Materi punya beberapa inkonsistensi internal. Keputusan repo ini:
 | `docs/MATERI-SESI-3.md` | Ringkasan lengkap Sesi 3 |
 | `docs/TOOLS-DAN-LINK.md` | Daftar tools, versi, dan semua URL dari PDF |
 | `docs/FINAL-PROJECT.md` | Requirement + kriteria submit final project |
-| `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 12 skenario uji |
+| `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 13 skenario uji |
 | `docs/RISET-LAPANGAN.md` | Data eksternal + sitasi URL resmi |
 | `docs/METODOLOGI.md` | Alur kerja spec-driven + 5 gate verifikasi |
 | `openspec/project.md` | Konteks & batasan proyek untuk agent |

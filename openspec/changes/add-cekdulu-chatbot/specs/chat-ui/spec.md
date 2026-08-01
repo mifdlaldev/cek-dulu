@@ -320,6 +320,128 @@ dependency baru — materi menetapkan Vanilla (S3 p.34).
 
 ---
 
+### `UI-11` — Aksesibilitas
+
+| Meta | Nilai |
+|---|---|
+| Sumber | S1 p.99 (prinsip **Keadilan**: "AI harus memperlakukan semua pengguna secara adil—tanpa memandang gender, ras, atau latar belakang") — diterapkan pada keterjangkauan antarmuka |
+| Berkas | `public/index.html`, `public/style.css`, `public/script.js` |
+| Uji | UJI-13 |
+
+> **Catatan keterlacakan.** Materi pelatihan **tidak membahas aksesibilitas web**.
+> Requirement ini adalah penerapan prinsip Keadilan (S1 p.99) ke ranah antarmuka, plus
+> argumen praktis: target pengguna Cek Dulu mencakup orang lanjut usia dan berliterasi
+> rendah (`docs/USE-CASE-CEKDULU.md` §2). Antarmuka yang tidak terjangkau mereka membuat
+> use case gagal di premisnya sendiri. Ditandai sebagai keputusan sadar, bukan klaim materi.
+> Alasan lengkap: `design.md` D-13.
+
+Antarmuka WAJIB memenuhi:
+
+**Pengumuman jawaban bot ke screen reader**
+- `#chat-box` memiliki `aria-live="polite"` sehingga pesan baru diumumkan tanpa memotong
+  bacaan yang sedang berlangsung
+- `#chat-box` memiliki `aria-busy="true"` selama menunggu respons, dikembalikan ke `false`
+  setelah jawaban tiba
+
+**Label dan peran**
+- `#user-input` memiliki `<label>` terkait, atau `aria-label` bila label visual tidak
+  dikehendaki
+- Tombol submit memiliki teks yang jelas, bukan hanya ikon
+- Setiap bubble pesan memiliki penanda pengirim yang terbaca screen reader (bukan hanya
+  dibedakan warna atau posisi)
+
+**Fokus keyboard**
+- Setelah pesan terkirim, fokus kembali ke `#user-input` agar pengguna keyboard dapat
+  langsung mengetik lagi
+- Seluruh elemen interaktif dapat dijangkau dengan Tab dalam urutan logis
+- Indikator fokus terlihat jelas — `outline` **tidak boleh** dihapus tanpa pengganti yang
+  setara
+
+**Kontras dan keterbacaan**
+- Kontras teks terhadap latar minimal **4,5:1** untuk teks normal (WCAG 2.1 AA)
+- Ukuran font dasar minimal `16px`; teks dapat diperbesar sampai 200% tanpa kehilangan isi
+- Informasi tidak disampaikan **hanya** lewat warna
+
+**Preferensi pengguna**
+- `@media (prefers-reduced-motion: reduce)` menonaktifkan animasi dan transisi
+- Halaman memiliki `<html lang="id">`
+
+#### Scenario: screen reader mengumumkan jawaban bot
+- **Given** pengguna memakai screen reader
+- **When** bot mengirim jawaban
+- **Then** isi jawaban diumumkan karena `#chat-box` bersifat `aria-live="polite"`
+- **And** pengumuman tidak memotong bacaan yang sedang berlangsung
+
+#### Scenario: navigasi penuh dengan keyboard
+- **Given** pengguna hanya memakai keyboard
+- **When** pengguna menekan Tab dari awal halaman
+- **Then** seluruh elemen interaktif terjangkau dalam urutan logis
+- **And** indikator fokus terlihat pada setiap elemen
+
+#### Scenario: fokus kembali setelah kirim
+- **When** pengguna mengirim pesan dengan menekan Enter
+- **Then** setelah proses selesai, fokus berada di `#user-input`
+- **And** pengguna dapat langsung mengetik pesan berikutnya tanpa menyentuh mouse
+
+#### Scenario: pengguna menonaktifkan animasi
+- **Given** sistem operasi pengguna menyetel `prefers-reduced-motion: reduce`
+- **When** halaman dimuat dan pesan dikirim
+- **Then** tidak ada animasi atau transisi yang berjalan
+- **And** seluruh fungsi tetap bekerja
+
+#### Scenario: pembesaran teks
+- **When** pengguna memperbesar halaman sampai 200%
+- **Then** seluruh teks tetap terbaca
+- **And** tidak ada isi yang hilang atau tertimpa
+
+---
+
+### `UI-12` — Design token dan arah visual
+
+| Meta | Nilai |
+|---|---|
+| Sumber | S3 p.34 (`style.css` mengatur tampilan UI); `docs/USE-CASE-CEKDULU.md` §1 (persona) |
+| Berkas | `public/style.css` |
+| Terkait | `UI-10`, `UI-11` |
+
+Seluruh nilai visual WAJIB didefinisikan sebagai CSS custom properties dalam satu blok
+`:root`, mencakup: palet warna, skala tipografi, skala spacing, radius, dan durasi transisi.
+
+Aturan turunan:
+- Selector di bawah `:root` **wajib** merujuk token, tidak menulis nilai literal berulang
+- Skala tipografi memakai kelipatan yang konsisten, bukan angka acak per elemen
+- Skala spacing memakai satu satuan dasar dengan kelipatan tetap
+
+**Arah visual yang ditetapkan: restrained, kontras tinggi, tipografi tenang.**
+
+Alasan: pengguna Cek Dulu sedang dalam kondisi cemas — baru menerima tawaran yang mungkin
+menipu, atau sudah kehilangan uang. Antarmuka yang ramai atau eksperimental menurunkan
+kredibilitas tepat saat kredibilitas paling dibutuhkan. Kualitas desain di sini diukur dari
+keterbacaan dan ketenangan, bukan dari keunikan. Justifikasi lengkap: `design.md` D-12.
+
+Konsekuensi yang DILARANG:
+- Arah brutalist, maximalist, retro-futuristic, atau eksperimen tipografi berat
+- Warna dekoratif yang tidak membawa makna
+- Animasi yang tidak memiliki fungsi informatif
+- Framework CSS via CDN atau dependency baru — materi menetapkan Vanilla (S3 p.34)
+
+#### Scenario: token terpusat
+- **When** `style.css` diperiksa
+- **Then** terdapat satu blok `:root` yang memuat token warna, tipografi, spacing, radius,
+  dan durasi
+- **And** tidak ada nilai warna literal yang ditulis berulang di luar blok tersebut
+
+#### Scenario: mengubah tema di satu tempat
+- **Given** pengembang ingin mengubah warna aksen
+- **When** satu token warna di `:root` diubah
+- **Then** seluruh elemen yang memakai aksen tersebut berubah konsisten
+
+#### Scenario: skala konsisten
+- **When** ukuran font dan spacing di seluruh berkas diperiksa
+- **Then** setiap nilai berasal dari token, bukan angka yang dipilih ad hoc per elemen
+
+---
+
 ## Yang TIDAK dibuat di frontend
 
 | Tidak dibuat | Alasan |
@@ -329,3 +451,5 @@ dependency baru — materi menetapkan Vanilla (S3 p.34).
 | Upload file / gambar | Milik proyek Sesi 2; dependency `multer` tidak ada di Sesi 3 |
 | Streaming karakter per karakter | Materi memakai `generateContent()`, bukan `generateContentStream()` |
 | Framework atau build step | Materi eksplisit Vanilla JS tanpa bundler |
+| Framework CSS via CDN (Tailwind, Bootstrap) | Sama dengan di atas. Design token `UI-12` sudah memberi konsistensi yang dibutuhkan |
+| Dark mode toggle | Muncul di contoh batch sebelumnya (S2 p.67) tetapi menambah dua set token dan permukaan uji tanpa melayani requirement mana pun. Ditolak demi menjaga scope |

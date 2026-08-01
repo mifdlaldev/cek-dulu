@@ -147,6 +147,8 @@ Tidak boleh menyatakan "selesai" sebelum kelima gate lewat, **dengan bukti outpu
 Setiap requirement punya nomor halaman PDF atau nama dokumen sumber.
 Setiap keputusan di `design.md` punya alasan tertulis.
 **Bukti:** kolom "Sumber" terisi di semua tabel requirement.
+Dijaga otomatis oleh CI job `traceability` — memastikan setiap requirement yang
+didefinisikan di spec muncul di matriks `design.md` dan dirujuk `tasks.md`.
 
 ### Gate 2 — Server hidup
 ```bash
@@ -172,7 +174,7 @@ Harus `500` + body `{"error":"Messages must be an array!"}`.
 **Bukti:** status code + body ditempel apa adanya.
 
 ### Gate 4 — Guardrail persona berfungsi
-Jalankan **12 skenario** `USE-CASE-CEKDULU.md` §5 lewat UI di browser sungguhan.
+Jalankan **13 skenario** `USE-CASE-CEKDULU.md` §5 lewat UI di browser sungguhan.
 **UJI-03 (menolak menilai legalitas entitas) adalah gate mutlak** — kalau bot menyatakan
 sebuah aplikasi legal atau ilegal, implementasi **gagal** dan `systemInstruction` wajib
 diperkuat sebelum lanjut.
@@ -182,9 +184,39 @@ diperkuat sebelum lanjut.
 - `.env` tidak ter-track git
 - Nilai `GEMINI_API_KEY` tidak pernah muncul di log, output, atau screenshot
 - Tidak ada dependency di luar `express`, `dotenv`, `cors`, `@google/genai`
+- Tidak ada `devDependencies`
 - Tidak ada file temporer tersisa
 
 **Bukti:** `git status` bersih dari `.env`; isi `package.json` ditempel.
+Dijaga otomatis oleh CI job `hygiene` dan `constraints`.
+
+---
+
+## 5.1 Apa yang dijaga CI, apa yang tetap manual
+
+CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push, **tanpa
+`npm install`** — hanya `node --check`, `node -e`, `git ls-files`, `git grep`, dan `grep`.
+
+| Job | Menegakkan | Gate |
+|---|---|---|
+| `syntax` | `index.js` dan `public/script.js` bebas galat sintaks | prasyarat Gate 2 |
+| `hygiene` | `.env` & PDF tidak ter-track; pola API key tidak muncul | Gate 5 |
+| `constraints` | Tepat 4 dependency, tanpa devDeps, `"type": "module"`, `innerHTML` dilarang | Gate 5, D-07 |
+| `prompt-audit` | `systemInstruction` bebas URL, email, telepon, persentase, nomor peraturan, rupiah | `PG-09` |
+| `traceability` | Setiap requirement muncul di `design.md` dan `tasks.md` | Gate 1 |
+
+**Yang tetap manual dan tidak bisa diotomatiskan:**
+
+- **Gate 3** — kontrak API butuh server hidup dan API key nyata
+- **Gate 4** — perilaku guardrail bersifat probabilistik; menilai apakah bot benar-benar
+  menolak memberi penilaian legalitas memerlukan pembacaan manusia atas isi jawaban
+- **`UI-11`** — kontras, urutan fokus, dan pengumuman screen reader diperiksa lewat
+  DevTools dan navigasi keyboard nyata
+- **`UI-12`** — konsistensi skala visual dinilai dengan mata, bukan regex
+
+Pembagian ini disengaja: CI menjaga hal-hal yang **deterministik dan mudah dilanggar
+diam-diam**; manusia menilai hal-hal yang **butuh penilaian**. Alasan pemilihan job:
+`openspec/changes/add-cekdulu-chatbot/design.md` D-14.
 
 ---
 
@@ -216,7 +248,11 @@ Jujur tentang apa yang **tidak** dijamin:
   di slide justru berisi placeholder `"test": "echo \"Error: no test specified\" && exit 1"`
   (S2 p.31, S3 p.26). Menambah Jest/Vitest berarti keluar dari batasan materi.
   Verifikasi karena itu **manual tapi terdokumentasi** — setiap skenario punya ID,
-  input, dan ekspektasi tertulis.
+  input, dan ekspektasi tertulis, hasilnya dicatat di `docs/QA-REPORT.md`.
+  CI menutup sebagian celah ini untuk hal-hal yang deterministik (§5.1).
+- **Aksesibilitas tidak diaudit alat otomatis.** `UI-11` mencakup WCAG 2.1 AA untuk butir
+  yang dapat diverifikasi manual. Audit menyeluruh dengan axe atau Lighthouse memerlukan
+  dependency, jadi di luar cakupan. Keterbatasan ini diakui, bukan disembunyikan.
 - **Angka riset akan kedaluwarsa.** Semua angka di `RISET-LAPANGAN.md` adalah snapshot
   per tanggal siaran pers. Itu sebabnya angka tidak ditanam di prompt.
 - **Due date masih ambigu.** Slide S3 p.52 vs PDF Final Project p.2 berbeda

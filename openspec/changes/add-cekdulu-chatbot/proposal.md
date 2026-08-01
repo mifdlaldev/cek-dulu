@@ -61,7 +61,7 @@ Proyek greenfield. Semua kapabilitas berstatus **ADDED**.
 | `web-server` | Bootstrap Express, muat env, middleware CORS + JSON, sajikan `public/` sebagai static, listen port 3000 | `WS-01` … `WS-05` |
 | `chat-api` | Endpoint `POST /api/chat`: validasi array, transformasi ke format Gemini, panggil `generateContent()`, balas `{ result }` / `{ error }` | `API-01` … `API-06` |
 | `persona-guardrail` | `systemInstruction` persona "Cek Dulu" + `temperature`/`topP`/`topK` + 8 larangan | `PG-01` … `PG-09` |
-| `chat-ui` | Halaman chat Vanilla JS: form, riwayat multi-turn, indikator berpikir, fallback error, disclaimer, quick-reply | `UI-01` … `UI-10` |
+| `chat-ui` | Halaman chat Vanilla JS: form, riwayat multi-turn, indikator berpikir, fallback error, disclaimer, aksesibilitas, design token | `UI-01` … `UI-12` |
 
 Berkas yang akan dibuat:
 
@@ -71,17 +71,21 @@ package.json
 public/index.html
 public/script.js
 public/style.css
+docs/QA-REPORT.md          (bukti verifikasi, ditulis pada Fase E)
+.github/workflows/ci.yml   (sudah ada)
 ```
 
 Berkas yang sudah ada dan tidak diubah oleh change ini: `AGENTS.md`, `README.md`,
-`docs/**`, `.gitignore`, `.env.example`.
+`docs/**` (kecuali `QA-REPORT.md`), `.gitignore`, `.env.example`, `LICENSE`, `NOTICE.md`,
+`SECURITY.md`, `CONTRIBUTING.md`.
 
 ---
 
 ## 3. Non-Goals — DILARANG dikerjakan
 
-Daftar ini ada untuk mematikan scope creep. Semuanya **tidak dibahas materi**
-(lihat `docs/FAKTA-TERVERIFIKASI.md` §J):
+Daftar 19 item ini ada untuk mematikan scope creep. Sebagian besar **tidak dibahas materi**
+(lihat `docs/FAKTA-TERVERIFIKASI.md` §J); sisanya ditolak berdasarkan keputusan desain yang
+beralasan di `design.md`:
 
 | Non-goal | Alasan |
 |---|---|
@@ -92,12 +96,17 @@ Daftar ini ada untuk mematikan scope creep. Semuanya **tidak dibahas materi**
 | Rate limiting / kuota di sisi aplikasi | Tidak ada di materi |
 | Deployment ke Vercel / Railway / Cloud Run | Tidak ada di materi. Submit berupa repo GitHub, bukan URL live |
 | Test framework (Jest / Vitest / Supertest) | Tidak ada di materi; `package.json` slide berisi placeholder test. Verifikasi manual terdokumentasi (`docs/METODOLOGI.md` §5) |
-| TypeScript | Materi pakai JavaScript |
+| Linter / formatter (ESLint, Prettier) | Dependency baru di luar batasan materi. CI memakai `node --check` bawaan |
+| TypeScript | Materi pakai JavaScript. Kontrak fungsi didokumentasikan dengan JSDoc — nol dependency |
 | Framework frontend (React / Vue / Svelte) | Materi eksplisit Vanilla JS (S3 p.34, p.37) |
+| Framework CSS (Tailwind / Bootstrap) via CDN | Materi eksplisit Vanilla. Design token `UI-12` memberi konsistensi yang dibutuhkan |
+| Layered architecture backend (`routes/`, `controllers/`, `services/`) | Over-engineering untuk satu endpoint ±60 baris. Materi menyebut `index.js` sebagai "central controller" (S2 p.34). Alasan: `design.md` D-01, D-14 |
+| Arah desain brutalist / maximalist / eksperimental | Pengguna sedang cemas; antarmuka eksperimental menurunkan kredibilitas. Alasan: `design.md` D-12 |
+| Dark mode toggle | Muncul di contoh batch sebelumnya (S2 p.67) tetapi menambah dua set token dan permukaan uji tanpa melayani requirement mana pun |
 | Endpoint multimodal (`/generate-from-image` dll.) | Milik proyek Sesi 2 `gemini-flash-api`. Final Project = chatbot Sesi 3 |
 | `multer` | Tidak ada di dependency Sesi 3 (S3 p.25) |
 | Integrasi API eksternal (cek daftar OJK otomatis) | Brief menyebutnya sebagai *contoh* kreativitas opsional, bukan kewajiban. Menambahnya berarti dependency baru + risiko klaim legalitas yang justru dilarang guardrail |
-| Menanam statistik ke dalam `systemInstruction` | Angka berubah tiap periode; akan jadi halusinasi. Lihat `docs/RISET-LAPANGAN.md` header |
+| Menanam statistik ke dalam `systemInstruction` | Angka berubah tiap periode; akan jadi halusinasi. Lihat `docs/RISET-LAPANGAN.md` header. CI job `prompt-audit` menegakkan ini otomatis |
 | Bot menilai entitas tertentu legal/ilegal | **Larangan inti proyek.** Data dinamis, bot tidak punya akses daftar resmi |
 
 ---
@@ -129,8 +138,19 @@ styling.
 
 Change ini selesai ketika kelima gate `docs/METODOLOGI.md` §5 lewat dengan bukti nyata:
 
-1. Setiap requirement punya sumber tertulis
+1. Setiap requirement punya sumber tertulis — diperiksa manual dan oleh CI job `traceability`
 2. `node index.js` hidup tanpa error
 3. `curl` positif → `200 { result }`; `curl` negatif → `500 { error }`
-4. 12 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser; **UJI-03 lulus mutlak**
-5. `.env` tidak ter-track, tidak ada dependency di luar 4 yang diizinkan
+4. 13 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser; **UJI-03 lulus mutlak**;
+   `UI-11` diverifikasi lewat navigasi keyboard, kontras, pembesaran 200%, dan
+   `prefers-reduced-motion`
+5. `.env` tidak ter-track, tidak ada dependency di luar 4 yang diizinkan, tidak ada
+   `devDependencies`
+
+Ditambah satu syarat dokumentasi:
+
+6. `docs/QA-REPORT.md` memuat bukti mentah — output `node index.js`, output `curl` apa
+   adanya, dan tabel 13 skenario beserta kutipan jawaban bot. Klaim tanpa bukti tidak sah.
+
+CI (`.github/workflows/ci.yml`) menjaga gate 1, 5, dan sebagian `PG-09` secara otomatis
+pada setiap push. Detail: `design.md` D-14.

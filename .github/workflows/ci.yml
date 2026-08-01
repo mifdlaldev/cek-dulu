@@ -1,0 +1,213 @@
+name: CI
+
+# Menjaga keputusan desain agar tidak diam-diam dilanggar pada perubahan berikutnya.
+# Seluruh langkah memakai alat bawaan Node dan git — tidak ada `npm install`, sesuai
+# batasan dependency proyek. Alasan lengkap: openspec/changes/add-cekdulu-chatbot/design.md D-14
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    name: Validasi sintaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Periksa sintaks berkas JavaScript
+        run: |
+          status=0
+          for f in index.js public/script.js; do
+            if [ -f "$f" ]; then
+              node --check "$f" && echo "OK   $f" || { echo "GAGAL $f"; status=1; }
+            else
+              echo "LEWAT $f (belum ada)"
+            fi
+          done
+          exit $status
+
+  hygiene:
+    name: Kebersihan repo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kredensial tidak boleh ter-track
+        run: |
+          if git ls-files --error-unmatch .env 2>/dev/null; then
+            echo "GAGAL: .env ter-track git"
+            exit 1
+          fi
+          echo "OK: .env tidak ter-track"
+
+      - name: Materi berhak cipta tidak boleh ter-track
+        run: |
+          if git ls-files '*.pdf' | grep -q .; then
+            echo "GAGAL: berkas PDF ter-track"
+            git ls-files '*.pdf'
+            exit 1
+          fi
+          echo "OK: tidak ada PDF ter-track"
+
+      - name: Pola API key tidak boleh muncul di berkas ter-track
+        run: |
+          if git grep -nE 'AIza[0-9A-Za-z_-]{30,}' -- . ':!.github/workflows/*'; then
+            echo "GAGAL: pola Google API key terdeteksi"
+            exit 1
+          fi
+          echo "OK: tidak ada pola API key"
+
+  constraints:
+    name: Batasan proyek
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Dependency terbatas pada empat paket
+        run: |
+          if [ ! -f package.json ]; then
+            echo "LEWAT: package.json belum ada"
+            exit 0
+          fi
+          node -e '
+            const allowed = ["@google/genai", "cors", "dotenv", "express"];
+            const pkg = JSON.parse(require("fs").readFileSync("package.json", "utf8"));
+            const deps = Object.keys(pkg.dependencies ?? {}).sort();
+            const dev = Object.keys(pkg.devDependencies ?? {});
+            const extra = deps.filter((d) => !allowed.includes(d));
+            let fail = false;
+            if (extra.length) {
+              console.error("GAGAL: dependency di luar daftar:", extra.join(", "));
+              fail = true;
+            }
+            if (dev.length) {
+              console.error("GAGAL: devDependencies tidak diizinkan:", dev.join(", "));
+              fail = true;
+            }
+            if (pkg.type !== "module") {
+              console.error("GAGAL: package.json harus memuat \"type\": \"module\"");
+              fail = true;
+            }
+            if (fail) process.exit(1);
+            console.log("OK: dependency", deps.join(", ") || "(kosong)");
+          '
+
+      - name: Frontend dilarang memakai innerHTML (D-07)
+        run: |
+          if [ ! -f public/script.js ]; then
+            echo "LEWAT: public/script.js belum ada"
+            exit 0
+          fi
+          if grep -n 'innerHTML' public/script.js; then
+            echo "GAGAL: innerHTML terdeteksi. Gunakan textContent untuk mencegah XSS."
+            exit 1
+          fi
+          echo "OK: tidak ada innerHTML"
+
+  prompt-audit:
+    name: Audit systemInstruction (PG-09)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # PG-09 melarang systemInstruction memuat data yang berubah: statistik, nomor
+      # kontak, email, URL, atau nomor peraturan. Data presisi ditulis statis di HTML
+      # oleh UI-09, bukan diserahkan ke model.
+      - name: systemInstruction bebas data presisi
+        run: |
+          if [ ! -f index.js ]; then
+            echo "LEWAT: index.js belum ada"
+            exit 0
+          fi
+          node -e '
+            const src = require("fs").readFileSync("index.js", "utf8");
+            const marker = "SYSTEM_INSTRUCTION";
+            if (!src.includes(marker)) {
+              console.log("LEWAT: konstanta " + marker + " belum ada");
+              process.exit(0);
+            }
+            const start = src.indexOf(marker);
+            const open = src.indexOf("`", start);
+            const close = src.indexOf("`", open + 1);
+            if (open === -1 || close === -1) {
+              console.log("LEWAT: naskah tidak memakai template literal");
+              process.exit(0);
+            }
+            const prompt = src.slice(open + 1, close);
+            const checks = [
+              [/https?:\/\/\S+/, "URL"],
+              [/[\w.%-]+@[\w.-]+\.[a-z]{2,}/i, "alamat email"],
+              [/\b\d{2,3}[-.\s]?\d{3}[-.\s]?\d{3,4}\b/, "nomor telepon"],
+              [/\b\d+([.,]\d+)?\s?(persen|%)/i, "persentase"],
+              [/\b(POJK|UU|Permen)\s*(No\.?|Nomor)?\s*\d+/i, "nomor peraturan"],
+              [/\bRp\s?\d/i, "nilai rupiah"],
+            ];
+            const found = checks.filter(([re]) => re.test(prompt)).map(([, label]) => label);
+            if (found.length) {
+              console.error("GAGAL: systemInstruction memuat " + found.join(", ") + " — melanggar PG-09");
+              process.exit(1);
+            }
+            console.log("OK: systemInstruction bebas data presisi (" + prompt.length + " karakter)");
+          '
+
+  traceability:
+    name: Keterlacakan requirement
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Gate 1 docs/METODOLOGI.md: setiap requirement yang didefinisikan di spec harus
+      # muncul di matriks design.md dan dirujuk oleh tasks.md.
+      - name: Setiap requirement dirujuk design.md dan tasks.md
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const base = "openspec/changes/add-cekdulu-chatbot";
+            const specDir = path.join(base, "specs");
+            const ids = new Set();
+            for (const cap of fs.readdirSync(specDir)) {
+              const file = path.join(specDir, cap, "spec.md");
+              if (!fs.existsSync(file)) continue;
+              const src = fs.readFileSync(file, "utf8");
+              for (const m of src.matchAll(/^### `((?:WS|API|PG|UI)-\d+)`/gm)) ids.add(m[1]);
+            }
+            const design = fs.readFileSync(path.join(base, "design.md"), "utf8");
+            const tasks = fs.readFileSync(path.join(base, "tasks.md"), "utf8");
+            const missingDesign = [...ids].filter((id) => !design.includes(id));
+            const missingTasks = [...ids].filter((id) => !tasks.includes(id));
+            let fail = false;
+            if (missingDesign.length) {
+              console.error("GAGAL: tidak ada di design.md:", missingDesign.join(", "));
+              fail = true;
+            }
+            if (missingTasks.length) {
+              console.error("GAGAL: tidak dirujuk tasks.md:", missingTasks.join(", "));
+              fail = true;
+            }
+            if (fail) process.exit(1);
+            console.log("OK: " + ids.size + " requirement tertelusur penuh");
+          '

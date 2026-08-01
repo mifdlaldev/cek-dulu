@@ -11,9 +11,11 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
 ## Fase A — Inisialisasi proyek
 
 - [ ] **A1.** Root repo: jalankan `npm init -y` lalu ubah `package.json` — tambah
-  `"type": "module"`, set `"name": "cek-dulu"`, pastikan `"main": "index.js"`
-  → expect `package.json` valid dengan `"type": "module"`
+  `"type": "module"`, set `"name": "cek-dulu"`, pastikan `"main": "index.js"`, dan isi
+  `"scripts"` dengan `"start": "node index.js"`
+  → expect `package.json` valid dengan `"type": "module"` dan skrip `start`
   · Ref: `project.md` (stack), S2 p.31 & S3 p.26
+  · Field `scripts` sudah ada di `package.json` slide; mengisinya adalah konvensi standar
 
 - [ ] **A2.** Root repo: `npm install express@^5.1.0 dotenv@^17.2.0 cors@^2.8.5 @google/genai@^1.10.0`
   → expect keempat dependency masuk `package.json`, **tanpa** paket lain
@@ -96,8 +98,14 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
   → expect log muncul, **tanpa** nilai API key
   · Ref: `WS-05`
 
-- [ ] **B13.** Jalankan `node index.js`
-  → expect proses tidak keluar dengan error, log URL muncul
+- [ ] **B13.** `index.js`: tambahkan JSDoc pada handler route dan fungsi bantu — `@param`,
+  `@returns`, deskripsi singkat yang menyebut requirement ID terkait
+  → expect editor memberi autocomplete tanpa TypeScript, pembaca paham kontrak fungsi
+  · Ref: D-14 (kematangan pada keterlacakan, bukan jumlah folder)
+  · Nol dependency — JSDoc hanya komentar
+
+- [ ] **B14.** Jalankan `node --check index.js` lalu `node index.js`
+  → expect sintaks lolos, proses tidak keluar dengan error, log URL muncul
   · Ref: **Gate 2**
   · Tempel output terminal apa adanya sebagai bukti
 
@@ -154,68 +162,104 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
   · Ref: `UI-09`
   · Salin dari `docs/RISET-LAPANGAN.md` §7, jangan dari ingatan
 
-- [ ] **D6.** `public/style.css`: layout kartu chat, `#chat-box` tinggi terbatas +
+- [ ] **D6.** `public/style.css`: blok `:root` berisi design token — palet warna, skala
+  tipografi, skala spacing (satu satuan dasar + kelipatan tetap), radius, durasi transisi
+  → expect semua nilai visual berasal dari token; tidak ada warna literal berulang di luar `:root`
+  · Ref: `UI-12`
+  · Arah visual: **restrained, kontras tinggi, tipografi tenang**. Dilarang brutalist,
+    maximalist, atau eksperimen tipografi berat — alasan di `design.md` D-12
+
+- [ ] **D7.** `public/style.css`: layout kartu chat, `#chat-box` tinggi terbatas +
   `overflow-y: auto`, pembeda visual bubble user vs bot, `white-space: pre-wrap`,
   responsif untuk layar ponsel
   → expect pesan panjang membungkus rapi, tidak meluber, tidak ada scroll horizontal
   · Ref: `UI-10`, D-07
 
-- [ ] **D7.** `public/script.js`: ambil referensi `#chat-form`, `#user-input`, `#chat-box`;
+- [ ] **D8.** `public/style.css`: state lengkap untuk elemen interaktif — `:hover`, `:focus-visible`,
+  `:disabled`, kondisi loading; kontras teks minimal 4,5:1; font dasar minimal `16px`
+  → expect indikator fokus terlihat jelas, `outline` tidak dihapus tanpa pengganti setara
+  · Ref: `UI-11`, `UI-12`
+
+- [ ] **D9.** `public/style.css`: blok `@media (prefers-reduced-motion: reduce)` yang
+  menonaktifkan animasi dan transisi
+  → expect tanpa animasi saat preferensi aktif, seluruh fungsi tetap bekerja
+  · Ref: `UI-11`
+
+- [ ] **D10.** `public/index.html`: atribut aksesibilitas — `<html lang="id">`,
+  `aria-live="polite"` pada `#chat-box`, `<label>` atau `aria-label` pada `#user-input`,
+  teks jelas pada tombol submit
+  → expect screen reader mengumumkan pesan baru tanpa memotong bacaan berjalan
+  · Ref: `UI-11`
+
+- [ ] **D11.** `public/script.js`: ambil referensi `#chat-form`, `#user-input`, `#chat-box`;
   siapkan array `conversation = []` di scope modul
   → expect array kosong saat halaman dimuat
   · Ref: `UI-04`
 
-- [ ] **D8.** `public/script.js`: fungsi `appendMessage(sender, text)` yang membuat elemen,
-  set kelas sesuai peran, isi dengan **`textContent`**, append ke `#chat-box`, scroll ke bawah
-  → expect fungsi mengembalikan elemen yang dibuat (agar bisa diganti isinya oleh `UI-05`)
-  · Ref: `UI-02`, `UI-05`, D-07
-  · ⚠️ **Wajib `textContent`, bukan `innerHTML`** — mencegah XSS
+- [ ] **D12.** `public/script.js`: fungsi `appendMessage(sender, text)` yang membuat elemen,
+  set kelas sesuai peran, tambahkan penanda pengirim yang terbaca screen reader, isi dengan
+  **`textContent`**, append ke `#chat-box`, scroll ke bawah
+  → expect fungsi mengembalikan elemen yang dibuat (agar isinya bisa diganti oleh `UI-05`)
+  · Ref: `UI-02`, `UI-05`, `UI-11`, D-07
+  · ⚠️ **Wajib `textContent`, bukan `innerHTML`** — mencegah XSS. CI memblokir `innerHTML`
 
-- [ ] **D9.** `public/script.js`: handler `submit` — `e.preventDefault()`, trim input,
+- [ ] **D13.** `public/script.js`: handler `submit` — `e.preventDefault()`, trim input,
   return bila kosong, `appendMessage('user', ...)`, push `{ role:'user', text }` ke array
   `conversation`, kosongkan input
   → expect pesan tampil dan array bertambah
   · Ref: `UI-02`, `UI-04`
 
-- [ ] **D10.** `public/script.js`: tambahkan bubble bot sementara berisi indikator berpikir,
-  simpan referensi elemennya; nonaktifkan tombol submit
-  → expect satu bubble sementara muncul
-  · Ref: `UI-05`
+- [ ] **D14.** `public/script.js`: tambahkan bubble bot sementara berisi indikator berpikir,
+  simpan referensi elemennya; set `aria-busy="true"` pada `#chat-box`; nonaktifkan tombol submit
+  → expect satu bubble sementara muncul, status sibuk terbaca screen reader
+  · Ref: `UI-05`, `UI-11`
 
-- [ ] **D11.** `public/script.js`: `fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ conversation }) })`
+- [ ] **D15.** `public/script.js`: `fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ conversation }) })`
   → expect body memakai field **`conversation`** dengan item `{ role, text }`
   · Ref: `UI-03`, `API-01`
   · ⚠️ **JANGAN** salin `{ messages: [{ role, content }] }` dari slide S3 p.39 — itu bug.
     Lihat `design.md` D-03
 
-- [ ] **D12.** `public/script.js`: proses respons — bila `data.result` ada, isi bubble
+- [ ] **D16.** `public/script.js`: proses respons — bila `data.result` ada, isi bubble
   sementara dengan nilainya lalu push `{ role:'model', text: data.result }` ke `conversation`;
   bila tidak ada, tampilkan `Sorry, no response received.` **tanpa** push ke array
   → expect riwayat hanya berisi jawaban asli bot
   · Ref: `UI-04`, `UI-06`
 
-- [ ] **D13.** `public/script.js`: blok `catch` → isi bubble sementara dengan
+- [ ] **D17.** `public/script.js`: blok `catch` → isi bubble sementara dengan
   `Failed to get response from server.`, **tanpa** push ke `conversation`; blok `finally` →
-  aktifkan kembali tombol submit dan scroll `#chat-box` ke bawah
-  → expect UI tetap responsif setelah error, riwayat tidak tercemar
-  · Ref: `UI-06`
+  set `aria-busy="false"`, aktifkan kembali tombol submit, kembalikan fokus ke `#user-input`,
+  scroll `#chat-box` ke bawah
+  → expect UI tetap responsif setelah error, riwayat tidak tercemar, fokus siap mengetik
+  · Ref: `UI-06`, `UI-11`
 
-- [ ] **D14.** (Opsional, bila waktu memungkinkan) `public/index.html` + `script.js`:
-  quick-reply chips berisi 2–3 contoh pertanyaan yang mengisi input saat diklik
-  → expect klik chip mengisi `#user-input`
-  · Ref: S2 p.67 (pola batch sebelumnya)
+- [ ] **D18.** `public/script.js`: tambahkan JSDoc pada setiap fungsi — `@param`, `@returns`,
+  deskripsi singkat yang menyebut requirement ID terkait
+  → expect kontrak fungsi jelas tanpa TypeScript
+  · Ref: D-14
+
+- [ ] **D19.** Jalankan `node --check public/script.js`
+  → expect sintaks lolos
+  · Ref: CI job `syntax`
+
+- [ ] **D20.** (Opsional, bila waktu memungkinkan) `public/index.html` + `script.js`:
+  quick-reply chips berisi 2–3 contoh pertanyaan yang mengisi input saat diklik; chip harus
+  berupa `<button>` agar terjangkau keyboard
+  → expect klik atau Enter pada chip mengisi `#user-input`
+  · Ref: S2 p.67 (pola batch sebelumnya), `UI-11`
   · Task opsional — tidak memblokir gate mana pun
 
 ---
 
 ## Fase E — Gate verifikasi
 
-- [ ] **E1.** **Gate 1 — Keterlacakan.** Periksa `design.md` §3: semua 30 requirement punya
+- [ ] **E1.** **Gate 1 — Keterlacakan.** Periksa `design.md` §3: semua 32 requirement punya
   kolom sumber terisi; tidak ada kode di `index.js` / `script.js` yang tidak dirujuk
   requirement mana pun
   → expect nol requirement tanpa sumber, nol kode tanpa requirement
-  · Cek juga: semua 30 ID (`WS-01`..`WS-05`, `API-01`..`API-06`, `PG-01`..`PG-09`,
-    `UI-01`..`UI-10`) sudah tercentang di Fase B dan D
+  · Cek juga: semua 32 ID (`WS-01`..`WS-05`, `API-01`..`API-06`, `PG-01`..`PG-09`,
+    `UI-01`..`UI-12`) sudah tercentang di Fase B dan D
+  · CI job `traceability` menjalankan pemeriksaan ini otomatis pada setiap push
 
 - [ ] **E2.** **Gate 2 — Server hidup.** `node index.js`, tempel output terminal
   → expect log URL, tanpa error, tanpa nilai API key
@@ -224,18 +268,33 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
   → expect `200 {result}` dan `500 {"error":"Messages must be an array!"}`
 
 - [ ] **E4.** **Gate 4 — Guardrail & UI.** Buka `http://localhost:3000/` di browser
-  sungguhan. Jalankan **12 skenario** `docs/USE-CASE-CEKDULU.md` §5 satu per satu. Catat
+  sungguhan. Jalankan **13 skenario** `docs/USE-CASE-CEKDULU.md` §5 satu per satu. Catat
   lulus/gagal + kutipan jawaban bot untuk tiap skenario
-  → expect 12/12 lulus; **UJI-03 lulus mutlak**
+  → expect 13/13 lulus; **UJI-03 lulus mutlak**
   · ⛔ UJI-03 gagal → perkuat `SYSTEM_INSTRUCTION`, ulangi seluruh Gate 4
 
 - [ ] **E5.** **Gate 4b — Console browser.** Selama Gate 4, buka DevTools Console
   → expect nol error JavaScript, nol 404 aset
 
-- [ ] **E6.** **Gate 5 — Kebersihan repo.** Periksa: `.env` tidak ter-track;
-  `package.json` hanya berisi 4 dependency; tidak ada file temporer; nilai API key tidak
-  muncul di file mana pun yang akan di-commit
+- [ ] **E6.** **Gate 4c — Aksesibilitas.** Verifikasi `UI-11`: navigasi penuh dengan Tab
+  (UJI-13), fokus kembali ke input setelah kirim, indikator fokus terlihat, kontras teks
+  diperiksa dengan DevTools, halaman diperbesar 200%, dan `prefers-reduced-motion`
+  disimulasikan lewat DevTools Rendering
+  → expect seluruh butir `UI-11` terpenuhi
+  · Ref: `UI-11`, UJI-13
+
+- [ ] **E7.** **Gate 5 — Kebersihan repo.** Periksa: `.env` tidak ter-track;
+  `package.json` hanya berisi 4 dependency dan tanpa `devDependencies`; tidak ada file
+  temporer; nilai API key tidak muncul di file mana pun yang akan di-commit
   → expect `git status` bersih dari `.env`; tempel isi `dependencies` dari `package.json`
+  · CI job `hygiene` dan `constraints` menjalankan pemeriksaan ini otomatis
+
+- [ ] **E8.** **Dokumentasikan bukti.** Tulis `docs/QA-REPORT.md` berisi: output `node index.js`,
+  output kedua `curl` apa adanya (status + body), dan tabel 13 skenario dengan input,
+  kutipan jawaban bot, serta verdict lulus/gagal
+  → expect laporan dapat diaudit ulang pihak lain tanpa menjalankan sistem
+  · Ref: `docs/METODOLOGI.md` §5
+  · Ini pembeda utama: bukti terdokumentasi, bukan klaim "sudah diuji"
 
 ---
 
@@ -245,9 +304,10 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
   cantumkan use case terpilih
   → expect status mencerminkan kondisi nyata
 
-- [ ] **F2.** Ambil screenshot UI — minimal tiga kondisi: halaman awal dengan disclaimer,
-  percakapan berjalan (UJI-02), dan bot menolak menilai legalitas (UJI-03)
-  → expect tiga gambar tersedia
+- [ ] **F2.** Ambil screenshot UI — minimal empat kondisi: halaman awal dengan disclaimer,
+  percakapan berjalan (UJI-02), bot menolak menilai legalitas (UJI-03), dan indikator fokus
+  keyboard terlihat (UJI-13)
+  → expect empat gambar tersedia
 
 - [ ] **F3.** Gabungkan screenshot ke **satu file** PDF atau image, kompres di bawah
   **1 MB**
@@ -260,10 +320,13 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
 
 - [ ] **F5.** Push ke GitHub (**hanya setelah user meminta eksplisit**), pastikan `.env`
   tidak ikut
-  → expect repo publik/privat berisi kode tanpa `.env`
+  → expect CI hijau pada kelima job, repo tidak memuat `.env`
   · ⚠️ **Commit dan push memerlukan izin eksplisit user** (`AGENTS.md` §1.2)
 
-- [ ] **F6.** **Fase 5 metodologi — arsip spec.** Pindahkan isi
+- [ ] **F6.** Rilis `v1.0.0` dengan catatan rilis yang merangkum hasil verifikasi
+  → expect rilis menautkan `docs/QA-REPORT.md` sebagai bukti
+
+- [ ] **F7.** **Fase 5 metodologi — arsip spec.** Pindahkan isi
   `openspec/changes/add-cekdulu-chatbot/specs/*/spec.md` menjadi spec aktif di
   `openspec/specs/<kapabilitas>/spec.md`, hapus penanda `## ADDED Requirements`
   → expect `openspec/specs/` berisi 4 kapabilitas sebagai kebenaran perilaku sistem saat ini
@@ -275,10 +338,15 @@ Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requiremen
 
 ```
 A (setup) → B (backend) → C (uji backend via curl) → D (frontend)
-          → E (5 gate verifikasi) → F (submit)
+          → E (5 gate + aksesibilitas + laporan QA) → F (submit)
 ```
 
 Alasan C sebelum D: memastikan backend dan guardrail benar **sebelum** menulis frontend.
 Kalau `PG-03` gagal, memperbaikinya lebih murah saat frontend belum ada.
 
-**Total: 6 fase, 36 task** (1 opsional).
+**Total: 6 fase, 57 task** (1 opsional) — A: 4, B: 14, C: 4, D: 20, E: 8, F: 7.
+
+CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push: validasi sintaks,
+kebersihan repo, batasan dependency, audit `systemInstruction` terhadap `PG-09`, dan
+keterlacakan requirement. Seluruhnya memakai alat bawaan Node dan git — tanpa `npm install`.
+Alasan: `design.md` D-14.
