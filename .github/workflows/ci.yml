@@ -19,11 +19,11 @@ jobs:
     name: Validasi sintaks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Periksa sintaks berkas JavaScript
         run: |
@@ -41,7 +41,7 @@ jobs:
     name: Kebersihan repo
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Kredensial tidak boleh ter-track
         run: |
@@ -72,11 +72,11 @@ jobs:
     name: Batasan proyek
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Dependency terbatas pada empat paket
         run: |
@@ -123,11 +123,11 @@ jobs:
     name: Audit systemInstruction (PG-09)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       # PG-09 melarang systemInstruction memuat data yang berubah: statistik, nomor
       # kontak, email, URL, atau nomor peraturan. Data presisi ditulis statis di HTML
@@ -173,11 +173,11 @@ jobs:
     name: Keterlacakan requirement
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       # Gate 1 docs/METODOLOGI.md: setiap requirement yang didefinisikan di spec harus
       # muncul di matriks design.md dan dirujuk oleh tasks.md.
