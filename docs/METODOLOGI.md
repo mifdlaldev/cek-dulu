@@ -74,16 +74,16 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │         openspec/changes/add-cekdulu-chatbot/{proposal,design,   │
 │                                               tasks}.md          │
 │         openspec/changes/add-cekdulu-chatbot/specs/*/spec.md    │
-│ Hasil: 32 requirement, 16 keputusan, 19 non-goals               │
+│ Hasil: 32 requirement, 17 keputusan, 19 non-goals               │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ FASE 3 — IMPLEMENTASI                             [SEDANG JALAN]│
+│ FASE 3 — IMPLEMENTASI                                  [SELESAI]│
 │ Kerjakan tasks.md berurutan. Setiap task rujuk requirement ID.  │
 │ Fase A inisialisasi proyek         SELESAI  4/4 task            │
 │ Fase B backend index.js            SELESAI 14/14 task           │
 │ Fase C uji backend via curl        SELESAI  6/6 task            │
-│ Fase D frontend public/            BELUM    0/20 task           │
+│ Fase D frontend public/            SELESAI 20/20 task           │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -92,8 +92,8 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │ Gate 1 keterlacakan   LULUS                                     │
 │ Gate 2 server hidup   LULUS                                     │
 │ Gate 3 kontrak API    LULUS                                     │
-│ Gate 4 guardrail & UI SEBAGIAN — UJI-03 dan UJI-08 lulus,       │
-│                       sisanya menunggu Fase D                   │
+│ Gate 4 guardrail & UI SEBAGIAN — 8 dari 13 skenario terbukti,    │
+│                       5 sisanya menunggu kuota API harian       │
 │ Gate 5 kebersihan     LULUS                                     │
 │ Output: docs/QA-REPORT.md                                       │
 └─────────────────────────────────────────────────────────────────┘

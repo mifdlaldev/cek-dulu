@@ -2,16 +2,16 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 24 dari 59 task selesai.** Fase A, B, dan C tuntas; Fase D belum dimulai.
-Bukti verifikasi: `docs/QA-REPORT.md`.
+**Progres: 44 dari 59 task selesai.** Fase A, B, C, dan D tuntas; Fase E tersisa Gate 4
+penuh, Fase F belum dimulai. Bukti verifikasi: `docs/QA-REPORT.md`.
 
 | Fase | Isi | Task | Status |
 |---|---|---|---|
 | A | Inisialisasi proyek | 4/4 | ✅ Selesai |
 | B | Backend `index.js` | 14/14 | ✅ Selesai |
 | C | Uji backend via `curl` | 6/6 | ✅ Selesai — UJI-03 lulus |
-| D | Frontend `public/` | 0/20 | ⬜ Belum |
-| E | Gate verifikasi | 0/8 | 🟡 Gate 1, 2, 3, 5 sudah lulus di Fase B–C; Gate 4 menunggu Fase D |
+| D | Frontend `public/` | 20/20 | ✅ Selesai — diverifikasi di browser nyata |
+| E | Gate verifikasi | 0/8 | 🟡 Gate 1, 2, 3, 5 lulus; Gate 4 sebagian (8 dari 13 skenario terbukti), sisanya menunggu kuota harian |
 | F | Persiapan submit | 0/7 | ⬜ Belum |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
@@ -176,113 +176,113 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 
 ## Fase D — Frontend `public/`
 
-- [ ] **D1.** Buat folder `public/`
+- [x] **D1.** Buat folder `public/`
   → expect folder ada
   · Ref: `WS-04`, `UI-01`
 
-- [ ] **D2.** `public/index.html`: kerangka halaman — judul bot, `#chat-box`, `#chat-form`
+- [x] **D2.** `public/index.html`: kerangka halaman — judul bot, `#chat-box`, `#chat-form`
   dengan `#user-input` (`required` + placeholder) dan tombol submit; link `style.css` dan
   `script.js`
   → expect ketiga ID ada di DOM
   · Ref: `UI-01`
 
-- [ ] **D3.** `public/index.html`: pesan pembuka statis di dalam `#chat-box` — perkenalan
+- [x] **D3.** `public/index.html`: pesan pembuka statis di dalam `#chat-box` — perkenalan
   bot, kemampuan, batasan singkat
   → expect satu bubble bot terlihat saat halaman dibuka, **tanpa** request API
   · Ref: `UI-07`
 
-- [ ] **D4.** `public/index.html`: disclaimer permanen — sifat edukatif, bot tidak menilai
+- [x] **D4.** `public/index.html`: disclaimer permanen — sifat edukatif, bot tidak menilai
   legalitas entitas, keputusan akhir milik pengguna
   → expect disclaimer terlihat tanpa interaksi
   · Ref: `UI-08`
 
-- [ ] **D5.** `public/index.html`: blok kanal resmi OJK statis — `157`,
+- [x] **D5.** `public/index.html`: blok kanal resmi OJK statis — `157`,
   `081 157 157 157`, `konsumen@ojk.go.id`, `satgaspasti@ojk.go.id`
   → expect keempat nilai persis sesuai `UI-09`
   · Ref: `UI-09`
   · Salin dari `docs/RISET-LAPANGAN.md` §7, jangan dari ingatan
 
-- [ ] **D6.** `public/style.css`: blok `:root` berisi design token — palet warna, skala
+- [x] **D6.** `public/style.css`: blok `:root` berisi design token — palet warna, skala
   tipografi, skala spacing (satu satuan dasar + kelipatan tetap), radius, durasi transisi
   → expect semua nilai visual berasal dari token; tidak ada warna literal berulang di luar `:root`
   · Ref: `UI-12`
   · Arah visual: **restrained, kontras tinggi, tipografi tenang**. Dilarang brutalist,
     maximalist, atau eksperimen tipografi berat — alasan di `design.md` D-12
 
-- [ ] **D7.** `public/style.css`: layout kartu chat, `#chat-box` tinggi terbatas +
+- [x] **D7.** `public/style.css`: layout kartu chat, `#chat-box` tinggi terbatas +
   `overflow-y: auto`, pembeda visual bubble user vs bot, `white-space: pre-wrap`,
   responsif untuk layar ponsel
   → expect pesan panjang membungkus rapi, tidak meluber, tidak ada scroll horizontal
   · Ref: `UI-10`, D-07
 
-- [ ] **D8.** `public/style.css`: state lengkap untuk elemen interaktif — `:hover`, `:focus-visible`,
+- [x] **D8.** `public/style.css`: state lengkap untuk elemen interaktif — `:hover`, `:focus-visible`,
   `:disabled`, kondisi loading; kontras teks minimal 4,5:1; font dasar minimal `16px`
   → expect indikator fokus terlihat jelas, `outline` tidak dihapus tanpa pengganti setara
   · Ref: `UI-11`, `UI-12`
 
-- [ ] **D9.** `public/style.css`: blok `@media (prefers-reduced-motion: reduce)` yang
+- [x] **D9.** `public/style.css`: blok `@media (prefers-reduced-motion: reduce)` yang
   menonaktifkan animasi dan transisi
   → expect tanpa animasi saat preferensi aktif, seluruh fungsi tetap bekerja
   · Ref: `UI-11`
 
-- [ ] **D10.** `public/index.html`: atribut aksesibilitas — `<html lang="id">`,
+- [x] **D10.** `public/index.html`: atribut aksesibilitas — `<html lang="id">`,
   `aria-live="polite"` pada `#chat-box`, `<label>` atau `aria-label` pada `#user-input`,
   teks jelas pada tombol submit
   → expect screen reader mengumumkan pesan baru tanpa memotong bacaan berjalan
   · Ref: `UI-11`
 
-- [ ] **D11.** `public/script.js`: ambil referensi `#chat-form`, `#user-input`, `#chat-box`;
+- [x] **D11.** `public/script.js`: ambil referensi `#chat-form`, `#user-input`, `#chat-box`;
   siapkan array `conversation = []` di scope modul
   → expect array kosong saat halaman dimuat
   · Ref: `UI-04`
 
-- [ ] **D12.** `public/script.js`: fungsi `appendMessage(sender, text)` yang membuat elemen,
+- [x] **D12.** `public/script.js`: fungsi `appendMessage(sender, text)` yang membuat elemen,
   set kelas sesuai peran, tambahkan penanda pengirim yang terbaca screen reader, isi dengan
   **`textContent`**, append ke `#chat-box`, scroll ke bawah
   → expect fungsi mengembalikan elemen yang dibuat (agar isinya bisa diganti oleh `UI-05`)
   · Ref: `UI-02`, `UI-05`, `UI-11`, D-07
   · ⚠️ **Wajib `textContent`, bukan `innerHTML`** — mencegah XSS. CI memblokir `innerHTML`
 
-- [ ] **D13.** `public/script.js`: handler `submit` — `e.preventDefault()`, trim input,
+- [x] **D13.** `public/script.js`: handler `submit` — `e.preventDefault()`, trim input,
   return bila kosong, `appendMessage('user', ...)`, push `{ role:'user', text }` ke array
   `conversation`, kosongkan input
   → expect pesan tampil dan array bertambah
   · Ref: `UI-02`, `UI-04`
 
-- [ ] **D14.** `public/script.js`: tambahkan bubble bot sementara berisi indikator berpikir,
+- [x] **D14.** `public/script.js`: tambahkan bubble bot sementara berisi indikator berpikir,
   simpan referensi elemennya; set `aria-busy="true"` pada `#chat-box`; nonaktifkan tombol submit
   → expect satu bubble sementara muncul, status sibuk terbaca screen reader
   · Ref: `UI-05`, `UI-11`
 
-- [ ] **D15.** `public/script.js`: `fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ conversation }) })`
+- [x] **D15.** `public/script.js`: `fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ conversation }) })`
   → expect body memakai field **`conversation`** dengan item `{ role, text }`
   · Ref: `UI-03`, `API-01`
   · ⚠️ **JANGAN** salin `{ messages: [{ role, content }] }` dari slide S3 p.39 — itu bug.
     Lihat `design.md` D-03
 
-- [ ] **D16.** `public/script.js`: proses respons — bila `data.result` ada, isi bubble
+- [x] **D16.** `public/script.js`: proses respons — bila `data.result` ada, isi bubble
   sementara dengan nilainya lalu push `{ role:'model', text: data.result }` ke `conversation`;
   bila tidak ada, tampilkan `Sorry, no response received.` **tanpa** push ke array
   → expect riwayat hanya berisi jawaban asli bot
   · Ref: `UI-04`, `UI-06`
 
-- [ ] **D17.** `public/script.js`: blok `catch` → isi bubble sementara dengan
+- [x] **D17.** `public/script.js`: blok `catch` → isi bubble sementara dengan
   `Failed to get response from server.`, **tanpa** push ke `conversation`; blok `finally` →
   set `aria-busy="false"`, aktifkan kembali tombol submit, kembalikan fokus ke `#user-input`,
   scroll `#chat-box` ke bawah
   → expect UI tetap responsif setelah error, riwayat tidak tercemar, fokus siap mengetik
   · Ref: `UI-06`, `UI-11`
 
-- [ ] **D18.** `public/script.js`: tambahkan JSDoc pada setiap fungsi — `@param`, `@returns`,
+- [x] **D18.** `public/script.js`: tambahkan JSDoc pada setiap fungsi — `@param`, `@returns`,
   deskripsi singkat yang menyebut requirement ID terkait
   → expect kontrak fungsi jelas tanpa TypeScript
   · Ref: D-14
 
-- [ ] **D19.** Jalankan `node --check public/script.js`
+- [x] **D19.** Jalankan `node --check public/script.js`
   → expect sintaks lolos
   · Ref: CI job `syntax`
 
-- [ ] **D20.** (Opsional, bila waktu memungkinkan) `public/index.html` + `script.js`:
+- [x] **D20.** (Opsional, bila waktu memungkinkan) `public/index.html` + `script.js`:
   quick-reply chips berisi 2–3 contoh pertanyaan yang mengisi input saat diklik; chip harus
   berupa `<button>` agar terjangkau keyboard
   → expect klik atau Enter pada chip mengisi `#user-input`

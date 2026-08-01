@@ -9,9 +9,10 @@
 |---|---|
 | Tanggal | 1 Agustus 2026 |
 | Node.js | v24.18.1 |
+| Browser uji | Chromium 151.0.7922.34 (headless, via CDP) |
 | Model dipakai | `gemini-flash-latest` (bawaan `WS-02`, lihat `KENDALA-API.md` §1) |
 | Tier akun | Free tier |
-| Status | Fase A, B, dan C selesai. Fase D (frontend) belum dikerjakan |
+| Status | Fase A, B, C, dan D selesai. Gate 4 penuh menunggu kuota harian |
 
 ---
 
@@ -354,14 +355,343 @@ Strategi hemat kuota: `docs/KENDALA-API.md` §2, keputusan D-16.
 
 ---
 
+## Fase D — Verifikasi frontend di browser nyata
+
+Dijalankan dengan Chromium melalui protokol CDP, bukan dengan membaca kode.
+Viewport diuji pada 375×700 (ponsel) dan 1280×900 (desktop).
+
+### Aset statis tersaji · `WS-04`, `UI-01`
+
+```
+GET /            -> 200  text/html; charset=utf-8
+GET /style.css   -> 200  text/css; charset=utf-8
+GET /script.js   -> 200  text/javascript; charset=utf-8
+```
+
+**LULUS.**
+
+### Struktur dan atribut halaman · `UI-01`, `UI-11`
+
+Dievaluasi langsung di DOM browser:
+
+```json
+{
+  "favicon": "ada",
+  "lang": "id",
+  "ariaLive": "polite",
+  "ariaBusy": "false",
+  "fontDasar": "16px",
+  "inputRequired": true,
+  "labelTerhubung": true,
+  "jumlahBubble": 1
+}
+```
+
+`jumlahBubble: 1` membuktikan `UI-07` — sapaan pembuka statis ada, dan `jumlahRequestApi: 0`
+pada pemeriksaan berikutnya membuktikan sapaan itu tidak memanggil API.
+
+**LULUS.**
+
+### Console browser bersih · Gate 4b
+
+Pemeriksaan pertama menemukan satu galat:
+
+```
+[ERROR] Failed to load resource: the server responded with a status of 404
+        (Not Found) @ http://localhost:3000/favicon.ico:0
+```
+
+Ditangani dengan menambahkan favicon SVG inline pada `index.html` — tanpa berkas tambahan
+dan tanpa dependency. Setelah perbaikan:
+
+```
+Total messages: 0 (Errors: 0, Warnings: 0)
+```
+
+**LULUS setelah perbaikan.**
+
+### Validasi input kosong · `UI-02`, UJI-10
+
+Input diisi tiga spasi lalu Enter ditekan:
+
+```json
+{ "ujiSpasiSaja_jumlahBubble": 1, "jumlahRequestApi": 0 }
+```
+
+Jumlah bubble tetap 1, yaitu hanya sapaan pembuka. Tidak ada permintaan terkirim —
+`.trim()` bekerja dan kuota tidak terbuang.
+
+**LULUS.**
+
+### Bentuk payload · `UI-03`, `API-01`
+
+`window.fetch` diganti sementara untuk menangkap body yang dikirim:
+
+```json
+{
+  "url": "/api/chat",
+  "body": "{\"conversation\":[{\"role\":\"user\",\"text\":\"uji payload\"}]}",
+  "headers": { "Content-Type": "application/json" }
+}
+```
+
+Field bernama `conversation` dengan item `text` — **bukan** `messages` dengan `content`
+seperti contoh pada materi Sesi 3 p.39. Bug slide tidak tersalin.
+
+**LULUS.**
+
+### Indikator berpikir · `UI-05`, `UI-11`
+
+Kondisi saat permintaan berjalan:
+
+```json
+{
+  "ariaBusySaatMenunggu": "true",
+  "tombolNonaktif": true,
+  "inputNonaktif": true,
+  "jumlahBubble": 3,
+  "bubbleMenungguAda": 1,
+  "teksBubbleTerakhir": "Cek Dulu sedang memeriksa..."
+}
+```
+
+Kondisi setelah respons tiba:
+
+```json
+{
+  "jumlahBubble": 3,
+  "bubbleMenunggu": 0,
+  "ariaBusy": "false",
+  "tombolAktifLagi": true,
+  "fokusKembali": "user-input"
+}
+```
+
+Jumlah bubble tetap 3 sebelum dan sesudah — isi bubble diganti di tempat, tidak ditambah
+elemen baru, sesuai alasan materi Sesi 3 p.41 untuk menghindari pergeseran tata letak.
+
+**LULUS.**
+
+### Teks fallback · `UI-06`, UJI-12
+
+Respons `200` tanpa field `result`:
+
+```
+"Sorry, no response received."
+```
+
+Permintaan gagal (fetch ditolak):
+
+```
+"Failed to get response from server."
+```
+
+Kedua teks verbatim sesuai materi Sesi 3 p.37.
+
+**LULUS.**
+
+### Riwayat tidak tercemar galat · `UI-04`, `UI-06`
+
+Setelah satu respons sukses, satu respons tanpa `result`, dan satu kegagalan jaringan,
+riwayat yang dikirim pada permintaan berikutnya:
+
+```json
+[
+  { "role": "user",  "text": "pesan pertama" },
+  { "role": "model", "text": "Ini jawaban simulasi.\n\nBaris kedua untuk memeriksa pre-wrap." },
+  { "role": "user",  "text": "pesan kedua" },
+  { "role": "user",  "text": "pesan ketiga" },
+  { "role": "user",  "text": "pesan keempat" }
+]
+```
+
+Hanya satu entri `role: "model"` — yaitu jawaban asli. Teks
+`"Sorry, no response received."` dan `"Failed to get response from server."` **tidak** masuk
+riwayat, sehingga konteks model tidak tercemar.
+
+**LULUS.**
+
+### Navigasi keyboard · `UI-11`, UJI-13
+
+Tujuh kali `Tab` ditekan, elemen yang menerima fokus dicatat berikut gaya outline-nya:
+
+| Urutan | Elemen | outline-style | outline-width | outline-color |
+|---|---|---|---|---|
+| 1 | `a` — "Lewati ke kolom pesan" | solid | 3px | rgb(125, 211, 252) |
+| 2 | `section#chat-box` | solid | 3px | rgb(125, 211, 252) |
+| 3 | `input#user-input` | solid | 3px | rgb(125, 211, 252) |
+| 4 | `button#send-button` — "Kirim" | solid | 3px | rgb(125, 211, 252) |
+| 5 | `button.chip` — "Ciri pinjaman online…" | solid | 3px | rgb(125, 211, 252) |
+| 6 | `button.chip` — "Cara memeriksa tawaran…" | solid | 3px | rgb(125, 211, 252) |
+| 7 | `button.chip` — "Sudah transfer, apa yang…" | solid | 3px | rgb(125, 211, 252) |
+
+Urutan logis, indikator fokus terlihat pada seluruh elemen, `outline` tidak dihapus.
+
+Pengembalian fokus setelah kirim: `"fokusKembali": "user-input"`.
+Setelah chip diklik: `"fokusDiInput": "user-input"` dan isi input terisi teks chip.
+
+**LULUS.**
+
+### Kontras warna · `UI-11`
+
+Dihitung dari token `:root` memakai formula luminansi relatif WCAG 2.1:
+
+| Pasangan | Rasio | AA 4,5:1 |
+|---|---|---|
+| teks pada latar | 16,20:1 | LULUS |
+| teks pada permukaan | 14,60:1 | LULUS |
+| teks lembut pada permukaan | 8,89:1 | LULUS |
+| teks pada bubble bot | 13,19:1 | LULUS |
+| teks pada bubble pengguna | 9,93:1 | LULUS |
+| teks lembut pada bubble bot | 8,03:1 | LULUS |
+| teks tombol pada aksen | 9,34:1 | LULUS |
+| teks pada chip | 12,47:1 | LULUS |
+
+Rasio terendah 8,03:1, jauh di atas ambang 4,5:1.
+
+**LULUS.**
+
+### Responsif, pembesaran, dan preferensi gerak · `UI-10`, `UI-11`
+
+```json
+{
+  "ponsel375":   { "scrollHorizontal": false, "lebarDokumen": 360, "lebarViewport": 360, "chatScrollable": true },
+  "desktop1280": { "scrollHorizontal": false, "lebarDokumen": 1265 },
+  "zoom200":     { "scrollHorizontal": false, "judulTerlihat": true, "disclaimerTerlihat": true },
+  "reducedMotion": { "tombolTransisi": "0s", "inputTransisi": "0s" }
+}
+```
+
+Tidak ada scroll horizontal pada kedua viewport maupun pada pembesaran 200%. Dengan
+`prefers-reduced-motion: reduce`, seluruh durasi transisi menjadi `0s` sementara fungsi
+tetap bekerja.
+
+**LULUS.**
+
+### Design token terpusat · `UI-12`
+
+Pemeriksaan `style.css`: tidak ditemukan nilai warna literal di luar blok `:root`.
+
+```
+$ awk '/^:root \{/,/^\}/{next} /#[0-9a-fA-F]{3,8}\b/{print}' public/style.css
+(kosong)
+```
+
+**LULUS.**
+
+### Larangan penulisan HTML mentah · D-07
+
+```
+$ grep -nE '\.(inner|outer)HTML\s*=|insertAdjacentHTML|document\.write' public/script.js
+OK: tidak ada penulisan HTML mentah
+```
+
+Guard CI diperkuat pada tahap ini. Pola sebelumnya mencari kata `innerHTML` apa pun,
+sehingga menandai komentar penjelas sebagai pelanggaran. Pola baru hanya menangkap
+penulisan nyata, dan sekaligus mencakup `outerHTML`, `insertAdjacentHTML`, serta
+`document.write`. Guard diuji terhadap berkas berisi `el.innerHTML = data.result;` dan
+berhasil mendeteksinya.
+
+**LULUS.**
+
+### Uji ujung ke ujung dengan API nyata · seluruh alur
+
+Pesan dikirim melalui antarmuka di browser, bukan lewat `curl`:
+
+> Ada WA menawarkan pinjaman cair 10 menit tanpa BI checking, bunga 0 persen, cuma butuh
+> foto KTP dan izin akses seluruh kontak di HP saya
+
+Alur terverifikasi: `aria-busy` menjadi `true`, bubble sementara muncul, tombol dan input
+dinonaktifkan, lalu setelah jawaban tiba `aria-busy` kembali `false`, bubble sementara
+hilang, jumlah bubble tetap 3, tombol aktif kembali, dan fokus kembali ke `#user-input`.
+Console tanpa galat.
+
+**LULUS.**
+
+---
+
+## Temuan Fase D: bot mengeluarkan penanda Markdown
+
+Jawaban pada uji ujung ke ujung memuat penanda Markdown mentah:
+
+```
+1. **Penawaran Langsung Melalui WhatsApp / Pesan Pribadi**
+   * **Risiko:** Lembaga jasa keuangan yang resmi ...
+```
+
+Karena antarmuka merender jawaban dengan `textContent` (keputusan D-07), tanda `**` dan `*`
+tampil sebagai karakter mentah dan mengurangi keterbacaan — persis kelompok pengguna yang
+justru menjadi sasaran proyek ini.
+
+Dua pilihan tersedia: menambahkan parser Markdown, atau melarang penanda di prompt.
+Pilihan pertama memerlukan dependency `marked` dan `DOMPurify`, keluar dari batasan materi,
+dan membuka permukaan XSS yang sengaja ditutup D-07. Pilihan kedua tidak memerlukan apa pun.
+
+Requirement `PG-08` diamandemen: bot dilarang memakai penanda Markdown, dan daftar ditulis
+dengan nomor diikuti titik. Alasan lengkap tercatat sebagai keputusan D-17 di `design.md`.
+
+### Uji ulang setelah amandemen · `PG-08`
+
+Pemeriksaan otomatis terhadap jawaban baru:
+
+| Penanda | Hasil |
+|---|---|
+| `**` tebal | tidak ada |
+| `*` sebagai penanda daftar atau miring | tidak ada |
+| backtick kode | tidak ada |
+| `#` judul | tidak ada |
+
+Kutipan jawaban, verbatim:
+
+> Pesan tawaran pinjaman seperti yang Anda terima memiliki beberapa ciri dan pola yang perlu
+> diwaspadai:
+>
+> 1. Penawaran dilakukan secara langsung melalui pesan pribadi WhatsApp. Penyelenggara
+>    layanan keuangan yang terdaftar umumnya dilarang menawarkan pinjaman secara langsung
+>    melalui saluran komunikasi pribadi kepada calon konsumen.
+>
+> 2. Janji cair sangat cepat dalam 10 menit tanpa pemeriksaan riwayat kredit atau BI
+>    checking. Kemudahan yang berlebihan ini berisiko menyembunyikan biaya tersembunyi, suku
+>    bunga yang sangat tinggi, atau jangka waktu pelunasan yang sangat singkat dan merugikan.
+>
+> 3. Meminta izin akses ke seluruh kontak di HP. Membuka akses kontak ponsel sangat
+>    berbahaya. Data kontak Anda bisa disalahgunakan untuk melakukan penagihan dengan cara
+>    mengintimidasi atau mempermalukan Anda kepada orang-orang di daftar kontak tersebut.
+>
+> Langkah yang bisa Anda lakukan untuk memeriksa secara mandiri:
+>
+> 1. Cari tahu nama aplikasi atau perusahaan tersebut, lalu periksa status keizinannya secara
+>    mandiri melalui saluran resmi Otoritas Jasa Keuangan.
+>
+> 2. Jangan pernah memberikan izin akses kontak, galeri foto, atau lokasi pada ponsel Anda
+>    saat memasang aplikasi pinjaman.
+>
+> 3. Abaikan pesan tersebut, blokir nomor pengirimnya, dan jangan mengklik tautan atau
+>    mengunduh file apa pun yang dikirimkan.
+>
+> Selalu pastikan untuk memverifikasi kelengkapan izin penyedia layanan keuangan langsung ke
+> saluran resmi Otoritas Jasa Keuangan sebelum Anda mengambil keputusan.
+
+Struktur `PG-08` terpenuhi: ciri satu per satu, alasan risiko, langkah verifikasi, kalimat
+penutup. `PG-04` juga terpenuhi — tidak ada nomor telepon, tautan, maupun statistik.
+Panjang jawaban 1.469 karakter, lebih ringkas dari sebelumnya.
+
+**LULUS.**
+
+### Konsumsi kuota Fase D
+
+Satu permintaan untuk uji ujung ke ujung, satu permintaan untuk uji ulang setelah
+amandemen `PG-08`. Seluruh verifikasi lain memakai `window.fetch` yang diganti sementara
+atau inspeksi DOM, sehingga **nol kuota**.
+
+---
+
 ## Yang belum diverifikasi
 
 | Butir | Alasan |
 |---|---|
-| UJI-01, UJI-02, UJI-04 s.d. UJI-07, UJI-09 s.d. UJI-13 | Menunggu frontend (Fase D). Sebagian akan diverifikasi lewat browser |
-| `UI-01` s.d. `UI-12` | Frontend belum dibuat |
-| Gate 4 penuh 13 skenario | Menunggu Fase D. Hasil UJI-03 dan UJI-08 di atas dapat dipakai sebagai bukti agar tidak mengulang permintaan |
-| Gate 4b console browser | Menunggu Fase D |
-| Gate 4c aksesibilitas | Menunggu Fase D |
+| UJI-04 s.d. UJI-07, UJI-09 | Memerlukan satu permintaan API per skenario. Ditunda ke Gate 4 penuh agar kuota harian tidak habis dalam satu sesi |
+| Gate 4 penuh 13 skenario | Delapan skenario sudah terbukti pada Fase C dan D: UJI-01, UJI-02, UJI-03, UJI-08, UJI-10, UJI-11, UJI-12, UJI-13. Lima sisanya menunggu kuota |
+| Screenshot untuk submit | Fase F. Tangkapan layar Fase D dibuat di direktori sementara yang tidak di-track |
 
-Laporan ini akan diperbarui setelah Fase D dan Gate 4 penuh selesai.
+Laporan ini akan diperbarui setelah Gate 4 penuh dan Fase F selesai.

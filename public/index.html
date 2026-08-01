@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<!--
+  Cek Dulu — antarmuka chat.
+
+  Requirement yang diimplementasikan berkas ini:
+    UI-01  struktur HTML dasar: #chat-form, #user-input, #chat-box
+    UI-07  sapaan pembuka statis, tanpa memanggil API
+    UI-08  disclaimer permanen
+    UI-09  kanal resmi OJK ditulis statis, tidak digenerate model
+    UI-11  atribut aksesibilitas: lang, aria-live, label, penanda pengirim
+
+  Spesifikasi: openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md
+-->
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Chatbot edukasi kewaspadaan keuangan digital. Mengenali ciri tawaran pinjaman, investasi, atau pesan yang berpotensi merugikan."
+    />
+    <title>Cek Dulu — Chatbot Edukasi Kewaspadaan Keuangan Digital</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f1a2e'/%3E%3Cpath d='M16 5l9 3v8c0 6-4 9.5-9 11-5-1.5-9-5-9-11V8l9-3z' fill='none' stroke='%232dd4bf' stroke-width='2'/%3E%3Ccircle cx='16' cy='15' r='3.5' fill='none' stroke='%232dd4bf' stroke-width='2'/%3E%3Cpath d='M18.6 17.6L21 20' stroke='%232dd4bf' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#user-input">Lewati ke kolom pesan</a>
+
+    <main class="app">
+      <header class="app__header">
+        <h1 class="app__title">Cek Dulu</h1>
+        <p class="app__tagline">Cek dulu sebelum percaya</p>
+      </header>
+
+      <!-- UI-08 — disclaimer permanen, selalu terlihat tanpa interaksi tambahan -->
+      <aside class="notice" aria-label="Batas penggunaan">
+        <p class="notice__text">
+          Alat ini bersifat <strong>edukatif</strong>, bukan nasihat keuangan, hukum, atau
+          investasi profesional. Cek Dulu <strong>tidak menilai</strong> apakah sebuah
+          perusahaan atau aplikasi itu legal maupun ilegal. Keputusan dan verifikasi akhir
+          tetap tanggung jawab Anda.
+        </p>
+      </aside>
+
+      <!-- UI-01, UI-11 — area percakapan. aria-live agar jawaban bot diumumkan
+           screen reader; aria-busy ditandai script.js selama menunggu respons. -->
+      <section
+        id="chat-box"
+        class="chat"
+        role="log"
+        aria-live="polite"
+        aria-busy="false"
+        aria-label="Riwayat percakapan"
+        tabindex="0"
+      >
+        <!-- UI-07 — sapaan pembuka statis. Tidak memanggil API dan tidak dimasukkan
+             ke array riwayat yang dikirim ke server. -->
+        <article class="msg msg--bot">
+          <span class="msg__who">Cek Dulu</span>
+          <p class="msg__text">Halo. Saya Cek Dulu, asisten edukasi kewaspadaan keuangan digital.
+
+Anda bisa menempelkan isi tawaran pinjaman, tawaran investasi, atau pesan mencurigakan yang Anda terima. Saya akan menjelaskan ciri-ciri yang perlu diwaspadai dari teks tersebut dan cara memeriksanya sendiri.
+
+Saya tidak menilai legalitas perusahaan atau aplikasi tertentu, dan tidak memberi nasihat investasi. Untuk memastikan status suatu penawaran, gunakan kanal resmi OJK yang tercantum di bawah halaman ini.</p>
+        </article>
+      </section>
+
+      <!-- UI-01, UI-11 — form pengiriman pesan -->
+      <form id="chat-form" class="composer">
+        <label class="composer__label" for="user-input">Tulis pesan Anda</label>
+        <div class="composer__row">
+          <input
+            type="text"
+            id="user-input"
+            class="composer__input"
+            name="message"
+            placeholder="Contoh: ada WA menawarkan pinjaman cair 10 menit tanpa BI checking"
+            autocomplete="off"
+            required
+          />
+          <button type="submit" id="send-button" class="composer__button">Kirim</button>
+        </div>
+      </form>
+
+      <!-- Task D20 (opsional) — contoh pertanyaan mengikuti pola batch sebelumnya
+           pada materi Sesi 2 p.67. Berupa <button> agar terjangkau keyboard (UI-11).
+           Tidak memiliki requirement UI tersendiri. -->
+      <section class="samples" aria-label="Contoh pertanyaan">
+        <h2 class="samples__title">Contoh pertanyaan</h2>
+        <ul class="samples__list">
+          <li>
+            <button type="button" class="chip" data-fill="Apa saja ciri pinjaman online yang perlu diwaspadai?">
+              Ciri pinjaman online yang perlu diwaspadai
+            </button>
+          </li>
+          <li>
+            <button type="button" class="chip" data-fill="Bagaimana cara memeriksa apakah sebuah tawaran investasi wajar?">
+              Cara memeriksa tawaran investasi
+            </button>
+          </li>
+          <li>
+            <button type="button" class="chip" data-fill="Saya sudah transfer ke penawaran yang ternyata bermasalah. Apa yang sebaiknya saya lakukan?">
+              Sudah transfer, apa yang harus dilakukan
+            </button>
+          </li>
+        </ul>
+      </section>
+
+      <!-- UI-09 — kanal resmi ditulis statis di HTML, tidak digenerate model.
+           Nomor kontak adalah data presisi tinggi dengan risiko halusinasi besar bila
+           diserahkan ke LLM. PG-04 melarang bot menyebutkannya dari ingatan.
+           Nilai disalin dari docs/RISET-LAPANGAN.md bagian 7. -->
+      <footer class="channels">
+        <h2 class="channels__title">Kanal resmi Otoritas Jasa Keuangan</h2>
+        <dl class="channels__list">
+          <div class="channels__item">
+            <dt class="channels__label">Telepon</dt>
+            <dd class="channels__value">157</dd>
+          </div>
+          <div class="channels__item">
+            <dt class="channels__label">WhatsApp</dt>
+            <dd class="channels__value">081 157 157 157</dd>
+          </div>
+          <div class="channels__item">
+            <dt class="channels__label">Email konsumen</dt>
+            <dd class="channels__value">konsumen@ojk.go.id</dd>
+          </div>
+          <div class="channels__item">
+            <dt class="channels__label">Email Satgas PASTI</dt>
+            <dd class="channels__value">satgaspasti@ojk.go.id</dd>
+          </div>
+        </dl>
+        <p class="channels__source">
+          Sumber: siaran pers Satgas Pemberantasan Aktivitas Keuangan Ilegal, dicatat di
+          <code>docs/RISET-LAPANGAN.md</code> bagian 7.
+        </p>
+      </footer>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -5,8 +5,9 @@
 # Cek Dulu — Chatbot Edukasi Kewaspadaan Keuangan Digital
 
 [![CI](https://github.com/mifdlaldev/cek-dulu/actions/workflows/ci.yml/badge.svg)](https://github.com/mifdlaldev/cek-dulu/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-backend%20selesai%20%C2%B7%20frontend%20berjalan-orange)](openspec/changes/add-cekdulu-chatbot/tasks.md)
+[![Status](https://img.shields.io/badge/status-aplikasi%20berjalan-brightgreen)](openspec/changes/add-cekdulu-chatbot/tasks.md)
 [![Requirement](https://img.shields.io/badge/requirement-32%20tertelusur-brightgreen)](openspec/changes/add-cekdulu-chatbot/design.md)
+[![Aksesibilitas](https://img.shields.io/badge/WCAG%202.1-AA%20terverifikasi-blue)](docs/QA-REPORT.md)
 [![Node.js](https://img.shields.io/badge/node-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org/en/download)
 [![Gemini](https://img.shields.io/badge/Gemini-Flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev/gemini-api/docs)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
@@ -66,14 +67,17 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | A | Inisialisasi proyek (`package.json`, 4 dependency) | ✅ Selesai |
 | B | Backend (`index.js`) — 20 requirement | ✅ Selesai |
 | C | Uji backend via `curl` + guardrail | ✅ Selesai — **UJI-03 lulus** |
-| D | Frontend (`public/`) — 12 requirement UI | ⬜ Belum |
-| E | Verifikasi 5 gate penuh + 13 skenario | 🟡 Sebagian — Gate 1, 2, 3, 5 lulus; Gate 4 menunggu Fase D |
+| D | Frontend (`public/`) — 12 requirement UI | ✅ Selesai — diverifikasi di browser nyata |
+| E | Verifikasi 5 gate penuh + 13 skenario | 🟡 Sebagian — Gate 1, 2, 3, 5 lulus; Gate 4 terbukti 8 dari 13 skenario |
 | F | Screenshot UI + submit ke form | ⬜ Belum |
 
-Progres task: **24 dari 59** selesai (`tasks.md`).
+Progres task: **44 dari 59** selesai (`tasks.md`).
 
-Bukti verifikasi mentah — output terminal, `curl`, dan kutipan jawaban bot:
-[`docs/QA-REPORT.md`](docs/QA-REPORT.md).
+Aplikasi sudah berjalan utuh: buka `http://localhost:3000/`, kirim pesan, dan chatbot
+menjawab. Lima skenario uji sisanya menunggu kuota API harian — bukan menunggu kode.
+
+Bukti verifikasi mentah — output terminal, `curl`, hasil inspeksi browser, dan kutipan
+jawaban bot: [`docs/QA-REPORT.md`](docs/QA-REPORT.md).
 
 ---
 
@@ -89,7 +93,7 @@ openspec/
 ├── specs/                         # Spec aktif (terisi setelah implementasi diarsipkan)
 └── changes/add-cekdulu-chatbot/
     ├── proposal.md                # WHY: masalah, scope, 19 non-goals
-    ├── design.md                  # HOW: 16 keputusan + alternatif ditolak + matriks sumber
+    ├── design.md                  # HOW: 17 keputusan + alternatif ditolak + matriks sumber
     ├── tasks.md                   # STEPS: 59 task dalam 6 fase
     └── specs/
         ├── web-server/spec.md     # WS-01 … WS-05
@@ -153,7 +157,8 @@ Jawaban siap pakai untuk kedua pertanyaan wajib: `docs/USE-CASE-CEKDULU.md` §2.
 | Parameter | `temperature: 0.3`, `topP: 0.8`, `topK: 30` |
 | Tipe fungsi | JSDoc — kontrak terdokumentasi tanpa TypeScript |
 | Styling | CSS custom properties (design token), arah restrained kontras tinggi |
-| Aksesibilitas | WCAG 2.1 AA untuk butir yang dapat diverifikasi manual |
+| Aksesibilitas | WCAG 2.1 AA — kontras terendah 8,03:1, navigasi keyboard penuh, `aria-live`, dukungan `prefers-reduced-motion` |
+| Render respons | `textContent`, bukan `innerHTML` — mencegah XSS tanpa dependency |
 
 > ⚠️ **Model berbeda dari materi, dan itu disengaja.** Materi menetapkan `gemini-2.5-flash`,
 > tetapi model tersebut mengembalikan HTTP 404 bagi akun yang baru dibuat dengan pesan
@@ -188,23 +193,21 @@ tepat saat kredibilitas paling dibutuhkan. Justifikasi:
 
 ## Struktur
 
-Tanda ⬜ menandai berkas yang belum dibuat (Fase D).
-
 ```
 Project-Akhir-Hacktiv8/
-├── index.js                  ✅ Backend — 20 requirement
-├── package.json              ✅ 4 dependency, ESM
-├── public/                   ⬜ Frontend (Fase D)
-│   ├── index.html            ⬜
-│   ├── script.js             ⬜
-│   └── style.css             ⬜
+├── index.js                  Backend — 20 requirement
+├── package.json              4 dependency, ESM
+├── public/                   Frontend — 12 requirement UI
+│   ├── index.html            Struktur, disclaimer, kanal OJK, aksesibilitas
+│   ├── script.js             Riwayat multi-turn, indikator, fallback
+│   └── style.css             Design token, layout, kontras, reduced-motion
 ├── .env                      🔒 Tidak di-commit
-├── .env.example              ✅
-├── .gitignore                ✅
-├── AGENTS.md                 ✅ Aturan kerja anti-halusinasi
-├── README.md                 ✅
-├── docs/                     ✅ Materi, riset, use case, metodologi, kendala, QA
-└── openspec/                 ✅ Spesifikasi 32 requirement
+├── .env.example
+├── .gitignore
+├── AGENTS.md                 Aturan kerja anti-halusinasi
+├── README.md
+├── docs/                     Materi, riset, use case, metodologi, kendala, QA
+└── openspec/                 Spesifikasi 32 requirement
 ```
 
 ---
@@ -258,12 +261,9 @@ Keluaran yang diharapkan:
 Cek Dulu siap di http://localhost:3000
 ```
 
-Buka `http://localhost:3000/` di browser.
+Buka `http://localhost:3000/` di browser, lalu kirim pesan.
 
-> Saat ini halaman tersebut masih mengembalikan `404` karena folder `public/` belum dibuat
-> (Fase D). Endpoint API sudah berfungsi dan dapat diuji langsung dengan `curl` di bawah.
-
-Uji endpoint:
+Uji endpoint tanpa browser:
 
 ```bash
 curl -i -X POST http://localhost:3000/api/chat \

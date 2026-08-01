@@ -427,6 +427,47 @@ permintaan dan memperpanjang blokir.
 
 ---
 
+### D-17 — Bot dilarang memakai penanda Markdown
+
+**Keputusan:** `systemInstruction` melarang bot memakai penanda format Markdown. Daftar
+ditulis dengan nomor diikuti titik, penekanan lewat pilihan kata.
+
+**Alasan:** verifikasi Fase D di browser menunjukkan jawaban bot memuat penanda mentah:
+
+```
+1. **Penawaran Langsung Melalui WhatsApp / Pesan Pribadi**
+   * **Risiko:** Lembaga jasa keuangan yang resmi ...
+```
+
+Karena antarmuka merender jawaban dengan `textContent` (D-07), tanda `**` dan `*` tampil
+sebagai karakter mentah. Bagi pembaca umum ini sekadar mengganggu; bagi target pengguna Cek
+Dulu — yang mencakup orang lanjut usia dan berliterasi rendah — simbol yang tidak dikenal
+menambah beban membaca pada situasi yang sudah menegangkan. Antarmuka yang dimaksudkan
+menenangkan justru menjadi sulit dicerna.
+
+**Ditolak: menambahkan parser Markdown.** Memerlukan `marked` untuk mengurai dan `DOMPurify`
+untuk membersihkan hasilnya, dua dependency di luar batasan materi. Lebih penting, itu
+berarti mengembalikan `innerHTML` ke jalur render dan membuka permukaan XSS yang sengaja
+ditutup D-07 — menukar keamanan demi kosmetik.
+
+**Ditolak: membersihkan penanda di frontend dengan regex.** Rapuh dan menangani gejala, bukan
+sebabnya. Model tetap menghasilkan format yang tidak terpakai, dan setiap pola baru menuntut
+regex baru.
+
+**Ditolak: membiarkannya.** Keterbacaan adalah inti nilai proyek ini, bukan detail opsional.
+
+Pendekatan yang dipilih tidak memerlukan dependency, tidak menambah kode, dan menyelesaikan
+masalah pada sumbernya. Prompt bertambah sekitar 580 karakter — biaya token yang wajar.
+
+`PG-08` diamandemen mengikuti keputusan ini. Bukti sebelum dan sesudah, termasuk kutipan
+jawaban baru, tercatat di `docs/QA-REPORT.md`.
+
+**Konsekuensi yang diterima:** kepatuhan bersifat probabilistik seperti guardrail lain.
+Uji ulang menunjukkan jawaban bersih dari keempat pola penanda, tetapi pemeriksaan ini
+diulang pada Gate 4 penuh.
+
+---
+
 ## 3. Matriks keterlacakan requirement → sumber
 
 | Req | Isi singkat | Sumber |
@@ -449,7 +490,7 @@ permintaan dan memperpanjang blokir.
 | `PG-05` | Persona + tone empatik | S3 p.22 (Persona, Tone); `RISET-LAPANGAN.md` §5 |
 | `PG-06` | Batas domain + batas kompetensi | S3 p.22 (Constraints) |
 | `PG-07` | Ingatkan data pribadi | S1 p.99 (Privasi) |
-| `PG-08` | Format output 3 langkah | S3 p.22 (Format Output) |
+| `PG-08` | Format output 3 langkah + larangan penanda Markdown | S3 p.22; diamandemen D-17 ⚠️ temuan Fase D |
 | `PG-09` | Prompt bebas data yang berubah | `RISET-LAPANGAN.md` header |
 | `UI-01` | ID elemen `chat-form`/`user-input`/`chat-box` | S3 p.37; S3 p.34 |
 | `UI-02` | Pesan pengguna langsung tampil | S3 p.37, p.39 |

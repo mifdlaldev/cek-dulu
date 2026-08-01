@@ -3,11 +3,11 @@
 | Meta | Nilai |
 |---|---|
 | ID change | `add-cekdulu-chatbot` |
-| Status | **In progress** — Fase A, B, C selesai; Fase D (frontend) belum |
+| Status | **In progress** — Fase A, B, C, D selesai; Gate 4 penuh menunggu kuota API |
 | Tanggal dibuat | 1 Agustus 2026 |
 | Terakhir diperbarui | 1 Agustus 2026 |
-| Kapabilitas tersentuh | `web-server` ✅, `chat-api` ✅, `persona-guardrail` ✅, `chat-ui` ⬜ |
-| Progres task | 24 dari 59 (`tasks.md`) |
+| Kapabilitas tersentuh | `web-server` ✅, `chat-api` ✅, `persona-guardrail` ✅, `chat-ui` ✅ |
+| Progres task | 44 dari 59 (`tasks.md`) |
 | Bukti verifikasi | `docs/QA-REPORT.md` |
 
 ---
@@ -63,25 +63,20 @@ Proyek greenfield. Semua kapabilitas berstatus **ADDED**.
 |---|---|---|---|
 | `web-server` | Bootstrap Express, muat env, middleware CORS + JSON, sajikan `public/` sebagai static, listen port 3000 | `WS-01` … `WS-05` | ✅ Selesai |
 | `chat-api` | Endpoint `POST /api/chat`: validasi array, transformasi ke format Gemini, panggil `generateContent()`, balas `{ result }` / `{ error }` | `API-01` … `API-06` | ✅ Selesai |
-| `persona-guardrail` | `systemInstruction` persona "Cek Dulu" + `temperature`/`topP`/`topK` + 8 larangan | `PG-01` … `PG-09` | ✅ Selesai — UJI-03 lulus |
-| `chat-ui` | Halaman chat Vanilla JS: form, riwayat multi-turn, indikator berpikir, fallback error, disclaimer, aksesibilitas, design token | `UI-01` … `UI-12` | ⬜ Belum (Fase D) |
+| `persona-guardrail` | `systemInstruction` persona "Cek Dulu" + `temperature`/`topP`/`topK` + larangan | `PG-01` … `PG-09` | ✅ Selesai — UJI-03 lulus |
+| `chat-ui` | Halaman chat Vanilla JS: form, riwayat multi-turn, indikator berpikir, fallback error, disclaimer, aksesibilitas, design token | `UI-01` … `UI-12` | ✅ Selesai — diverifikasi di browser |
 
 Berkas yang sudah dibuat:
 
 ```
-index.js                   ✅ 20 requirement backend
-package.json               ✅ 4 dependency, ESM, tanpa devDependencies
-docs/KENDALA-API.md        ✅ Kendala model dan kuota, bukti mentah
-docs/QA-REPORT.md          ✅ Bukti verifikasi Gate 1, 2, 3, 5 + UJI-03, UJI-08
-.github/workflows/ci.yml   ✅ Lima job, tanpa npm install
-```
-
-Berkas yang belum dibuat:
-
-```
-public/index.html          ⬜ Fase D
-public/script.js           ⬜ Fase D
-public/style.css           ⬜ Fase D
+index.js                   Backend, 20 requirement
+package.json               4 dependency, ESM, tanpa devDependencies
+public/index.html          UI-01, UI-07, UI-08, UI-09, UI-11
+public/style.css           UI-10, UI-11, UI-12
+public/script.js           UI-02 s.d. UI-06, UI-11
+docs/KENDALA-API.md        Kendala model dan kuota, bukti mentah
+docs/QA-REPORT.md          Bukti verifikasi Gate 1, 2, 3, 5 + Fase D di browser
+.github/workflows/ci.yml   Lima job, tanpa npm install
 ```
 
 Berkas yang sudah ada dan tidak diubah oleh change ini: `AGENTS.md`, `README.md`,

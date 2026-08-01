@@ -233,6 +233,7 @@ Sistem TIDAK menyimpan percakapan di server (lihat non-goals `proposal.md` §3).
 | Sumber | S3 p.22 (fungsi Mengatur Format Output) |
 | Berkas | `index.js` (`systemInstruction`) |
 | Uji | UJI-02 |
+| Terkait | `UI-10`, keputusan D-07 dan D-17 |
 
 Ketika pengguna menempelkan isi tawaran atau pesan, bot WAJIB menjawab dengan urutan:
 
@@ -246,7 +247,22 @@ Bot WAJIB berbicara tentang **pola dan ciri**, bukan penilaian terhadap pihak te
 Bot WAJIB menutup setiap jawaban dengan satu kalimat pengingat agar pengguna
 memverifikasi ke sumber resmi sebelum mengambil keputusan.
 
-Jawaban WAJIB ringkas dan mudah dibaca; boleh memakai poin-poin.
+Jawaban WAJIB ringkas dan mudah dibaca.
+
+**Bot DILARANG memakai penanda format Markdown.** Antarmuka menampilkan jawaban sebagai
+teks biasa melalui `textContent` (keputusan D-07), sehingga penanda seperti `**tebal**`,
+`*miring*`, `` `kode` ``, `#` untuk judul, dan `*` atau `-` sebagai penanda daftar akan
+tampil sebagai karakter mentah dan justru mengurangi keterbacaan.
+
+Sebagai gantinya, bot WAJIB memakai:
+- Baris baru untuk memisahkan bagian
+- Nomor diikuti titik (`1.`, `2.`, `3.`) bila urutan penting
+- Penekanan lewat pilihan kata, bukan lewat simbol
+
+> **Catatan amandemen.** Larangan Markdown ditambahkan setelah verifikasi Fase D di browser
+> menunjukkan bot mengeluarkan `**tebal**` dan `*` sebagai penanda daftar, yang tampil
+> mentah di antarmuka. Bukti tercatat di `docs/QA-REPORT.md`. Alasan menolak alternatif
+> (menambah parser Markdown) tercatat sebagai keputusan D-17 di `design.md`.
 
 #### Scenario: analisis teks tawaran
 - **When** pengguna menempelkan "Pinjaman cair 10 menit tanpa BI checking, bunga 0%,
@@ -256,6 +272,12 @@ Jawaban WAJIB ringkas dan mudah dibaca; boleh memakai poin-poin.
 - **And** bot memberikan langkah verifikasi mandiri
 - **And** bot menutup dengan pengingat verifikasi
 - **And** bot TIDAK menyebut nama pemberi tawaran sebagai penipu
+
+#### Scenario: jawaban bebas penanda Markdown
+- **When** bot menghasilkan jawaban apa pun
+- **Then** jawaban tidak memuat `**`, `__`, `` ` ``, maupun `#` sebagai penanda format
+- **And** daftar ditulis dengan nomor diikuti titik, bukan dengan `*` atau `-`
+- **And** seluruh isi terbaca wajar saat ditampilkan sebagai teks biasa
 
 ---
 
@@ -326,7 +348,15 @@ CARA MENJAWAB
   2. Jelaskan singkat mengapa setiap ciri itu berisiko.
   3. Berikan langkah yang bisa dilakukan pengguna untuk memeriksa sendiri.
 - Bicara tentang POLA dan CIRI, bukan tentang penilaian terhadap pihak tertentu.
-- Jaga jawaban tetap ringkas dan mudah dibaca. Gunakan poin-poin bila membantu.
+- Jaga jawaban tetap ringkas dan mudah dibaca.
+- Tulis jawaban sebagai teks biasa. JANGAN memakai penanda format Markdown seperti dua
+  tanda bintang untuk menebalkan, satu tanda bintang untuk memiringkan, tanda petik
+  terbalik untuk kode, atau tanda pagar untuk judul. Antarmuka menampilkan jawabanmu
+  sebagai teks apa adanya, sehingga penanda tersebut akan terlihat sebagai karakter aneh.
+- Bila perlu menyusun daftar, gunakan nomor diikuti titik seperti 1. lalu 2. dan
+  seterusnya. Jangan memakai tanda bintang atau tanda hubung sebagai penanda daftar.
+- Pisahkan bagian dengan baris baru, dan beri penekanan lewat pilihan kata, bukan lewat
+  simbol.
 - Tutup setiap jawaban dengan satu kalimat pengingat agar pengguna memverifikasi ke
   sumber resmi sebelum mengambil keputusan.
 ```

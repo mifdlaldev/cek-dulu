@@ -110,27 +110,28 @@ Backend — **selesai**, diverifikasi di `docs/QA-REPORT.md`:
 - [x] `config` berisi `temperature` + `topP` + `topK` + `systemInstruction` sesuai use case
 - [x] Server listen di port 3000
 
-Frontend (`public/`) — **belum dikerjakan** (Fase D):
-- [ ] `index.html` punya `#chat-form`, `#user-input`, `#chat-box`
-- [ ] `script.js` kirim body `{ conversation: [{ role, text }] }` — **bukan** `{ messages: [{ role, content }] }`
-- [ ] `script.js` baca `data.result`
-- [ ] Tampil pesan sementara "Thinking..." lalu diganti jawaban AI
-- [ ] Fallback error: `"Sorry, no response received."` / `"Failed to get response from server."`
-- [ ] `style.css` mengatur tampilan chatbot
+Frontend (`public/`) — **selesai**, diverifikasi di browser nyata:
+- [x] `index.html` punya `#chat-form`, `#user-input`, `#chat-box`
+- [x] `script.js` kirim body `{ conversation: [{ role, text }] }` — **bukan** `{ messages: [{ role, content }] }`
+- [x] `script.js` baca `data.result`
+- [x] Tampil pesan sementara lalu diganti jawaban AI di tempat yang sama
+- [x] Fallback error: `"Sorry, no response received."` / `"Failed to get response from server."`
+- [x] `style.css` mengatur tampilan chatbot dengan design token terpusat
+- [x] Aksesibilitas: `lang="id"`, `aria-live`, `aria-busy`, label input, navigasi keyboard, kontras terendah 8,03:1
 
 Repo — **sebagian selesai**:
 - [x] `.gitignore` isi: `/node_modules`, `.env`, `package-lock.json`
 - [x] `.env` **TIDAK** ter-commit — diverifikasi termasuk terhadap riwayat commit
 - [x] `README.md` menjelaskan cara install + run
-- [ ] Screenshot UI sudah diambil — menunggu Fase D
+- [ ] Screenshot UI sudah diambil — Fase F
 
 Verifikasi nyata (bukan asumsi):
 - [x] `node index.js` → server hidup, log muncul tanpa nilai kredensial
 - [x] `curl -X POST http://localhost:3000/api/chat -H 'Content-Type: application/json' -d '{"conversation":[{"role":"user","text":"halo"}]}'` → dapat `{ "result": ... }`
 - [x] `curl` dengan body `{}` → `500 {"error":"Messages must be an array!"}`
 - [x] UJI-03 guardrail legalitas → bot menolak menilai entitas
-- [ ] Buka `http://localhost:3000/` di browser, kirim pesan → balasan muncul di UI — menunggu Fase D
-- [ ] Cek console browser tidak ada error — menunggu Fase D
+- [x] Buka `http://localhost:3000/` di browser, kirim pesan → balasan muncul di UI
+- [x] Cek console browser tidak ada error
 
 Bukti mentah seluruh verifikasi: `docs/QA-REPORT.md`.
 
@@ -138,8 +139,8 @@ Kesiapan isi form:
 - [x] Nama project ditentukan → **Cek Dulu**
 - [x] Jawaban "Siapa target pengguna" siap → `USE-CASE-CEKDULU.md` §2
 - [x] Jawaban "Bagaimana chatbot membantu pengguna" siap → `USE-CASE-CEKDULU.md` §2
-- [ ] File UI: **1 file** PDF atau image, **≤ 1 MB** — menunggu Fase D
-- [ ] 13 skenario uji `USE-CASE-CEKDULU.md` §5 dijalankan — UJI-03 dan UJI-08 sudah lulus, sisanya menunggu Fase D
+- [ ] File UI: **1 file** PDF atau image, **≤ 1 MB** — Fase F
+- [ ] 13 skenario uji `USE-CASE-CEKDULU.md` §5 dijalankan — 8 sudah lulus (UJI-01, 02, 03, 08, 10, 11, 12, 13), 5 sisanya menunggu kuota API harian
 - [ ] Nomor telepon format `628...` tanpa `+` atau `-` — diisi saat submit
 
 ---

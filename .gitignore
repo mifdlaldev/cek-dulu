@@ -12,6 +12,7 @@ package-lock.json
 # Artefak tooling lokal
 .omo/
 .codegraph/
+.playwright-mcp/
 
 # Sistem operasi & editor
 .DS_Store

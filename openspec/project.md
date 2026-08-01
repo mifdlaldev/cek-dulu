@@ -94,23 +94,21 @@ adalah `{ conversation: [{ role, text }] }`. Lihat `AGENTS.md` §3.2.
 
 ## Struktur file
 
-Tanda ⬜ menandai berkas yang belum dibuat.
-
 ```
 Project-Akhir-Hacktiv8/
-├── index.js              ✅ Backend, 20 requirement
-├── package.json          ✅ 4 dependency, ESM
-├── public/               ⬜ Fase D
-│   ├── index.html        ⬜
-│   ├── script.js         ⬜
-│   └── style.css         ⬜
+├── index.js              Backend, 20 requirement
+├── package.json          4 dependency, ESM
+├── public/               Frontend, 12 requirement UI
+│   ├── index.html        UI-01, UI-07, UI-08, UI-09, UI-11
+│   ├── script.js         UI-02 s.d. UI-06, UI-11
+│   └── style.css         UI-10, UI-11, UI-12
 ├── .env                  🔒 JANGAN commit, JANGAN tulis nilainya ke output
-├── .env.example          ✅
-├── .gitignore            ✅
-├── AGENTS.md             ✅
-├── README.md             ✅
-├── docs/                 ✅
-└── openspec/             ✅
+├── .env.example
+├── .gitignore
+├── AGENTS.md
+├── README.md
+├── docs/
+└── openspec/
 ```
 
 Progres task terkini: `openspec/changes/add-cekdulu-chatbot/tasks.md`.

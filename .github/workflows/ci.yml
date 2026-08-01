@@ -107,17 +107,20 @@ jobs:
             console.log("OK: dependency", deps.join(", ") || "(kosong)");
           '
 
-      - name: Frontend dilarang memakai innerHTML (D-07)
+      # D-07 melarang keluaran model dirender sebagai HTML. Pola di bawah mendeteksi
+      # penulisan nyata ke properti HTML, bukan kemunculan kata dalam komentar, dan
+      # sekaligus mencakup outerHTML serta insertAdjacentHTML yang membawa risiko sama.
+      - name: Frontend dilarang menulis HTML mentah (D-07)
         run: |
           if [ ! -f public/script.js ]; then
             echo "LEWAT: public/script.js belum ada"
             exit 0
           fi
-          if grep -n 'innerHTML' public/script.js; then
-            echo "GAGAL: innerHTML terdeteksi. Gunakan textContent untuk mencegah XSS."
+          if grep -nE '\.(inner|outer)HTML\s*=|insertAdjacentHTML|document\.write' public/script.js; then
+            echo "GAGAL: penulisan HTML mentah terdeteksi. Gunakan textContent untuk mencegah XSS."
             exit 1
           fi
-          echo "OK: tidak ada innerHTML"
+          echo "OK: tidak ada penulisan HTML mentah"
 
   prompt-audit:
     name: Audit systemInstruction (PG-09)

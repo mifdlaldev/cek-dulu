@@ -1,0 +1,400 @@
+/*
+ * Cek Dulu — tampilan antarmuka chat.
+ *
+ * Requirement yang diimplementasikan berkas ini:
+ *   UI-10  pembeda peran, scroll terbatas, responsif, kontras cukup
+ *   UI-11  state fokus terlihat, kontras minimal 4,5:1, font dasar 16px,
+ *          dukungan prefers-reduced-motion
+ *   UI-12  seluruh nilai visual sebagai design token dalam satu blok :root
+ *
+ * Arah visual: restrained, kontras tinggi, tipografi tenang. Pengguna Cek Dulu
+ * sedang cemas, sehingga antarmuka ramai atau eksperimental justru menurunkan
+ * kredibilitas. Justifikasi: design.md keputusan D-12.
+ *
+ * Spesifikasi: openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md
+ */
+
+/* UI-12 — design token terpusat. Nilai literal di luar blok ini hanya dipakai
+   untuk angka struktural seperti 0, 1px border, dan 100%. */
+:root {
+  /* Palet. Kontras terhadap latar diperiksa memenuhi WCAG 2.1 AA (UI-11). */
+  --warna-latar: #0f1a2e;
+  --warna-permukaan: #16233c;
+  --warna-permukaan-naik: #1e2f4d;
+  --warna-garis: #2b3d5f;
+  --warna-teks: #f5f7fa;
+  --warna-teks-lembut: #b8c4d6;
+  --warna-aksen: #2dd4bf;
+  --warna-aksen-teks: #0f1a2e;
+  --warna-bubble-pengguna: #24405e;
+  --warna-bubble-bot: #1b2b47;
+  --warna-fokus: #7dd3fc;
+
+  /* Skala tipografi, kelipatan tetap dari ukuran dasar 16px. */
+  --teks-dasar: 1rem;
+  --teks-kecil: 0.875rem;
+  --teks-mikro: 0.8125rem;
+  --teks-sedang: 1.125rem;
+  --teks-besar: 1.5rem;
+  --teks-judul: 2rem;
+
+  --tebal-normal: 400;
+  --tebal-sedang: 500;
+  --tebal-tegas: 600;
+
+  --tinggi-baris: 1.6;
+  --tinggi-baris-rapat: 1.3;
+
+  /* Skala spacing, kelipatan satuan dasar 4px. */
+  --ruang-1: 0.25rem;
+  --ruang-2: 0.5rem;
+  --ruang-3: 0.75rem;
+  --ruang-4: 1rem;
+  --ruang-5: 1.5rem;
+  --ruang-6: 2rem;
+  --ruang-7: 2.5rem;
+
+  /* Radius. */
+  --radius-kecil: 6px;
+  --radius-sedang: 10px;
+  --radius-besar: 14px;
+  --radius-penuh: 999px;
+
+  /* Durasi transisi. */
+  --durasi-cepat: 120ms;
+  --durasi-sedang: 200ms;
+
+  /* Ukuran struktural. */
+  --lebar-maks: 44rem;
+  --tinggi-chat: 26rem;
+  --tebal-fokus: 3px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: var(--ruang-5) var(--ruang-4);
+  background-color: var(--warna-latar);
+  color: var(--warna-teks);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  font-size: var(--teks-dasar);
+  line-height: var(--tinggi-baris);
+}
+
+/* UI-11 — tautan lompat untuk pengguna keyboard. Tersembunyi sampai menerima fokus. */
+.skip-link {
+  position: absolute;
+  left: var(--ruang-4);
+  top: calc(var(--ruang-4) * -4);
+  padding: var(--ruang-2) var(--ruang-4);
+  background-color: var(--warna-aksen);
+  color: var(--warna-aksen-teks);
+  font-weight: var(--tebal-tegas);
+  border-radius: var(--radius-kecil);
+  text-decoration: none;
+  transition: top var(--durasi-cepat) ease;
+}
+
+.skip-link:focus {
+  top: var(--ruang-4);
+}
+
+.app {
+  max-width: var(--lebar-maks);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-5);
+}
+
+.app__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-1);
+}
+
+.app__title {
+  margin: 0;
+  font-size: var(--teks-judul);
+  font-weight: var(--tebal-tegas);
+  line-height: var(--tinggi-baris-rapat);
+  letter-spacing: -0.01em;
+}
+
+.app__tagline {
+  margin: 0;
+  color: var(--warna-teks-lembut);
+  font-size: var(--teks-kecil);
+}
+
+/* UI-08 — disclaimer permanen. Dibedakan dengan garis aksen di sisi kiri, bukan
+   hanya lewat warna, sesuai UI-11 yang melarang informasi disampaikan hanya oleh warna. */
+.notice {
+  padding: var(--ruang-4);
+  background-color: var(--warna-permukaan);
+  border-left: var(--tebal-fokus) solid var(--warna-aksen);
+  border-radius: var(--radius-kecil);
+}
+
+.notice__text {
+  margin: 0;
+  font-size: var(--teks-kecil);
+  color: var(--warna-teks-lembut);
+}
+
+.notice__text strong {
+  color: var(--warna-teks);
+  font-weight: var(--tebal-tegas);
+}
+
+/* UI-10 — area percakapan dengan tinggi terbatas dan scroll vertikal. */
+.chat {
+  height: var(--tinggi-chat);
+  overflow-y: auto;
+  padding: var(--ruang-4);
+  background-color: var(--warna-permukaan);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-besar);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-3);
+}
+
+.chat:focus-visible {
+  outline: var(--tebal-fokus) solid var(--warna-fokus);
+  outline-offset: 2px;
+}
+
+/* UI-10 — pembeda peran memakai posisi, warna, dan label pengirim sekaligus. */
+.msg {
+  max-width: 85%;
+  padding: var(--ruang-3);
+  border-radius: var(--radius-sedang);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-1);
+}
+
+.msg--bot {
+  align-self: flex-start;
+  background-color: var(--warna-bubble-bot);
+  border: 1px solid var(--warna-garis);
+}
+
+.msg--user {
+  align-self: flex-end;
+  background-color: var(--warna-bubble-pengguna);
+  border: 1px solid var(--warna-garis);
+}
+
+/* UI-11 — penanda pengirim terbaca screen reader, bukan hanya dibedakan warna. */
+.msg__who {
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-tegas);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warna-teks-lembut);
+}
+
+/* UI-10 — pre-wrap agar baris baru dari respons model tetap terlihat, dan
+   overflow-wrap agar teks panjang tanpa spasi tidak meluber keluar kontainer. */
+.msg__text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.msg--menunggu .msg__text {
+  color: var(--warna-teks-lembut);
+  font-style: italic;
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-2);
+}
+
+.composer__label {
+  font-size: var(--teks-kecil);
+  font-weight: var(--tebal-sedang);
+  color: var(--warna-teks-lembut);
+}
+
+.composer__row {
+  display: flex;
+  gap: var(--ruang-2);
+  flex-wrap: wrap;
+}
+
+.composer__input {
+  flex: 1 1 14rem;
+  min-width: 0;
+  padding: var(--ruang-3);
+  background-color: var(--warna-permukaan);
+  color: var(--warna-teks);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-sedang);
+  font-family: inherit;
+  font-size: var(--teks-dasar);
+  transition: border-color var(--durasi-cepat) ease;
+}
+
+.composer__input::placeholder {
+  color: var(--warna-teks-lembut);
+}
+
+.composer__input:hover:not(:disabled) {
+  border-color: var(--warna-aksen);
+}
+
+/* UI-11 — indikator fokus terlihat jelas. outline tidak dihapus. */
+.composer__input:focus-visible,
+.composer__button:focus-visible,
+.chip:focus-visible,
+.skip-link:focus-visible {
+  outline: var(--tebal-fokus) solid var(--warna-fokus);
+  outline-offset: 2px;
+}
+
+.composer__input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.composer__button {
+  padding: var(--ruang-3) var(--ruang-5);
+  background-color: var(--warna-aksen);
+  color: var(--warna-aksen-teks);
+  border: 1px solid var(--warna-aksen);
+  border-radius: var(--radius-sedang);
+  font-family: inherit;
+  font-size: var(--teks-dasar);
+  font-weight: var(--tebal-tegas);
+  cursor: pointer;
+  transition: opacity var(--durasi-cepat) ease;
+}
+
+.composer__button:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.composer__button:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.samples__title,
+.channels__title {
+  margin: 0 0 var(--ruang-3);
+  font-size: var(--teks-kecil);
+  font-weight: var(--tebal-tegas);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warna-teks-lembut);
+}
+
+.samples__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ruang-2);
+}
+
+.chip {
+  padding: var(--ruang-2) var(--ruang-3);
+  background-color: var(--warna-permukaan-naik);
+  color: var(--warna-teks);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-penuh);
+  font-family: inherit;
+  font-size: var(--teks-kecil);
+  cursor: pointer;
+  transition: border-color var(--durasi-cepat) ease;
+}
+
+.chip:hover {
+  border-color: var(--warna-aksen);
+}
+
+.channels {
+  padding-top: var(--ruang-5);
+  border-top: 1px solid var(--warna-garis);
+}
+
+.channels__list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--ruang-3);
+}
+
+.channels__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-1);
+}
+
+.channels__label {
+  font-size: var(--teks-mikro);
+  color: var(--warna-teks-lembut);
+}
+
+.channels__value {
+  margin: 0;
+  font-size: var(--teks-sedang);
+  font-weight: var(--tebal-tegas);
+  overflow-wrap: anywhere;
+}
+
+.channels__source {
+  margin: var(--ruang-4) 0 0;
+  font-size: var(--teks-mikro);
+  color: var(--warna-teks-lembut);
+}
+
+.channels__source code {
+  font-size: inherit;
+  overflow-wrap: anywhere;
+}
+
+/* UI-10 — penyesuaian layar sempit. Tombol melebar penuh agar mudah dijangkau. */
+@media (max-width: 32rem) {
+  :root {
+    --tinggi-chat: 22rem;
+    --teks-judul: 1.75rem;
+  }
+
+  body {
+    padding: var(--ruang-4) var(--ruang-3);
+  }
+
+  .msg {
+    max-width: 92%;
+  }
+
+  .composer__button {
+    flex: 1 1 100%;
+  }
+}
+
+/* UI-11 — hormati preferensi pengguna yang mengurangi gerak. Seluruh fungsi
+   tetap bekerja tanpa transisi. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
