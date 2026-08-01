@@ -1,0 +1,207 @@
+# AGENTS.md — Aturan Kerja & Anti-Halusinasi
+
+Repo ini adalah **Final Project Hacktiv8 "Maju Bareng AI"** jalur
+**[Developers] AI Productivity and AI API Integration for Developers**.
+
+Nama project: **Cek Dulu** — chatbot edukasi kewaspadaan keuangan digital.
+Use case lengkap: `docs/USE-CASE-CEKDULU.md`.
+
+Semua fakta di file ini dan di `docs/` **diekstrak verbatim dari 4 PDF materi**
+yang ada di root repo. Nomor halaman selalu dicantumkan sebagai sumber.
+
+---
+
+## 0. BACA INI DULU SEBELUM MENYENTUH KODE
+
+Proyek ini memakai **spec-driven development**. Kode tidak ditulis berdasarkan tafsiran,
+tapi berdasarkan requirement ber-ID yang punya sumber tertulis.
+
+**Urutan wajib sebelum koding:**
+
+1. `openspec/project.md` — batasan stack & aturan yang selalu berlaku
+2. `openspec/changes/add-cekdulu-chatbot/proposal.md` — scope & **non-goals**
+3. `openspec/changes/add-cekdulu-chatbot/specs/*/spec.md` — requirement + skenario
+4. `openspec/changes/add-cekdulu-chatbot/design.md` — keputusan & alternatif yang ditolak
+5. `openspec/changes/add-cekdulu-chatbot/tasks.md` — task berurutan yang dikerjakan
+
+**Aturan mutlak:**
+- Kode yang tidak punya requirement ID → **jangan ditulis**.
+- Spec ternyata salah/kurang di tengah implementasi → **perbaiki spec dulu**, baru koding.
+  Dilarang koding menyimpang lalu memperbaiki spec agar cocok.
+- Ada 30 requirement (`WS-*`, `API-*`, `PG-*`, `UI-*`). Semua punya sumber. Matriks
+  keterlacakan di `design.md` §3.
+
+Cara kerja lengkap + 5 gate verifikasi → `docs/METODOLOGI.md`.
+
+**`PG-03` adalah gate mutlak:** bot dilarang menyatakan sebuah perusahaan/aplikasi legal
+atau ilegal. Kalau uji UJI-03 gagal, implementasi dinyatakan **gagal** dan
+`systemInstruction` wajib diperkuat sebelum pekerjaan dilanjutkan.
+
+---
+
+## 1. ATURAN ANTI-HALUSINASI (WAJIB)
+
+### 1.1 Sumber kebenaran (urutan prioritas)
+
+1. **Kode aktual di repo** — baca file, jangan mengarang.
+2. **`openspec/specs/`** — spec aktif (perilaku sistem saat ini).
+3. **`openspec/changes/*/specs/`** — spec yang sedang dibangun.
+4. **`docs/SPEC-API.md`** — spesifikasi endpoint verbatim dari slide.
+5. **`docs/FAKTA-TERVERIFIKASI.md`** — ledger fakta + halaman sumber.
+6. **PDF materi di root** — sumber asli.
+7. **`docs/RISET-LAPANGAN.md`** — data eksternal, **hanya** untuk justifikasi use case.
+8. Pengetahuan internal model — **PALING RENDAH**. Selalu kalah dari 1–7.
+
+### 1.2 Yang DILARANG
+
+- ❌ Mengarang nama endpoint, field JSON, atau nama env var yang tidak ada di `docs/SPEC-API.md`.
+- ❌ Mengklaim "materi bilang X" tanpa nomor halaman PDF.
+- ❌ Mengganti `@google/genai` ke `@google/generative-ai` (SDK lama, **bukan** yang dipakai materi).
+- ❌ Memakai `new GoogleGenerativeAI(...)` / `getGenerativeModel(...)` — itu API SDK lama.
+- ❌ Menambah dependency di luar daftar `docs/SPEC-API.md` tanpa persetujuan user.
+- ❌ Menulis `.env` atau meng-echo nilai API key ke output/log/commit.
+- ❌ Commit tanpa permintaan eksplisit user.
+- ❌ Menulis kode yang tidak punya requirement ID di `openspec/changes/*/specs/`.
+- ❌ Mengerjakan apa pun yang tercantum di Non-Goals `proposal.md` §3.
+- ❌ Menanam angka statistik dari `docs/RISET-LAPANGAN.md` ke dalam `systemInstruction`.
+- ❌ Menyerahkan data presisi (nomor telepon, email, URL, nomor peraturan) ke LLM.
+  Data itu ditulis **statis di HTML** (`UI-09`).
+
+### 1.3 Yang WAJIB
+
+- ✅ Sebelum klaim tentang materi → buka `docs/` dulu, sebut halamannya.
+- ✅ SDK: `import { GoogleGenAI } from "@google/genai"` lalu `ai.models.generateContent({...})`.
+- ✅ Model: `gemini-2.5-flash` (string literal, disimpan di `const GEMINI_MODEL`).
+- ✅ Env var: **`GEMINI_API_KEY`** (lihat 3.1 soal konflik `API_KEY`).
+- ✅ Response sukses: `res.status(200).json({ result: response.text })`.
+- ✅ Response error: `res.status(500).json({ ... })`.
+- ✅ Jika fakta tidak ada di PDF → katakan **"tidak ada di materi"**, jangan menebak.
+- ✅ Frontend kirim `{ conversation: [{ role, text }] }` — **bukan** `{ messages: [{ role, content }] }`.
+- ✅ Render respons bot dengan `textContent`, bukan `innerHTML` (cegah XSS).
+
+### 1.4 Verifikasi sebelum bilang "selesai"
+
+Lima gate `docs/METODOLOGI.md` §5, semuanya wajib dengan **bukti output nyata**:
+
+1. **Keterlacakan** — setiap requirement punya sumber tertulis.
+2. **Server hidup** — `node index.js` jalan, log muncul, tempel outputnya.
+3. **Kontrak API** — `curl` positif → `200 {result}`; `curl` negatif → `500 {error}`.
+4. **Guardrail & UI** — 12 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser
+   sungguhan; **UJI-03 lulus mutlak**.
+5. **Kebersihan repo** — `.env` tidak ter-track, hanya 4 dependency, tidak ada file temporer.
+
+"Seharusnya jalan" ≠ terverifikasi. Klaim tanpa output = tidak sah.
+
+---
+
+## 2. FAKTA TEKNIS KUNCI (ringkas)
+
+| Item | Nilai | Sumber |
+|---|---|---|
+| SDK | `@google/genai` `^1.10.0` | S2 p.31, S3 p.26 |
+| Model | `gemini-2.5-flash` | S2 p.34, S3 p.28 |
+| Node.js | v18+ (demo pakai v23.7.0) | S2 p.8–9 |
+| Module system | `"type": "module"` di package.json | S2 p.31, S3 p.26 |
+| Port | 3000 | S2 p.34, S3 p.28 |
+| Env var | `GEMINI_API_KEY` | S2 p.32, S3 p.27 |
+| Endpoint chatbot | `POST /api/chat` | S3 p.29 |
+| Body chatbot | `{ conversation: [{ role, text }] }` | S3 p.29, p.31 |
+| Response | `{ result: "<teks>" }` | S3 p.29, p.31 |
+| Frontend | Vanilla JS di folder `public/` | S3 p.34 |
+| Static serve | `app.use(express.static(path.join(__dirname, 'public')))` | S3 p.43 |
+
+Detail lengkap → `docs/SPEC-API.md`.
+
+---
+
+## 3. KONFLIK DALAM MATERI (jangan bingung, sudah diputuskan)
+
+Materi punya beberapa inkonsistensi internal. Keputusan repo ini:
+
+### 3.1 `GEMINI_API_KEY` vs `API_KEY`
+- Slide teks & struktur file: `GEMINI_API_KEY` (S2 p.32, S3 p.27)
+- Slide kode S2 p.34 & S3 p.28: `process.env.GEMINI_API_KEY`
+- Slide kode S3 p.43: `process.env.API_KEY` ← **menyimpang**
+- **KEPUTUSAN: pakai `GEMINI_API_KEY`.**
+
+### 3.2 `conversation` vs `messages`
+- Narasi slide S3 p.29 bilang "array `messages`"
+- Kode aktual S3 p.29: `const { conversation } = req.body`
+- Postman S3 p.31: `{"conversation": [...]}`
+- Contoh `script.js` dari Gemini Code Assist (S3 p.39, p.42) justru kirim `{ messages: [{ role, content }] }` ← **tidak cocok backend**
+- **KEPUTUSAN: `conversation` dengan item `{ role, text }`.** `script.js` harus diperbaiki agar sesuai, jangan copas mentah dari slide.
+
+### 3.3 Folder `uploads/` (Sesi 2)
+- S2 p.32 & p.35 (teks) bilang multer simpan ke `uploads/`
+- Kode aktual S2 p.34: `const upload = multer();` → **memory storage**, baca `req.file.buffer`
+- S2 p.56 mengonfirmasi: "file diproses langsung dari memory buffer ... tanpa perlu menghapus file karena tidak ada penyimpanan ke disk"
+- **KEPUTUSAN: memory storage. Tidak ada folder `uploads/`.**
+
+### 3.4 `{ result: ... }` vs `{ output: ... }`
+- Kode slide: `res.status(200).json({ result: response.text })`
+- Screenshot Postman S2 p.41/45/49/54 menampilkan `{"output": "..."}` ← screenshot dari versi lama
+- **KEPUTUSAN: `result`.**
+
+### 3.5 Salah tulis key audio
+- S2 p.54 menulis key form-data `document` untuk endpoint audio
+- Kode: `upload.single("audio")`
+- **KEPUTUSAN: key = `audio`.**
+
+### 3.6 `extractText()` helper
+- Muncul hanya di S2 p.58 (screenshot Gemini Code Assist). Bukan bagian kode utama slide.
+- **KEPUTUSAN: opsional. Kode utama pakai `response.text` langsung.**
+
+---
+
+## 4. GAYA KERJA
+
+- Bahasa balasan ke user: **Indonesia**.
+- Nama file, path, identifier kode, pesan error: **verbatim**, jangan diterjemahkan.
+- Perubahan minimal. Bug fix ≠ refactor.
+- Jangan buat abstraksi untuk operasi sekali pakai.
+- Jangan buat file baru kalau bisa edit file yang ada.
+- `.gitignore` wajib berisi: `/node_modules`, `.env`, `package-lock.json` (S2 p.61, S3 p.50).
+
+---
+
+## 5. PETA DOKUMEN
+
+| File | Isi |
+|---|---|
+| `README.md` | Ringkasan repo + status |
+| `docs/SPEC-API.md` | Spesifikasi endpoint & kode verbatim dari slide |
+| `docs/FAKTA-TERVERIFIKASI.md` | Ledger fakta → halaman sumber |
+| `docs/MATERI-SESI-1.md` | Ringkasan lengkap Sesi 1 |
+| `docs/MATERI-SESI-2.md` | Ringkasan lengkap Sesi 2 |
+| `docs/MATERI-SESI-3.md` | Ringkasan lengkap Sesi 3 |
+| `docs/TOOLS-DAN-LINK.md` | Daftar tools, versi, dan semua URL dari PDF |
+| `docs/FINAL-PROJECT.md` | Requirement + kriteria submit final project |
+| `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 12 skenario uji |
+| `docs/RISET-LAPANGAN.md` | Data eksternal + sitasi URL resmi |
+| `docs/METODOLOGI.md` | Alur kerja spec-driven + 5 gate verifikasi |
+| `openspec/project.md` | Konteks & batasan proyek untuk agent |
+| `openspec/changes/add-cekdulu-chatbot/` | Requirement yang sedang dibangun |
+| `openspec/specs/` | Spec aktif (terisi setelah implementasi diarsipkan) |
+
+---
+
+## 6. ATURAN RISET EKSTERNAL
+
+Riset di luar materi (web search, dokumentasi resmi) **diizinkan** untuk:
+- Menjustifikasi pemilihan use case
+- Mengisi pertanyaan esai di form Final Project
+- Memverifikasi kanal resmi yang dirujuk UI
+
+Riset **DILARANG** untuk:
+- Mengubah stack, dependency, endpoint, atau kontrak API — itu terkunci oleh materi
+- Menambah fitur yang tidak diminta brief
+- Mengisi `systemInstruction` dengan angka atau nama entitas
+
+Setiap angka hasil riset **wajib punya URL sumber** di `docs/RISET-LAPANGAN.md`.
+Angka tanpa sumber = tidak sah, hapus.
+
+Alasan angka tidak boleh masuk prompt: semua data itu snapshot per tanggal siaran pers.
+IASC naik dari 135 ribu laporan (Mei 2025) ke 343 ribu (Nov 2025) dalam ±6 bulan. Angka
+yang ditanam hari ini akan salah beberapa bulan lagi, dan bot menyampaikannya dengan
+yakin — itu definisi halusinasi.
+

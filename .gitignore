@@ -1,0 +1,20 @@
+# Dependency & lockfile (S2 p.61, S3 p.50)
+/node_modules
+package-lock.json
+
+# Kredensial — JANGAN PERNAH di-commit (S2 p.61, S3 p.50)
+.env
+
+# Materi pelatihan Hacktiv8 — berhak cipta, tidak diredistribusi
+*.pdf
+
+# Artefak tooling lokal
+.omo/
+.codegraph/
+
+# Sistem operasi & editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
