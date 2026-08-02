@@ -5,8 +5,8 @@
 # Cek Dulu — Chatbot Edukasi Kewaspadaan Keuangan Digital
 
 [![CI](https://github.com/mifdlaldev/cek-dulu/actions/workflows/ci.yml/badge.svg)](https://github.com/mifdlaldev/cek-dulu/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-terverifikasi%2017%2F17%20uji-brightgreen)](openspec/changes/add-cekdulu-chatbot/tasks.md)
-[![Requirement](https://img.shields.io/badge/requirement-35%20tertelusur-brightgreen)](openspec/changes/add-cekdulu-chatbot/design.md)
+[![Status](https://img.shields.io/badge/status-terverifikasi%2021%2F21%20uji-brightgreen)](openspec/changes/add-cekdulu-chatbot/tasks.md)
+[![Requirement](https://img.shields.io/badge/requirement-40%20tertelusur-brightgreen)](openspec/changes/add-cekdulu-chatbot/design.md)
 [![Gate](https://img.shields.io/badge/5%20gate%20verifikasi-lulus-brightgreen)](docs/QA-REPORT.md)
 [![Aksesibilitas](https://img.shields.io/badge/WCAG%202.1-AA%20terverifikasi-blue)](docs/QA-REPORT.md)
 [![Node.js](https://img.shields.io/badge/node-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org/en/download)
@@ -63,9 +63,9 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | — | Materi PDF (4 file, 234 halaman) | ✅ Dibaca & diekstrak penuh ke `docs/` |
 | — | Riset lapangan + sitasi | ✅ `docs/RISET-LAPANGAN.md` |
 | — | Use case terpilih | ✅ **Cek Dulu** — `docs/USE-CASE-CEKDULU.md` |
-| — | Spesifikasi (35 requirement) | ✅ `openspec/changes/add-cekdulu-chatbot/` |
+| — | Spesifikasi (40 requirement) | ✅ `openspec/changes/add-cekdulu-chatbot/` |
 | — | Metodologi + 5 gate verifikasi | ✅ `docs/METODOLOGI.md` |
-| A | Inisialisasi proyek (`package.json`, 4 dependency) | ✅ Selesai |
+| A | Inisialisasi proyek (`package.json`, 4 dependency) | ✅ Selesai — menjadi 5 pada Fase K |
 | B | Backend (`index.js`) — 20 requirement | ✅ Selesai |
 | C | Uji backend via `curl` + guardrail | ✅ Selesai — **UJI-03 lulus** |
 | D | Frontend (`public/`) — 12 requirement UI | ✅ Selesai — diverifikasi di browser nyata |
@@ -74,15 +74,16 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | H | Landing page sembilan section (`UI-14`) | ✅ **Selesai — UJI-15 lulus** |
 | I | Komposer multi-baris, blok saran, nota (`UI-01`, `UI-15`) | ✅ **Selesai — UJI-16 lulus** |
 | J | Avatar bot berupa berkas gambar (`UI-10`) | ✅ **Selesai — UJI-17 lulus** |
+| K | Lampiran gambar dan dokumen (`API-07`, `UI-16`) | ✅ **Selesai — UJI-18 s.d. UJI-21 lulus** |
 | F | Screenshot UI + submit ke form | ⬜ Belum |
 
-Progres task: **134 dari 141** selesai (`tasks.md`).
+Progres task: **162 dari 169** selesai (`tasks.md`).
 
 Aplikasi berjalan utuh dan **seluruh gate verifikasi terpenuhi**: buka
 `http://localhost:3000/`, gulir landing page, lalu klik tombol **Cek Dulu** di sudut kanan
-bawah untuk mengirim pesan. Tujuh belas skenario uji dijalankan di browser sungguhan, termasuk
-`PG-03` yang melarang bot menilai legalitas entitas, `UI-13` untuk pola dialog, `UI-14` untuk
-landing page, `UI-01` untuk komposer multi-baris, dan `UI-10` untuk avatar.
+bawah untuk mengirim pesan atau melampirkan berkas. Dua puluh satu skenario uji dijalankan di
+browser sungguhan, termasuk `PG-03` yang melarang bot menilai legalitas entitas — diuji dua
+kali, lewat teks (UJI-03) dan lewat tangkapan layar berlogo (UJI-18).
 
 Section "Social Proof" pada pola landing page konvensional diganti **"Data & Sumber"** berisi
 angka lembaga resmi bersitasi. Alasannya aplikasi ini belum punya pengguna — mengarang
@@ -107,17 +108,17 @@ openspec/
 ├── project.md                     # Batasan stack & aturan yang selalu berlaku
 ├── specs/                         # Spec aktif (terisi setelah implementasi diarsipkan)
 └── changes/add-cekdulu-chatbot/
-    ├── proposal.md                # WHY: masalah, scope, 19 non-goals
-    ├── design.md                  # HOW: 23 keputusan + alternatif ditolak + matriks sumber
-    ├── tasks.md                   # STEPS: 141 task dalam 10 fase
+    ├── proposal.md                # WHY: masalah, scope, 22 non-goals
+    ├── design.md                  # HOW: 24 keputusan + alternatif ditolak + matriks sumber
+    ├── tasks.md                   # STEPS: 169 task dalam 11 fase
     └── specs/
         ├── web-server/spec.md     # WS-01 … WS-05
-        ├── chat-api/spec.md       # API-01 … API-06
-        ├── persona-guardrail/spec.md  # PG-01 … PG-09
-        └── chat-ui/spec.md        # UI-01 … UI-15
+        ├── chat-api/spec.md       # API-01 … API-08
+        ├── persona-guardrail/spec.md  # PG-01 … PG-10
+        └── chat-ui/spec.md        # UI-01 … UI-17
 ```
 
-35 requirement, semuanya punya sumber. Matriks keterlacakan di
+40 requirement, semuanya punya sumber. Matriks keterlacakan di
 [`design.md`](openspec/changes/add-cekdulu-chatbot/design.md) §3.
 
 Alur lengkap + lima gate verifikasi: [`docs/METODOLOGI.md`](docs/METODOLOGI.md)
@@ -130,7 +131,7 @@ Lima job berjalan pada setiap push, **tanpa `npm install`** — hanya alat bawaa
 |---|---|
 | `syntax` | `node --check` pada `index.js` dan `public/script.js` |
 | `hygiene` | `.env` tidak ter-track, PDF berhak cipta tidak ter-track, pola API key tidak muncul |
-| `constraints` | Tepat 4 dependency, tanpa `devDependencies`, `"type": "module"` ada, `innerHTML` dilarang di frontend |
+| `constraints` | Tepat 5 dependency, tanpa `devDependencies`, `"type": "module"` ada, `innerHTML` dilarang di frontend |
 | `prompt-audit` | `systemInstruction` bebas URL, email, nomor telepon, persentase, nomor peraturan, nilai rupiah — menegakkan `PG-09` |
 | `traceability` | Setiap requirement di spec muncul di `design.md` dan dirujuk `tasks.md` — menegakkan Gate 1 |
 
@@ -171,6 +172,7 @@ Jawaban siap pakai untuk kedua pertanyaan wajib: `docs/USE-CASE-CEKDULU.md` §2.
 | Pola antarmuka | Launcher sudut kanan bawah + panel dialog non-modal |
 | Kolom pesan | `<textarea>` auto-grow ⚠️ menyimpang dari materi — lihat catatan di bawah |
 | Avatar bot | `avatar.png` (bubble, isian teal) + `avatar-header.png` (header, isian putih), 64×64px, palet `UI-12` |
+| Lampiran berkas | Gambar, PDF, TXT — maksimal 4 MB, `multer` memory storage |
 | Port | 3000 |
 | Parameter | `temperature: 0.3`, `topP: 0.8`, `topK: 30` |
 | Tipe fungsi | JSDoc — kontrak terdokumentasi tanpa TypeScript |
@@ -204,10 +206,16 @@ Jawaban siap pakai untuk kedua pertanyaan wajib: `docs/USE-CASE-CEKDULU.md` §2.
 > Riset dan sitasi: [`docs/RISET-DESAIN.md`](docs/RISET-DESAIN.md) §7. Keputusan:
 > [`design.md`](openspec/changes/add-cekdulu-chatbot/design.md) D-21a.
 
-Tepat **4 dependency**: `express`, `dotenv`, `cors`, `@google/genai`. Tidak ada tambahan,
-termasuk tanpa `devDependencies`. Tanpa database, tanpa test framework, tanpa TypeScript,
-tanpa linter, tanpa framework frontend maupun CSS — semua itu tidak ada di materi. Daftar
-lengkap 19 non-goals: [`proposal.md`](openspec/changes/add-cekdulu-chatbot/proposal.md) §3.
+Tepat **5 dependency**: `express`, `dotenv`, `cors`, `@google/genai`, `multer`. Tidak ada
+tambahan, termasuk tanpa `devDependencies`. Tanpa database, tanpa test framework, tanpa
+TypeScript, tanpa linter, tanpa framework frontend maupun CSS — semua itu tidak ada di materi.
+Daftar lengkap 22 non-goals: [`proposal.md`](openspec/changes/add-cekdulu-chatbot/proposal.md) §3.
+
+> ⚠️ **`multer` ditambahkan pada Fase K** untuk melayani lampiran berkas, dan dua non-goal
+> dicabut terbuka. `multer` **ada di materi** Sesi 2 p.30 dan p.31 (`"multer": "^2.0.2"`),
+> sehingga bukan dependency di luar daftar `docs/SPEC-API.md`. Alasan lengkap beserta tiga
+> alternatif arsitektur yang ditolak:
+> [`design.md`](openspec/changes/add-cekdulu-chatbot/design.md) D-24.
 
 Backend tetap satu berkas `index.js`. Memecahnya ke `routes/` → `controllers/` →
 `services/` untuk satu endpoint sepanjang ±60 baris menghasilkan indirection tanpa
@@ -239,7 +247,7 @@ bot. Sebagai gantinya dipakai angka OJK bersitasi yang dapat diverifikasi pembac
 ```
 Project-Akhir-Hacktiv8/
 ├── index.js                  Backend — 20 requirement
-├── package.json              4 dependency, ESM
+├── package.json              5 dependency, ESM
 ├── public/                   Frontend — 15 requirement UI
 │   ├── index.html            Landing page 9 section, launcher, panel dialog
 │   ├── script.js             Buka/tutup panel, focus trap, komposer multi-baris
@@ -252,7 +260,7 @@ Project-Akhir-Hacktiv8/
 ├── AGENTS.md                 Aturan kerja anti-halusinasi
 ├── README.md
 ├── docs/                     Materi, riset, use case, metodologi, kendala, QA
-└── openspec/                 Spesifikasi 35 requirement
+└── openspec/                 Spesifikasi 40 requirement
 ```
 
 ---
@@ -364,6 +372,46 @@ Role valid: `"user"` dan `"model"`.
 > bukan `messages` / `{ role, content }`. Contoh `script.js` di slide Sesi 3 p.39
 > salah kirim `messages`; harus diperbaiki. Detail: `AGENTS.md` §3.2.
 
+### `POST /api/chat-with-file`
+
+Menerima `multipart/form-data`, mengikuti pola kode materi Sesi 2 p.43 dan p.47.
+
+| Field | Tipe | Wajib | Keterangan |
+|---|---|---|---|
+| `file` | File | ya | Gambar, PDF, atau TXT — maksimal 4 MB |
+| `prompt` | Text | tidak | Pertanyaan. Bila kosong dipakai instruksi bawaan |
+
+MIME yang diterima: `image/png`, `image/jpeg`, `image/webp`, `application/pdf`, `text/plain`.
+
+Bentuk respons identik dengan `/api/chat`: `200 { result }` atau `500 { error }`.
+
+```bash
+curl -s -X POST http://localhost:3000/api/chat-with-file \
+  -F 'file=@tangkapan-layar.png;type=image/png' \
+  -F 'prompt=Ini aman tidak?'
+```
+
+Uji jalur gagal tanpa memakai kuota API:
+
+```bash
+# tanpa berkas
+curl -s -X POST http://localhost:3000/api/chat-with-file -F 'prompt=tes'
+# expect 500 {"error":"Berkas tidak ditemukan pada permintaan."}
+
+# MIME di luar allowlist
+curl -s -X POST http://localhost:3000/api/chat-with-file \
+  -F 'file=@apa.bin;type=application/octet-stream'
+# expect 500 {"error":"Jenis berkas tidak didukung: application/octet-stream"}
+```
+
+> ⚠️ **Berkas tidak masuk riwayat percakapan.** Riwayat dikirim utuh setiap turn (`UI-04`),
+> jadi menyimpan base64 di dalamnya membuat gambar terkirim ulang berkali-kali dan
+> menghabiskan kuota. Yang disimpan hanya penanda teks `[lampiran: nama-berkas]`. Alasan
+> beserta konsekuensinya: [`design.md`](openspec/changes/add-cekdulu-chatbot/design.md) D-24c.
+>
+> Keterbatasan validasi berkas dicatat apa adanya di [`SECURITY.md`](SECURITY.md) — MIME
+> berasal dari header yang dikirim klien dan dapat dipalsukan.
+
 ---
 
 ## Dokumentasi
@@ -376,7 +424,7 @@ Role valid: `"user"` dan `"model"`.
 | [`openspec/project.md`](openspec/project.md) | Batasan stack & aturan yang selalu berlaku |
 | [`openspec/changes/add-cekdulu-chatbot/proposal.md`](openspec/changes/add-cekdulu-chatbot/proposal.md) | Scope & non-goals |
 | [`openspec/changes/add-cekdulu-chatbot/design.md`](openspec/changes/add-cekdulu-chatbot/design.md) | Keputusan teknis + alternatif ditolak + matriks sumber |
-| [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 141 task dalam 10 fase |
+| [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 169 task dalam 11 fase |
 
 **Referensi materi:**
 
@@ -393,7 +441,7 @@ Role valid: `"user"` dan `"model"`.
 
 | File | Isi |
 |---|---|
-| [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) | Persona, guardrail, naskah `systemInstruction`, 17 skenario uji |
+| [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) | Persona, guardrail, naskah `systemInstruction`, 21 skenario uji |
 | [`docs/RISET-LAPANGAN.md`](docs/RISET-LAPANGAN.md) | Data eksternal + sitasi URL resmi |
 | [`docs/RISET-DESAIN.md`](docs/RISET-DESAIN.md) | **Riset pola widget, palet warna, landing page, komposer multi-baris** + sitasi URL |
 | [`docs/PROMPT-AVATAR.md`](docs/PROMPT-AVATAR.md) | Prompt pembuatan avatar bot + batasan dan cara mengujinya |

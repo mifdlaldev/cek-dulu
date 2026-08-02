@@ -11,6 +11,12 @@ Kapabilitas: antarmuka chat Vanilla JavaScript di folder `public/`.
 > `UI-12` (palet). Requirement baru: `UI-13`. Bukti dan sitasi: `docs/RISET-DESAIN.md`.
 > Keputusan: `design.md` D-12 (amandemen), D-18, D-19.
 >
+> **Amandemen keempat — lampiran berkas.** Atas permintaan pengguna, komposer mendapat tombol
+> lampiran untuk gambar dan dokumen. Requirement baru: `UI-16`, `UI-17`. Requirement yang
+> diamandemen: `UI-03` (jalur multipart), `UI-04` (base64 tidak masuk riwayat), `UI-11`
+> (aksesibilitas pemilih berkas). Keputusan: `design.md` D-24. Dua non-goal dicabut terbuka di
+> `proposal.md` §3.
+>
 > **Amandemen ketiga — komposer.** Kolom pesan berubah dari `<input type="text">` menjadi
 > `<textarea>` yang tumbuh ke bawah, karena use case meminta pengguna menempelkan pesan utuh
 > beberapa baris dan input satu baris menyembunyikan apa yang sudah ditulis. Blok contoh
@@ -199,15 +205,22 @@ Saat form disubmit, sistem WAJIB:
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S3 p.29 (backend), S3 p.37 (spesifikasi prompt) |
+| Sumber | S3 p.29 (backend), S3 p.37 (spesifikasi prompt); jalur multipart diamandemen `design.md` D-24 |
 | Berkas | `public/script.js` |
-| Terkait | `API-01` |
+| Terkait | `API-01`, `API-07`, `UI-16` |
 
 Sistem WAJIB mengirim `POST` ke `/api/chat` dengan:
 
 - Header `Content-Type: application/json`
 - Body `JSON.stringify({ conversation: [...] })`
 - Setiap item berbentuk `{ role, text }` dengan `role` bernilai `"user"` atau `"model"`
+
+**Jalur kedua untuk lampiran.** Bila pengguna melampirkan berkas (`UI-16`), sistem WAJIB
+mengirim `POST` ke `/api/chat-with-file` dengan `FormData` berisi field `file` dan `prompt`.
+
+Pada jalur ini, header `Content-Type` **DILARANG diset manual**. `fetch` menetapkannya sendiri
+beserta `boundary` multipart; menuliskannya manual menghilangkan `boundary` dan membuat
+`multer` gagal mem-parsing berkas.
 
 > **PERANGKAP.** Kode hasil Gemini Code Assist di slide S3 p.39 dan p.42 mengirim
 > `body: JSON.stringify({ messages: [{ role: 'user', content: userMessage }] })`.
@@ -217,9 +230,17 @@ Sistem WAJIB mengirim `POST` ke `/api/chat` dengan:
 > Keputusan di `AGENTS.md` §3.2.
 
 #### Scenario: bentuk payload benar
-- **When** pengguna mengirim pesan
+- **When** pengguna mengirim pesan tanpa lampiran
 - **Then** body request memiliki field `conversation`, bukan `messages`
 - **And** setiap item memiliki field `text`, bukan `content`
+- **And** tujuannya `/api/chat`
+
+#### Scenario: lampiran dikirim sebagai FormData
+- **Given** pengguna sudah memilih sebuah berkas
+- **When** pengguna mengirim pesan
+- **Then** tujuannya `/api/chat-with-file`
+- **And** body berupa `FormData` dengan field `file` dan `prompt`
+- **And** header `Content-Type` TIDAK diset manual oleh kode
 
 ---
 
@@ -227,9 +248,10 @@ Sistem WAJIB mengirim `POST` ke `/api/chat` dengan:
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S3 p.29 ("Endpoint ini memungkinkan percakapan multi-turn dengan Gemini AI"), S3 p.37 (contoh body berisi 3 item) |
+| Sumber | S3 p.29 ("Endpoint ini memungkinkan percakapan multi-turn dengan Gemini AI"), S3 p.37 (contoh body berisi 3 item); perlakuan lampiran diamandemen `design.md` D-24c |
 | Berkas | `public/script.js` |
 | Uji | UJI-08 |
+| Terkait | `UI-16`, `API-07` |
 
 Sistem WAJIB menyimpan riwayat percakapan dalam array di memori browser, lalu
 mengirimkannya **utuh** pada setiap request.
@@ -239,6 +261,20 @@ Setelah balasan bot diterima, balasan tersebut WAJIB ditambahkan ke riwayat deng
 
 Riwayat TIDAK disimpan di server maupun di penyimpanan browser permanen — hilang saat
 halaman di-reload. Ini konsisten dengan non-goals (tidak ada persistensi).
+
+**Data base64 berkas DILARANG masuk riwayat.** Ketika pengguna melampirkan berkas, yang
+disuntikkan ke riwayat adalah **satu turn teks** berisi penanda nama berkas beserta prompt
+pengguna, diikuti jawaban bot sebagai `role: "model"`.
+
+Alasannya aritmetika, bukan selera: riwayat dikirim utuh setiap turn, sehingga menyimpan
+base64 di dalamnya membuat gambar dikirim ulang pada **setiap** permintaan berikutnya —
+menabrak batas token per menit dan menghabiskan kuota 20 permintaan per hari dalam beberapa
+pesan.
+
+**Konsekuensi yang diterima:** model tidak melihat gambar pada turn lanjutan, hanya jawabannya
+sendiri. Pertanyaan lanjutan tetap bekerja karena jawaban bot ada di riwayat, tetapi pertanyaan
+yang menuntut melihat ulang gambar tidak akan terjawab akurat. Alasan pertukaran ini:
+`design.md` D-24c.
 
 #### Scenario: bot memahami rujukan ke jawaban sebelumnya
 - **Given** pengguna sudah bertanya "Apa itu pinjol ilegal?" dan bot sudah menjawab
@@ -565,9 +601,9 @@ dependency baru — materi menetapkan Vanilla (S3 p.34).
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S1 p.99 (prinsip **Keadilan**: "AI harus memperlakukan semua pengguna secara adil—tanpa memandang gender, ras, atau latar belakang") — diterapkan pada keterjangkauan antarmuka; mitigasi Enter pada textarea dari `docs/RISET-DESAIN.md` §7 + `design.md` D-21a |
+| Sumber | S1 p.99 (prinsip **Keadilan**: "AI harus memperlakukan semua pengguna secara adil—tanpa memandang gender, ras, atau latar belakang") — diterapkan pada keterjangkauan antarmuka; mitigasi Enter pada textarea dari `docs/RISET-DESAIN.md` §7 + `design.md` D-21a; pemilih berkas dari D-24 |
 | Berkas | `public/index.html`, `public/style.css`, `public/script.js` |
-| Uji | UJI-13, UJI-16 |
+| Uji | UJI-13, UJI-16, UJI-18 |
 
 > **Catatan keterlacakan.** Materi pelatihan **tidak membahas aksesibilitas web**.
 > Requirement ini adalah penerapan prinsip Keadilan (S1 p.99) ke ranah antarmuka, plus
@@ -592,6 +628,15 @@ Antarmuka WAJIB memenuhi:
   dapat diakses berupa teks
 - Setiap bubble pesan memiliki penanda pengirim yang terbaca screen reader (bukan hanya
   dibedakan warna atau posisi)
+
+**Pemilih berkas** (`UI-16`)
+- Pemilih berkas WAJIB berupa `<input type="file">` dengan `<label>` terkait, bukan `<div>`
+  dengan penangan klik — kontrol bawaan sudah dapat dioperasikan keyboard dan diumumkan
+  screen reader
+- Nama berkas yang terpilih WAJIB diumumkan ke screen reader
+- Tombol hapus lampiran WAJIB terjangkau Tab dan berada di dalam focus trap panel
+- Pratinjau gambar WAJIB memakai `alt=""` karena dekoratif; informasinya sudah disampaikan
+  nama berkas
 
 **Pengumuman perilaku papan tuts pada kolom pesan**
 - `#user-input` adalah `<textarea>` (`UI-01`), sehingga screen reader mengumumkannya sebagai
@@ -684,6 +729,11 @@ kembali ke pemicu, dan dialog tanpa nama yang dapat diakses. Sitasi: `docs/RISET
 #### Scenario: tombol simbol punya nama yang dapat diakses
 - **When** screen reader membacakan tombol tutup panel dan tombol tutup blok saran
 - **Then** keduanya membacakan teks yang menjelaskan aksinya, bukan simbol
+
+#### Scenario: pemilih berkas diumumkan screen reader
+- **When** screen reader membacakan pemilih berkas
+- **Then** ada label yang menjelaskan fungsinya
+- **And** setelah berkas dipilih, nama berkas diumumkan
 
 ---
 
@@ -1053,6 +1103,137 @@ Blok "Contoh pertanyaan" WAJIB dapat ditutup pengguna.
 
 ---
 
+### `UI-16` — Tombol lampiran berkas
+
+| Meta | Nilai |
+|---|---|
+| Sumber | S2 p.45 dan p.49 (jenis berkas yang diuji materi); `design.md` D-24 |
+| Berkas | `public/index.html`, `public/style.css`, `public/script.js` |
+| Uji | UJI-18, UJI-19, UJI-20, UJI-21 |
+| Terkait | `UI-01`, `UI-03`, `UI-04`, `UI-11`, `UI-17`, `API-07` |
+
+> **Catatan keterlacakan.** Materi menguji berkas lewat Postman (S2 p.45, p.49), bukan lewat
+> antarmuka. Bentuk tombol lampiran pada panel percakapan adalah keputusan sendiri. Ditandai
+> sebagai keputusan sadar, bukan klaim materi. Alasan: `design.md` D-24.
+
+Komposer WAJIB menyediakan cara melampirkan satu berkas.
+
+**Pemilih berkas**
+
+- WAJIB berupa `<input type="file">` dengan `<label>` terkait, bukan `<div>` dengan penangan
+  klik. Kontrol bawaan sudah dapat dioperasikan keyboard dan diumumkan screen reader.
+- WAJIB memakai atribut `accept` yang selaras dengan allowlist `API-08`.
+- Hanya **satu** berkas per pesan. Atribut `multiple` DILARANG.
+
+**Pratinjau lampiran**
+
+- Setelah berkas dipilih, WAJIB tampil pratinjau berisi nama berkas dan tombol hapus.
+- Nama berkas WAJIB dirender dengan `textContent`. Nama berkas berasal dari luar aplikasi,
+  sehingga merender dengan `innerHTML` membuka XSS — larangan yang sama dengan D-07.
+- Bila berkas berupa gambar, pratinjau SEBAIKNYA menampilkan gambarnya. Elemen `<img>` WAJIB
+  dibuat dengan `createElement`, bukan string HTML.
+- Bila `URL.createObjectURL` dipakai, `URL.revokeObjectURL` WAJIB dipanggil saat lampiran
+  dihapus atau diganti, agar tidak menahan memori.
+
+**Tombol hapus lampiran**
+
+- WAJIB berupa `<button type="button">` dengan nama yang dapat diakses berupa teks.
+- Saat diaktifkan, lampiran dilepas, pratinjau dihilangkan, dan nilai `<input type="file">`
+  dikosongkan agar berkas yang sama dapat dipilih ulang.
+
+**Perilaku pengiriman**
+
+- Bila ada lampiran, pengiriman diarahkan ke `/api/chat-with-file` (`UI-03`).
+- Kolom pesan boleh kosong ketika ada lampiran. Ini pengecualian dari perilaku
+  `handleSubmit` yang berhenti bila kolom kosong — tanpa pengecualian ini, mengirim berkas
+  tanpa teks akan gagal diam-diam.
+- Bila kolom pesan kosong, sistem WAJIB memakai prompt bawaan, mengikuti pola `prompt ?? "..."`
+  pada S2 p.47.
+- Setelah pesan terkirim, lampiran WAJIB dilepas agar tidak terkirim ulang pada pesan
+  berikutnya.
+- Bubble pengguna WAJIB menampilkan penanda bahwa ada berkas dilampirkan, sehingga riwayat
+  percakapan tetap dapat dibaca.
+
+**Aksesibilitas** (`UI-11`)
+
+- Nama berkas terpilih WAJIB diumumkan ke screen reader.
+- Tombol hapus WAJIB terjangkau Tab dan berada di dalam focus trap panel.
+- Pratinjau gambar WAJIB memakai `alt=""` karena bersifat dekoratif — informasinya sudah
+  disampaikan nama berkas.
+
+#### Scenario: berkas dipilih dan pratinjau tampil
+- **Given** panel dialog terbuka
+- **When** pengguna memilih sebuah berkas gambar
+- **Then** pratinjau tampil berisi nama berkas
+- **And** nama berkas dirender sebagai teks, bukan HTML
+
+#### Scenario: lampiran dapat dihapus
+- **Given** sebuah berkas sudah dipilih
+- **When** pengguna mengaktifkan tombol hapus
+- **Then** pratinjau hilang
+- **And** nilai `input type="file"` kosong sehingga berkas yang sama dapat dipilih ulang
+
+#### Scenario: kirim berkas tanpa teks
+- **Given** sebuah berkas sudah dipilih dan kolom pesan kosong
+- **When** pengguna menekan kirim
+- **Then** permintaan tetap terkirim
+- **And** prompt bawaan dipakai
+
+#### Scenario: lampiran dilepas setelah terkirim
+- **Given** pesan dengan lampiran sudah terkirim
+- **When** pengguna mengirim pesan berikutnya tanpa memilih berkas
+- **Then** permintaan diarahkan ke `/api/chat`, bukan `/api/chat-with-file`
+
+#### Scenario: hanya satu berkas per pesan
+- **When** `input type="file"` diperiksa
+- **Then** atribut `multiple` tidak ada
+
+#### Scenario: pemilih berkas terjangkau keyboard
+- **When** pengguna menekan Tab di dalam panel
+- **Then** pemilih berkas menerima fokus
+- **And** tombol hapus juga menerima fokus ketika lampiran ada
+- **And** fokus tetap terkurung di dalam panel
+
+---
+
+### `UI-17` — Nota privasi lampiran
+
+| Meta | Nilai |
+|---|---|
+| Sumber | S1 p.99 (prinsip Privasi dan Transparansi); `design.md` D-24f |
+| Berkas | `public/index.html`, `public/style.css` |
+| Uji | UJI-19 |
+| Terkait | `PG-07`, `PG-10`, `UI-08`, `UI-16` |
+
+Antarmuka WAJIB memuat nota statis di dekat tombol lampiran yang menyatakan:
+
+1. Berkas **dikirim untuk dianalisis**, bukan disimpan
+2. Anjuran menutup bagian yang memuat data pribadi lebih dahulu
+3. Batas ukuran berkas dan jenis yang diterima
+
+Nota WAJIB **statis di HTML**, tidak digenerate model — alasan yang sama dengan `UI-09`.
+
+Nota ini adalah lapis perlindungan yang **tidak bergantung pada model**. `PG-10` melarang bot
+membacakan data pribadi, tetapi larangan itu probabilistik; nota ini bekerja sebelum berkas
+terkirim, sehingga tetap berfungsi meski model gagal menuruti instruksinya.
+
+Alasan keberadaannya: sebelum fitur lampiran, pengguna menempelkan teks yang ia pilih sendiri.
+Dengan lampiran, ia mengunggah tangkapan layar penuh yang hampir selalu memuat nomor telepon
+dan nama kontak. Itu perubahan sifat, bukan sekadar penambahan fitur (`design.md` D-24f).
+
+#### Scenario: nota terlihat tanpa interaksi
+- **Given** panel dialog terbuka
+- **When** pengguna melihat komposer
+- **Then** nota privasi lampiran terbaca tanpa mengklik apa pun
+
+#### Scenario: nota menyebut tiga hal wajib
+- **When** nota diperiksa
+- **Then** nota menyebut bahwa berkas dikirim untuk dianalisis
+- **And** nota menganjurkan menutup data pribadi lebih dahulu
+- **And** nota menyebut batas ukuran dan jenis berkas yang diterima
+
+---
+
 ## Yang TIDAK dibuat di frontend
 
 | Tidak dibuat | Alasan |
@@ -1081,3 +1262,8 @@ Blok "Contoh pertanyaan" WAJIB dapat ditutup pengguna.
 | Hero berupa video | Landy AI mencatat 53% pengguna meninggalkan situs lambat; video menambah bobot muat tanpa manfaat sebanding (D-20) |
 | Dua atau lebih CTA utama yang bersaing | Genesys Growth: satu CTA utama per halaman, tanpa pengecualian (D-20) |
 | Akordeon FAQ tulisan sendiri | `<details>`/`<summary>` bawaan HTML sudah aksesibel keyboard dan screen reader tanpa JavaScript; menulis sendiri menambah risiko kesalahan aksesibilitas untuk hasil sama (D-20) |
+| Lampiran lebih dari satu berkas per pesan | Materi memakai `upload.single()` (S2 p.43, p.47), bukan `upload.array()`. Satu berkas per pesan cukup untuk use case menganalisis satu tangkapan layar (D-24) |
+| Lampiran audio | Ditolak — alasan di `design.md` D-24b dan `proposal.md` §3 |
+| Menyimpan base64 lampiran ke riwayat percakapan | Membuat gambar dikirim ulang setiap turn dan menghabiskan kuota (D-24c, `UI-04`) |
+| Sensor otomatis data pribadi pada gambar sebelum dikirim | Menuntut pustaka visi komputer, jauh di luar batasan dependency materi. Yang dipakai nota privasi (`UI-17`) dan larangan `PG-10` |
+| Kompresi gambar di sisi klien sebelum unggah | Menambah kerumitan tanpa requirement yang memintanya. Batas 4 MB (`API-08`) sudah cukup untuk tangkapan layar ponsel |

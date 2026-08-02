@@ -78,14 +78,14 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Dependency terbatas pada empat paket
+      - name: Dependency terbatas pada lima paket
         run: |
           if [ ! -f package.json ]; then
             echo "LEWAT: package.json belum ada"
             exit 0
           fi
           node -e '
-            const allowed = ["@google/genai", "cors", "dotenv", "express"];
+            const allowed = ["@google/genai", "cors", "dotenv", "express", "multer"];
             const pkg = JSON.parse(require("fs").readFileSync("package.json", "utf8"));
             const deps = Object.keys(pkg.dependencies ?? {}).sort();
             const dev = Object.keys(pkg.devDependencies ?? {});

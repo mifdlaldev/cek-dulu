@@ -1,7 +1,15 @@
 # Spec Delta — `chat-api`
 
 Change: `add-cekdulu-chatbot`
-Kapabilitas: endpoint `POST /api/chat` sebagai satu-satunya API proyek.
+Kapabilitas: endpoint API proyek — `POST /api/chat` untuk percakapan teks, dan
+`POST /api/chat-with-file` untuk analisis lampiran gambar atau dokumen.
+
+> **Amandemen — lampiran berkas.** Kapabilitas ini semula hanya menyediakan `POST /api/chat`.
+> Atas permintaan pengguna, ditambahkan `POST /api/chat-with-file` untuk menerima gambar dan
+> dokumen. `POST /api/chat` **tidak diubah sama sekali**, sehingga `API-01` s.d. `API-06` tetap
+> berlaku apa adanya dan 17 skenario uji yang sudah lulus tidak perlu diulang. Requirement baru:
+> `API-07`, `API-08`. Keputusan: `design.md` D-24. Dua non-goal dicabut terbuka di
+> `proposal.md` §3.
 
 ---
 
@@ -171,15 +179,164 @@ Sistem TIDAK BOLEH membocorkan nilai `GEMINI_API_KEY` melalui pesan error (`WS-0
 
 ---
 
+### `API-07` — Endpoint lampiran gambar dan dokumen
+
+| Meta | Nilai |
+|---|---|
+| Sumber | S2 p.43 (kode verbatim `upload.single("image")`), S2 p.47 (`upload.single("document")`), S2 p.30 (fungsi `multer`), S2 p.56 (memory buffer); mekanisme penggabungan ke riwayat **tanpa sumber halaman** — `design.md` D-24a |
+| Berkas | `index.js` |
+| Uji | UJI-18, UJI-19, UJI-20, UJI-21 |
+| Terkait | `API-08`, `PG-10`, `UI-16`, `UI-17` |
+
+> **Catatan keterlacakan.** Materi menyediakan kode upload berkas, tetapi **tidak pernah**
+> menunjukkan berkas digabungkan ke percakapan multi-turn. Bagian itu keputusan sendiri dan
+> **tidak diklaim verbatim**. Alasan lengkap beserta tiga alternatif yang ditolak: `design.md`
+> D-24.
+
+Sistem WAJIB menyediakan route `POST /api/chat-with-file` yang menerima `multipart/form-data`.
+
+**Field yang dibaca**
+
+| Field | Tipe | Wajib | Keterangan |
+|---|---|---|---|
+| `file` | File | ya | Gambar atau dokumen yang dianalisis |
+| `prompt` | Text | tidak | Pertanyaan pengguna. Bila kosong, dipakai instruksi bawaan |
+
+Berkas WAJIB dibaca dari **memory buffer** (`req.file.buffer`), bukan dari disk. S2 p.56
+menyatakan "file diproses langsung dari memory buffer ... tanpa perlu menghapus file karena
+tidak ada penyimpanan ke disk". DILARANG membuat folder `uploads/`.
+
+Payload ke model WAJIB memakai bentuk `inlineData` seperti S2 p.43:
+
+```javascript
+contents: [
+  { text: prompt },
+  { inlineData: { data: base64, mimeType: req.file.mimetype } }
+]
+```
+
+Konfigurasi model WAJIB memakai ulang konstanta yang sama dengan `/api/chat` —
+`GEMINI_MODEL`, `TEMPERATURE`, `TOP_P`, `TOP_K`, dan `SYSTEM_INSTRUCTION`. DILARANG
+menduplikasi naskah persona, karena `PG-*` harus tetap satu sumber kebenaran.
+
+**Bentuk respons** sama dengan `/api/chat`: sukses `200 { result }`, gagal `500 { error }`.
+Field error WAJIB bernama `error`, bukan `message` seperti S2 p.39 — proyek ini adalah proyek
+Sesi 3 dan `API-06` mewajibkan `error`.
+
+**`POST /api/chat` DILARANG diubah** oleh requirement ini. Bila keduanya perlu berubah bersama,
+yang diubah adalah konstanta bersama, bukan kontrak salah satu endpoint.
+
+#### Scenario: gambar dianalisis
+- **Given** server berjalan
+- **When** client mengirim `POST /api/chat-with-file` dengan `multipart/form-data` berisi
+  `file` sebuah gambar PNG dan `prompt` sebuah pertanyaan
+- **Then** server merespons `200`
+- **And** body respons berbentuk `{ "result": "<teks jawaban>" }`
+
+#### Scenario: dokumen PDF dianalisis
+- **When** client mengirim `file` berupa PDF
+- **Then** server merespons `200` dengan `{ result }`
+
+#### Scenario: prompt kosong memakai instruksi bawaan
+- **When** client mengirim `file` tanpa field `prompt`
+- **Then** server tetap merespons `200`
+- **And** model menerima instruksi bawaan, mengikuti pola `prompt ?? "..."` pada S2 p.47
+
+#### Scenario: persona tetap berlaku
+- **When** berkas dianalisis
+- **Then** jawaban mengikuti seluruh aturan `PG-*` yang sama dengan `/api/chat`
+- **And** naskah persona tidak diduplikasi di dalam kode
+
+#### Scenario: endpoint teks tidak terpengaruh
+- **When** `POST /api/chat` dipanggil seperti sebelumnya
+- **Then** perilakunya identik dengan sebelum requirement ini ada
+
+---
+
+### `API-08` — Validasi berkas unggahan
+
+| Meta | Nilai |
+|---|---|
+| Sumber | `design.md` D-24d (tiga bug kode materi), D-24e (MIME tidak dapat dipercaya) |
+| Berkas | `index.js` |
+| Uji | UJI-21 |
+| Terkait | `API-06`, `API-07` |
+
+Seluruh jalur gagal WAJIB mengembalikan `500 { error }`, **bukan** halaman HTML bawaan Express.
+Ini memperluas `API-06` ke jalur multipart.
+
+**Empat jalur gagal yang WAJIB ditangani**
+
+| Jalur | Penyebab | Penanganan |
+|---|---|---|
+| Berkas tidak dikirim | `req.file` bernilai `undefined` | Validasi eksplisit di dalam `try`, lempar galat bermakna |
+| MIME tidak diizinkan | Tipe di luar allowlist | Tolak sebelum memanggil model |
+| Berkas terlalu besar | Melebihi batas `multer` | Error handler Express khusus multipart |
+| Galat model | Kuota, jaringan, atau model | `try`/`catch` seperti `API-06` |
+
+**Pembacaan buffer WAJIB berada di dalam blok `try`.** Kode S2 p.43 menempatkan
+`req.file.buffer.toString("base64")` **sebelum** `try`; bila berkas tidak ada, barisnya melempar
+`TypeError` yang tidak tertangkap dan Express membalas HTML. Ini penyimpangan yang disengaja
+dari verbatim, dicatat di D-24d.
+
+**Galat `multer` terjadi di middleware, sebelum handler.** `try` di dalam handler tidak akan
+menyentuhnya. Karena itu WAJIB ada error handler Express bertanda tangan empat argumen yang
+mengubahnya menjadi `500 { error }`.
+
+**Allowlist MIME sisi server** yang WAJIB diterapkan:
+
+| MIME | Keterangan |
+|---|---|
+| `image/png` | tangkapan layar |
+| `image/jpeg` | foto |
+| `image/webp` | tangkapan layar modern |
+| `application/pdf` | dokumen, diuji materi S2 p.49 |
+| `text/plain` | dokumen teks, diuji materi S2 p.49 |
+
+Selain kelima tipe itu WAJIB ditolak.
+
+**Batas ukuran berkas: 4 MB.** Permintaan inline Gemini dibatasi di orde 20 MB dan base64
+menambah sekitar 33%, sehingga batas praktis jauh di bawah batas teknis.
+
+`req.file.mimetype` berasal dari header yang dikirim klien dan **dapat dipalsukan**. Allowlist
+ini mengurangi risiko, bukan menghilangkannya. Validasi magic byte menuntut dependency di luar
+daftar materi, sehingga tidak dikerjakan — keterbatasannya WAJIB dicatat apa adanya di
+`SECURITY.md`, dan DILARANG diklaim aman.
+
+#### Scenario: berkas tidak dikirim
+- **When** client mengirim `POST /api/chat-with-file` tanpa field `file`
+- **Then** server merespons `500`
+- **And** body berbentuk `{ "error": "..." }`, bukan halaman HTML
+
+#### Scenario: MIME tidak diizinkan
+- **When** client mengirim berkas bertipe di luar allowlist
+- **Then** server merespons `500` dengan `{ error }`
+- **And** model TIDAK dipanggil, sehingga kuota tidak terpakai
+
+#### Scenario: berkas melebihi batas ukuran
+- **When** client mengirim berkas lebih besar daripada batas
+- **Then** server merespons `500` dengan `{ error }`
+- **And** responsnya JSON, bukan halaman HTML bawaan Express
+
+#### Scenario: server tetap berjalan
+- **Given** salah satu jalur gagal terjadi
+- **When** galat tertangkap
+- **Then** proses server tetap berjalan dan siap menerima request berikutnya
+
+---
+
 ## Endpoint yang TIDAK dibuat
 
-Kapabilitas ini hanya menyediakan `POST /api/chat`. Endpoint berikut milik proyek Sesi 2
-(`gemini-flash-api`) dan **DILARANG** ditambahkan ke Final Project:
+Kapabilitas ini menyediakan **dua** endpoint: `POST /api/chat` dan
+`POST /api/chat-with-file`. Endpoint berikut milik proyek Sesi 2 (`gemini-flash-api`) dan
+**DILARANG** ditambahkan:
 
-- `POST /generate-text`
-- `POST /generate-from-image`
-- `POST /generate-from-document`
-- `POST /generate-from-audio`
+| Endpoint | Alasan |
+|---|---|
+| `POST /generate-text` | Duplikat `POST /api/chat` tanpa riwayat percakapan |
+| `POST /generate-from-image` | Kapabilitasnya sudah dilayani `API-07` di dalam bentuk chatbot |
+| `POST /generate-from-document` | Sama seperti di atas |
+| `POST /generate-from-audio` | Audio ditolak — alasan di `design.md` D-24b dan `proposal.md` §3 |
 
-Alasan: dependency Sesi 3 tidak memuat `multer` (S3 p.25), dan brief Final Project
-meminta chatbot, bukan API multimodal.
+Brief Final Project S3 p.49 meminta **chatbot**, bukan API multimodal. `API-07` menambah
+kapabilitas berkas **ke dalam** chatbot, tidak mengubah bentuknya menjadi API Sesi 2.

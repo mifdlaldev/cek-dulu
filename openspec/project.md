@@ -97,7 +97,7 @@ adalah `{ conversation: [{ role, text }] }`. Lihat `AGENTS.md` §3.2.
 ```
 Project-Akhir-Hacktiv8/
 ├── index.js              Backend, 20 requirement
-├── package.json          4 dependency, ESM
+├── package.json          5 dependency, ESM
 ├── public/               Frontend, 15 requirement UI
 │   ├── index.html        UI-01, UI-07 s.d. UI-11, UI-13, UI-14, UI-15
 │   ├── script.js         UI-01 s.d. UI-06, UI-10, UI-11, UI-13, UI-15

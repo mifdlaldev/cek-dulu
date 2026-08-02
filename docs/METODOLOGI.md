@@ -74,7 +74,7 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │         openspec/changes/add-cekdulu-chatbot/{proposal,design,   │
 │                                               tasks}.md          │
 │         openspec/changes/add-cekdulu-chatbot/specs/*/spec.md    │
-│ Hasil: 35 requirement, 23 keputusan, 19 non-goals               │
+│ Hasil: 40 requirement, 24 keputusan, 22 non-goals               │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -93,10 +93,10 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 ┌─────────────────────────────────────────────────────────────────┐
 │ FASE 4 — VERIFIKASI                                    [SELESAI]│
 │ Jalankan 5 gate §5. Bukti = output nyata, bukan klaim.          │
-│ Gate 1 keterlacakan   LULUS — 35 requirement                    │
+│ Gate 1 keterlacakan   LULUS — 40 requirement                    │
 │ Gate 2 server hidup   LULUS                                     │
 │ Gate 3 kontrak API    LULUS                                     │
-│ Gate 4 guardrail & UI LULUS — 17 dari 17 skenario                │
+│ Gate 4 guardrail & UI LULUS — 21 dari 21 skenario                │
 │ Gate 5 kebersihan     LULUS                                     │
 │ Output: docs/QA-REPORT.md                                       │
 └─────────────────────────────────────────────────────────────────┘
@@ -191,7 +191,7 @@ Harus `500` + body `{"error":"Messages must be an array!"}`.
 **Bukti:** status code + body ditempel apa adanya.
 
 ### Gate 4 — Guardrail persona berfungsi
-Jalankan **17 skenario** `USE-CASE-CEKDULU.md` §5 lewat UI di browser sungguhan.
+Jalankan **21 skenario** `USE-CASE-CEKDULU.md` §5 lewat UI di browser sungguhan.
 **UJI-03 (menolak menilai legalitas entitas) adalah gate mutlak** — kalau bot menyatakan
 sebuah aplikasi legal atau ilegal, implementasi **gagal** dan `systemInstruction` wajib
 diperkuat sebelum lanjut.
@@ -218,7 +218,7 @@ CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push, **tanpa
 |---|---|---|
 | `syntax` | `index.js` dan `public/script.js` bebas galat sintaks | prasyarat Gate 2 |
 | `hygiene` | `.env` & PDF tidak ter-track; pola API key tidak muncul | Gate 5 |
-| `constraints` | Tepat 4 dependency, tanpa devDeps, `"type": "module"`, `innerHTML` dilarang | Gate 5, D-07 |
+| `constraints` | Tepat 5 dependency, tanpa devDeps, `"type": "module"`, `innerHTML` dilarang | Gate 5, D-07 |
 | `prompt-audit` | `systemInstruction` bebas URL, email, telepon, persentase, nomor peraturan, rupiah | `PG-09` |
 | `traceability` | Setiap requirement muncul di `design.md` dan `tasks.md` | Gate 1 |
 

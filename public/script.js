@@ -10,6 +10,7 @@
 //   UI-13  buka dan tutup panel dialog
 //   UI-14  seluruh CTA landing page menunjuk satu aksi: membuka panel
 //   UI-15  blok contoh pertanyaan dapat ditutup
+//   UI-16  lampiran berkas: pratinjau, hapus, dan pengiriman multipart
 //
 // Pola dialog mengikuti W3C ARIA Authoring Practices: fokus masuk saat dibuka, fokus
 // terkurung selama terbuka, Escape menutup, fokus kembali ke pemicu saat ditutup.
@@ -23,6 +24,10 @@
 // pada materi S3 p.37. Enter mengirim, Shift+Enter menyisipkan baris.
 // Sitasi: docs/RISET-DESAIN.md bagian 7. Keputusan: design.md D-21a.
 //
+// Lampiran berkas dikirim ke endpoint terpisah /api/chat-with-file, mengikuti pola materi
+// S2 p.43 dan p.47. Data base64 TIDAK PERNAH masuk array riwayat — riwayat dikirim utuh
+// setiap turn, sehingga menyimpannya akan menghabiskan kuota. Keputusan: design.md D-24.
+//
 // Spesifikasi: openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md
 
 const launcher = document.getElementById('launcher');
@@ -34,6 +39,9 @@ const chatBox = document.getElementById('chat-box');
 const sendButton = document.getElementById('send-button');
 const samples = document.getElementById('samples');
 const samplesClose = document.getElementById('samples-close');
+const fileInput = document.getElementById('file-input');
+const lampiranPratinjau = document.getElementById('lampiran-pratinjau');
+const lampiranStatus = document.getElementById('lampiran-status');
 
 // UI-04 — riwayat percakapan hanya hidup di memori browser. Tidak ada penyimpanan
 // di server maupun localStorage, sehingga riwayat hilang saat halaman di-reload.
@@ -44,6 +52,16 @@ const conversation = [];
 const TEKS_MENUNGGU = 'Cek Dulu sedang menyiapkan jawaban';
 const TEKS_TANPA_HASIL = 'Sorry, no response received.';
 const TEKS_GAGAL = 'Failed to get response from server.';
+
+// UI-16 — dipakai bila pengguna melampirkan berkas tanpa menulis pertanyaan. Nilainya sama
+// dengan PROMPT_BAWAAN_BERKAS di index.js; backend juga memakai pola `prompt ?? "..."`
+// (S2 p.47) sebagai jaring terakhir bila field prompt tidak terkirim sama sekali.
+const PROMPT_BAWAAN_BERKAS =
+  'Tolong periksa berkas ini dan jelaskan ciri-ciri yang perlu diwaspadai.';
+
+// UI-16, D-24c — URL objek pratinjau gambar. Disimpan agar dapat dibebaskan lewat
+// revokeObjectURL saat lampiran dilepas; tanpa itu blob tertahan di memori.
+let urlPratinjau = null;
 
 // Berkas avatar bot. Nilai yang sama dipakai HTML statis pada sapaan pembuka dan header
 // panel, sehingga browser memakai satu permintaan jaringan dari cache.
@@ -81,10 +99,12 @@ function scrollKeBawah() {
  *
  * @param {'user' | 'bot'} pengirim Peran pengirim pesan.
  * @param {string} teks Isi pesan yang ditampilkan.
+ * @param {string} [namaLampiran] Nama berkas yang dilampirkan, bila ada. Ditampilkan sebagai
+ *   penanda agar riwayat percakapan tetap terbaca setelah pratinjau dilepas (`UI-16`).
  * @returns {{ artikel: HTMLElement, isi: HTMLElement }} Referensi elemen agar isinya
  *   dapat diganti di tempat oleh `UI-05`.
  */
-function appendMessage(pengirim, teks) {
+function appendMessage(pengirim, teks, namaLampiran) {
   const artikel = document.createElement('article');
   artikel.classList.add('msg', pengirim === 'user' ? 'msg--user' : 'msg--bot');
 
@@ -117,6 +137,15 @@ function appendMessage(pengirim, teks) {
   isi.textContent = teks;
 
   body.append(label, isi);
+
+  // UI-16 — penanda lampiran memakai textContent karena nama berkas berasal dari luar.
+  if (namaLampiran) {
+    const penanda = document.createElement('span');
+    penanda.className = 'msg__lampiran';
+    penanda.textContent = `Berkas dilampirkan: ${namaLampiran}`;
+    body.appendChild(penanda);
+  }
+
   artikel.append(avatar, body);
   chatBox.appendChild(artikel);
   scrollKeBawah();
@@ -196,6 +225,82 @@ function tutupBlokSaran() {
   samplesClose.setAttribute('aria-expanded', 'false');
   input.focus();
   scrollKeBawah();
+}
+
+/**
+ * Melepas lampiran yang dipilih beserta pratinjaunya. (UI-16)
+ *
+ * Nilai `fileInput.value` dikosongkan agar berkas yang sama dapat dipilih ulang — tanpa itu
+ * peristiwa `change` tidak menyala karena nilainya dianggap tidak berubah.
+ *
+ * `URL.revokeObjectURL` dipanggil agar blob tidak tertahan di memori.
+ *
+ * @returns {void}
+ */
+function lepasLampiran() {
+  if (urlPratinjau) {
+    URL.revokeObjectURL(urlPratinjau);
+    urlPratinjau = null;
+  }
+  fileInput.value = '';
+  lampiranPratinjau.hidden = true;
+  while (lampiranPratinjau.firstChild) lampiranPratinjau.firstChild.remove();
+  lampiranStatus.textContent = '';
+}
+
+/**
+ * Menampilkan pratinjau berkas yang baru dipilih. (UI-16, UI-11)
+ *
+ * Seluruh elemen dibuat dengan `createElement`. Nama berkas diset lewat `textContent` karena
+ * nilainya berasal dari luar aplikasi — merender dengan `innerHTML` membuka XSS, larangan yang
+ * sama dengan D-07.
+ *
+ * @returns {void}
+ */
+function tampilkanPratinjau() {
+  const berkas = fileInput.files?.[0];
+  if (!berkas) {
+    lepasLampiran();
+    return;
+  }
+
+  if (urlPratinjau) URL.revokeObjectURL(urlPratinjau);
+  while (lampiranPratinjau.firstChild) lampiranPratinjau.firstChild.remove();
+
+  if (berkas.type.startsWith('image/')) {
+    urlPratinjau = URL.createObjectURL(berkas);
+    const gambar = document.createElement('img');
+    gambar.className = 'lampiran__gambar';
+    gambar.src = urlPratinjau;
+    // UI-11 — pratinjau bersifat dekoratif; informasinya sudah disampaikan nama berkas.
+    gambar.alt = '';
+    lampiranPratinjau.appendChild(gambar);
+  } else {
+    urlPratinjau = null;
+  }
+
+  const nama = document.createElement('span');
+  nama.className = 'lampiran__nama';
+  nama.textContent = berkas.name;
+
+  const hapus = document.createElement('button');
+  hapus.type = 'button';
+  hapus.className = 'lampiran__hapus';
+  const simbol = document.createElement('span');
+  simbol.setAttribute('aria-hidden', 'true');
+  simbol.textContent = '\u00d7';
+  const labelHapus = document.createElement('span');
+  labelHapus.className = 'sr-only';
+  labelHapus.textContent = 'Hapus lampiran';
+  hapus.append(simbol, labelHapus);
+  hapus.addEventListener('click', () => {
+    lepasLampiran();
+    input.focus();
+  });
+
+  lampiranPratinjau.append(nama, hapus);
+  lampiranPratinjau.hidden = false;
+  lampiranStatus.textContent = `Berkas dipilih: ${berkas.name}`;
 }
 
 /**
@@ -335,6 +440,35 @@ async function kirimKeBackend(riwayat) {
 }
 
 /**
+ * Mengirim berkas beserta prompt ke endpoint lampiran. (UI-03, API-07)
+ *
+ * Header `Content-Type` sengaja TIDAK diset. `fetch` menetapkannya sendiri beserta `boundary`
+ * multipart; menuliskannya manual menghilangkan `boundary` dan membuat `multer` gagal
+ * mem-parsing berkas. Ini kekeliruan klasik yang mudah terlewat.
+ *
+ * @param {File} berkas Berkas yang dilampirkan pengguna.
+ * @param {string} prompt Pertanyaan pengguna. Boleh string kosong.
+ * @returns {Promise<{result?: string, error?: string}>} Body respons yang sudah diparsing.
+ * @throws {Error} Bila status respons bukan OK.
+ */
+async function kirimBerkasKeBackend(berkas, prompt) {
+  const data = new FormData();
+  data.append('file', berkas);
+  data.append('prompt', prompt);
+
+  const response = await fetch('/api/chat-with-file', {
+    method: 'POST',
+    body: data,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Server error: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Menangani pengiriman form chat. (UI-02, UI-03, UI-04, UI-05, UI-06, UI-11)
  *
  * @param {SubmitEvent} event Peristiwa submit form.
@@ -343,11 +477,25 @@ async function kirimKeBackend(riwayat) {
 async function handleSubmit(event) {
   event.preventDefault();
 
+  const berkas = fileInput.files?.[0] ?? null;
   const pesanPengguna = input.value.trim();
-  if (!pesanPengguna) return;
 
-  appendMessage('user', pesanPengguna);
-  conversation.push({ role: 'user', text: pesanPengguna });
+  // UI-16 — kolom pesan boleh kosong bila ada lampiran. Tanpa pengecualian ini, mengirim
+  // berkas tanpa teks akan gagal diam-diam karena baris berikutnya menghentikan proses.
+  if (!pesanPengguna && !berkas) return;
+
+  const teksTampil = pesanPengguna || PROMPT_BAWAAN_BERKAS;
+
+  appendMessage('user', teksTampil, berkas?.name);
+
+  // UI-04, D-24c — riwayat hanya menyimpan penanda teks. Data base64 berkas DILARANG masuk
+  // array ini: riwayat dikirim utuh setiap turn, sehingga menyimpannya membuat gambar
+  // terkirim ulang pada setiap permintaan berikutnya dan menghabiskan kuota harian.
+  const teksRiwayat = berkas
+    ? `${teksTampil}\n[lampiran: ${berkas.name}]`
+    : teksTampil;
+  conversation.push({ role: 'user', text: teksRiwayat });
+
   input.value = '';
   resetTinggiKolom();
 
@@ -359,7 +507,11 @@ async function handleSubmit(event) {
   setSibuk(true);
 
   try {
-    const data = await kirimKeBackend(conversation);
+    // UI-03 — pengiriman bercabang: ada lampiran ke /api/chat-with-file dengan FormData,
+    // tanpa lampiran ke /api/chat seperti semula. Kontrak /api/chat tidak berubah.
+    const data = berkas
+      ? await kirimBerkasKeBackend(berkas, pesanPengguna)
+      : await kirimKeBackend(conversation);
 
     if (data && data.result) {
       isi.textContent = data.result;
@@ -374,6 +526,8 @@ async function handleSubmit(event) {
     isi.textContent = TEKS_GAGAL;
   } finally {
     setSibuk(false);
+    // UI-16 — lampiran dilepas setelah terkirim agar tidak ikut pada pesan berikutnya.
+    if (berkas) lepasLampiran();
     // UI-11 — fokus dikembalikan ke kolom pesan agar pengguna keyboard dapat
     // langsung mengetik lagi tanpa menyentuh mouse.
     input.focus();
@@ -387,6 +541,7 @@ document.addEventListener('keydown', handleKeydown);
 form.addEventListener('submit', handleSubmit);
 input.addEventListener('keydown', handleKolomKeydown);
 samplesClose.addEventListener('click', tutupBlokSaran);
+fileInput.addEventListener('change', tampilkanPratinjau);
 
 // UI-01 — fallback tinggi kolom hanya dipasang bila field-sizing tidak didukung, sehingga
 // browser modern tidak menanggung reflow per ketikan.

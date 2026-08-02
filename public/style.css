@@ -1174,6 +1174,129 @@ img.msg__avatar {
   color: var(--warna-teks-lembut);
 }
 
+/* ==== UI-16 — lampiran berkas ==== */
+
+.lampiran {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-2);
+}
+
+/* Input file bawaan disembunyikan secara visual namun TETAP dapat menerima fokus keyboard —
+   karena itu memakai opacity dan ukuran satu piksel, bukan display: none yang akan
+   mengeluarkannya dari urutan Tab. Labelnya yang tampil sebagai tombol. */
+.lampiran__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.lampiran__pilih {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ruang-2);
+  padding: var(--ruang-1) var(--ruang-3);
+  background-color: var(--warna-permukaan);
+  color: var(--warna-aksen-pekat);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-penuh);
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-sedang);
+  cursor: pointer;
+  transition: border-color var(--durasi-cepat) ease;
+}
+
+.lampiran__pilih:hover {
+  border-color: var(--warna-aksen);
+}
+
+/* Cincin fokus dipasang pada label ketika input di belakangnya menerima fokus, karena
+   inputnya sendiri tidak terlihat. */
+.lampiran__input:focus-visible + .lampiran__pilih,
+.lampiran__pilih:focus-visible {
+  outline: var(--tebal-fokus) solid var(--warna-fokus);
+  outline-offset: 2px;
+}
+
+.lampiran__ikon {
+  display: inline-flex;
+  width: var(--ruang-4);
+  height: var(--ruang-4);
+  flex: 0 0 auto;
+}
+
+.lampiran__ikon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.lampiran__pratinjau {
+  display: flex;
+  align-items: center;
+  gap: var(--ruang-2);
+  padding: var(--ruang-2);
+  background-color: var(--warna-bubble-bot);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-sedang);
+}
+
+.lampiran__pratinjau[hidden] {
+  display: none;
+}
+
+.lampiran__gambar {
+  width: var(--ukuran-avatar);
+  height: var(--ukuran-avatar);
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: var(--radius-kecil);
+}
+
+/* min-width: 0 agar nama berkas panjang dapat dipotong alih-alih mendorong tombol hapus
+   keluar dari panel. */
+.lampiran__nama {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--teks-mikro);
+  color: var(--warna-teks);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lampiran__hapus {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ruang-5);
+  height: var(--ruang-5);
+  background-color: transparent;
+  color: var(--warna-teks-lembut);
+  border: 1px solid transparent;
+  border-radius: var(--radius-kecil);
+  font-family: inherit;
+  font-size: var(--teks-dasar);
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--durasi-cepat) ease;
+}
+
+.lampiran__hapus:hover {
+  border-color: var(--warna-garis);
+  color: var(--warna-teks);
+}
+
+/* Penanda pada bubble pengguna bahwa pesan itu membawa lampiran, agar riwayat tetap
+   terbaca setelah pratinjau dilepas (UI-16). */
+.msg__lampiran {
+  font-size: var(--teks-mikro);
+  font-style: italic;
+  opacity: 0.85;
+}
+
 /* ==== UI-11 — indikator fokus. outline tidak dihapus tanpa pengganti setara. ==== */
 
 .launcher:focus-visible,

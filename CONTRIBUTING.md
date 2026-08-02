@@ -14,7 +14,7 @@ Sebelum mengubah apa pun, baca berurutan:
 
 1. [`openspec/project.md`](openspec/project.md) — batasan stack yang selalu berlaku
 2. [`openspec/changes/add-cekdulu-chatbot/proposal.md`](openspec/changes/add-cekdulu-chatbot/proposal.md) — scope dan **non-goals**
-3. `openspec/changes/add-cekdulu-chatbot/specs/*/spec.md` — 35 requirement + skenario
+3. `openspec/changes/add-cekdulu-chatbot/specs/*/spec.md` — 40 requirement + skenario
 4. [`openspec/changes/add-cekdulu-chatbot/design.md`](openspec/changes/add-cekdulu-chatbot/design.md) — keputusan dan alternatif yang ditolak
 5. [`docs/METODOLOGI.md`](docs/METODOLOGI.md) — alur kerja dan lima gate verifikasi
 
@@ -46,7 +46,7 @@ Proyek ini terikat materi pelatihan. Hal berikut **terkunci**:
 Menambah dependency, mengganti SDK, atau mengubah kontrak API akan ditolak — bukan
 karena preferensi, tetapi karena melanggar batasan materi yang menjadi acuan penilaian.
 
-Daftar lengkap hal yang **tidak** dikerjakan: `proposal.md` §3 (19 non-goals).
+Daftar lengkap hal yang **tidak** dikerjakan: `proposal.md` §3 (22 non-goals aktif, 2 dicabut terbuka).
 
 ---
 
@@ -85,7 +85,7 @@ nyata**, bukan pernyataan:
 1. **Keterlacakan** — requirement yang tersentuh punya sumber tertulis
 2. **Server hidup** — `node index.js` jalan, tempel keluaran terminal
 3. **Kontrak API** — `curl` positif → `200 {result}`; `curl` negatif → `500 {error}`
-4. **Guardrail** — 17 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser.
+4. **Guardrail** — 21 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser.
    **UJI-03 wajib lulus** — bila bot menyatakan sebuah entitas legal atau ilegal,
    perubahan Anda tidak dapat diterima
 5. **Kebersihan** — `.env` tidak ter-track, tidak ada dependency tambahan

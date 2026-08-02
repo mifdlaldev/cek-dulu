@@ -611,6 +611,42 @@ Saya tidak menilai legalitas perusahaan atau aplikasi tertentu. Kanal resmi OJK 
             Enter kirim, Shift+Enter baris baru
           </p>
         </div>
+
+        <!-- UI-16 — pemilih berkas. Memakai input type="file" dengan label terkait, bukan div
+             dengan penangan klik: kontrol bawaan sudah dapat dioperasikan keyboard dan
+             diumumkan screen reader. Atribut accept selaras allowlist API-08. Tanpa multiple —
+             materi memakai upload.single() (S2 p.43, p.47). Keputusan: design.md D-24. -->
+        <div class="lampiran">
+          <label class="lampiran__pilih" for="file-input">
+            <span class="lampiran__ikon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M9 7v9a3 3 0 006 0V6.5a2.5 2.5 0 00-5 0V15a1 1 0 002 0V8"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="lampiran__teks">Lampirkan berkas</span>
+          </label>
+          <input
+            type="file"
+            id="file-input"
+            class="lampiran__input"
+            name="file"
+            accept="image/png,image/jpeg,image/webp,application/pdf,text/plain"
+          />
+
+          <!-- Pratinjau diisi script.js dengan createElement, bukan innerHTML (D-07).
+               Nama berkas dirender textContent karena berasal dari luar aplikasi. -->
+          <div class="lampiran__pratinjau" id="lampiran-pratinjau" hidden></div>
+
+          <!-- UI-11 — nama berkas terpilih diumumkan ke screen reader. -->
+          <p class="sr-only" id="lampiran-status" role="status" aria-live="polite"></p>
+        </div>
+
         <div class="composer__row">
           <textarea
             id="user-input"
@@ -624,6 +660,19 @@ Saya tidak menilai legalitas perusahaan atau aplikasi tertentu. Kanal resmi OJK 
           ></textarea>
           <button type="submit" id="send-button" class="composer__button">Kirim</button>
         </div>
+
+        <!-- UI-17 — nota privasi lampiran. Statis di HTML, tidak digenerate model, alasan
+             sama dengan UI-09. Ini lapis perlindungan yang TIDAK bergantung pada model:
+             PG-10 melarang bot membacakan data pribadi, tetapi larangan itu probabilistik,
+             sementara nota ini bekerja sebelum berkas terkirim. Keputusan: design.md D-24f.
+
+             Diringkas dari 131 menjadi 77 karakter setelah pengukuran: versi panjang memakan
+             tiga baris (58px) dan menyisakan aliran chat hanya 102px dari panel 560px. Ketiga
+             butir wajib UI-17 tetap ada. -->
+        <p class="composer__note" id="lampiran-nota">
+          Dianalisis, tidak disimpan. Tutup data pribadi. Gambar, PDF, teks, maks 4 MB.
+        </p>
+
         <p class="composer__note">
           Edukatif. Tidak menilai legalitas entitas mana pun.
         </p>

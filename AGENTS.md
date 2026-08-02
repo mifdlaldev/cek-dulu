@@ -28,21 +28,30 @@ tapi berdasarkan requirement ber-ID yang punya sumber tertulis.
 - Kode yang tidak punya requirement ID → **jangan ditulis**.
 - Spec ternyata salah/kurang di tengah implementasi → **perbaiki spec dulu**, baru koding.
   Dilarang koding menyimpang lalu memperbaiki spec agar cocok.
-- Ada 35 requirement (`WS-*`, `API-*`, `PG-*`, `UI-*`). Semua punya sumber. Matriks
+- Ada 40 requirement (`WS-*`, `API-*`, `PG-*`, `UI-*`). Semua punya sumber. Matriks
   keterlacakan di `design.md` §3.
 
 Cara kerja lengkap + 5 gate verifikasi → `docs/METODOLOGI.md`.
 
 **Progres saat ini: Fase A sampai E, G, H, I, dan J selesai; kelima gate verifikasi LULUS.**
 Backend `index.js` dan frontend `public/` sudah diimplementasikan dan diverifikasi di browser
-nyata — 134 dari 141 task tuntas, dan **17 dari 17 skenario uji lulus**. Antarmuka memakai
+nyata — 162 dari 169 task tuntas, dan **21 dari 21 skenario uji lulus**. Antarmuka memakai
 landing page sembilan section ditambah launcher dan panel dialog dengan palet light mode;
 riset dan sitasinya di `docs/RISET-DESAIN.md`.
 
-**Ada dua penyimpangan dari kode materi**, keduanya keputusan sadar dengan bukti tertulis —
-jangan "dikembalikan" tanpa membaca alasannya: nama model (`WS-02`, D-15) dan kolom pesan yang
-kini `<textarea>` alih-alih `<input type="text">` (`UI-01`, D-21a). Nama `id="user-input"`
-TIDAK berubah.
+**Ada tiga penyimpangan dari kode materi**, semuanya keputusan sadar dengan bukti tertulis —
+jangan "dikembalikan" tanpa membaca alasannya:
+
+| Penyimpangan | Requirement | Keputusan |
+|---|---|---|
+| Nama model dibaca dari environment | `WS-02` | D-15 — model materi ditutup Google, bukti HTTP 404 di `docs/KENDALA-API.md` §1 |
+| Kolom pesan `<textarea>`, bukan `<input type="text">` | `UI-01` | D-21a — use case meminta pengguna menempelkan pesan utuh beberapa baris. Nama `id="user-input"` TIDAK berubah |
+| Endpoint kedua untuk lampiran berkas | `API-07` | D-24 — `multer` dan pola `inlineData` ada di materi Sesi 2 (p.30, p.43, p.47); yang tidak ada hanya cara menggabungkan berkas ke percakapan multi-turn, dan bagian itu tidak diklaim verbatim |
+
+**Dua non-goal dicabut terbuka** pada Fase K: "endpoint multimodal" dan "`multer`". Pencabutan
+beserta alasannya tercatat di `proposal.md` §3; lima non-goal baru ditambahkan untuk menutup
+kembali scope di sekitarnya (audio, Files API, folder `uploads/`, base64 di riwayat, magic
+byte).
 
 Sisa: Fase F berupa screenshot dan submit. Bukti mentah di `docs/QA-REPORT.md`. Sebelum
 mengerjakan apa pun, cek status per task di
@@ -109,9 +118,9 @@ Lima gate `docs/METODOLOGI.md` §5, semuanya wajib dengan **bukti output nyata**
 1. **Keterlacakan** — setiap requirement punya sumber tertulis.
 2. **Server hidup** — `node index.js` jalan, log muncul, tempel outputnya.
 3. **Kontrak API** — `curl` positif → `200 {result}`; `curl` negatif → `500 {error}`.
-4. **Guardrail & UI** — 17 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser
+4. **Guardrail & UI** — 21 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser
    sungguhan; **UJI-03 lulus mutlak**. Termasuk verifikasi aksesibilitas `UI-11`.
-5. **Kebersihan repo** — `.env` tidak ter-track, hanya 4 dependency, tanpa `devDependencies`,
+5. **Kebersihan repo** — `.env` tidak ter-track, hanya 5 dependency, tanpa `devDependencies`,
    tidak ada file temporer.
 
 Ditambah satu syarat: hasil verifikasi ditulis ke **`docs/QA-REPORT.md`** berisi bukti mentah
@@ -130,6 +139,7 @@ secara otomatis pada setiap push — tanpa `npm install`. Pembagian tugas CI ver
 | Item | Nilai | Sumber |
 |---|---|---|
 | SDK | `@google/genai` `^1.10.0` | S2 p.31, S3 p.26 |
+| Upload | `multer` `^2.0.2` memory storage ⚠️ | S2 p.30, p.31, p.56 — ditambahkan Fase K, `design.md` D-24 |
 | Model (materi) | `gemini-2.5-flash` — **ditutup Google untuk akun baru** | S2 p.34, S3 p.28 |
 | Model (dipakai repo) | `process.env.GEMINI_MODEL ?? 'gemini-flash-latest'` | `docs/KENDALA-API.md` §1, `design.md` D-15 |
 | Node.js | v18+ (demo pakai v23.7.0) | S2 p.8–9 |
@@ -137,7 +147,9 @@ secara otomatis pada setiap push — tanpa `npm install`. Pembagian tugas CI ver
 | Port | 3000 | S2 p.34, S3 p.28 |
 | Env var | `GEMINI_API_KEY` | S2 p.32, S3 p.27 |
 | Endpoint chatbot | `POST /api/chat` | S3 p.29 |
+| Endpoint lampiran | `POST /api/chat-with-file` ⚠️ | Pola S2 p.43, p.47 — lihat `design.md` D-24 |
 | Body chatbot | `{ conversation: [{ role, text }] }` | S3 p.29, p.31 |
+| Body lampiran | `multipart/form-data` field `file` + `prompt` | S2 p.45, p.49 |
 | Response | `{ result: "<teks>" }` | S3 p.29, p.31 |
 | Frontend | Vanilla JS di folder `public/` | S3 p.34 |
 | Static serve | `app.use(express.static(path.join(__dirname, 'public')))` | S3 p.43 |
@@ -224,7 +236,7 @@ Ini bukan inkonsistensi di dalam materi, tetapi **materi versus kondisi API aktu
 | `docs/MATERI-SESI-3.md` | Ringkasan lengkap Sesi 3 |
 | `docs/TOOLS-DAN-LINK.md` | Daftar tools, versi, dan semua URL dari PDF |
 | `docs/FINAL-PROJECT.md` | Requirement + kriteria submit final project |
-| `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 17 skenario uji |
+| `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 21 skenario uji |
 | `docs/RISET-LAPANGAN.md` | Data eksternal + sitasi URL resmi |
 | `docs/RISET-DESAIN.md` | Riset pola widget, palet warna, landing page, komposer + sitasi URL |
 | `docs/PROMPT-AVATAR.md` | Prompt pembuatan avatar bot + batasan dan cara ujinya |

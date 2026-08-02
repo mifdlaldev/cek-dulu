@@ -3,11 +3,11 @@
 | Meta | Nilai |
 |---|---|
 | ID change | `add-cekdulu-chatbot` |
-| Status | **Verified** — Fase A sampai E, G, H, I, dan J selesai, kelima gate lulus, 17/17 skenario lulus. Sisa Fase F |
+| Status | **Verified** — Fase A sampai E, G, H, I, J, dan K selesai, kelima gate lulus, 21/21 skenario lulus. Sisa Fase F |
 | Tanggal dibuat | 1 Agustus 2026 |
 | Terakhir diperbarui | 1 Agustus 2026 |
 | Kapabilitas tersentuh | `web-server` ✅, `chat-api` ✅, `persona-guardrail` ✅, `chat-ui` ✅ |
-| Progres task | 134 dari 141 (`tasks.md`) |
+| Progres task | 162 dari 169 (`tasks.md`) |
 | Bukti verifikasi | `docs/QA-REPORT.md` |
 
 ---
@@ -70,7 +70,7 @@ Berkas yang sudah dibuat:
 
 ```
 index.js                   Backend, 20 requirement
-package.json               4 dependency, ESM, tanpa devDependencies
+package.json               5 dependency, ESM, tanpa devDependencies
 public/index.html          UI-01, UI-07, UI-08, UI-09, UI-11
 public/style.css           UI-10, UI-11, UI-12
 public/script.js           UI-02 s.d. UI-06, UI-11
@@ -87,9 +87,15 @@ Berkas yang sudah ada dan tidak diubah oleh change ini: `AGENTS.md`, `README.md`
 
 ## 3. Non-Goals — DILARANG dikerjakan
 
-Daftar 19 item ini ada untuk mematikan scope creep. Sebagian besar **tidak dibahas materi**
+Daftar ini ada untuk mematikan scope creep. Sebagian besar **tidak dibahas materi**
 (lihat `docs/FAKTA-TERVERIFIKASI.md` §J); sisanya ditolak berdasarkan keputusan desain yang
-beralasan di `design.md`:
+beralasan di `design.md`.
+
+> ⚠️ **Dua non-goal dicabut pada 2 Agustus 2026** atas permintaan pengguna, dan lima non-goal
+> baru ditambahkan untuk menutup kembali scope di sekitarnya. Pencabutan dilakukan terbuka
+> beserta alasannya, bukan diam-diam — lihat baris bertanda **DICABUT** di bawah dan keputusan
+> `design.md` D-24. Aturan proyek ini melarang koding menyimpang lalu memperbaiki spec agar
+> cocok (`AGENTS.md` §0); yang dilakukan adalah kebalikannya: spec diperbaiki lebih dahulu.
 
 | Non-goal | Alasan |
 |---|---|
@@ -107,8 +113,13 @@ beralasan di `design.md`:
 | Layered architecture backend (`routes/`, `controllers/`, `services/`) | Over-engineering untuk satu endpoint ±60 baris. Materi menyebut `index.js` sebagai "central controller" (S2 p.34). Alasan: `design.md` D-01, D-14 |
 | Arah desain brutalist / maximalist / eksperimental | Pengguna sedang cemas; antarmuka eksperimental menurunkan kredibilitas. Alasan: `design.md` D-12 |
 | Dark mode toggle | Muncul di contoh batch sebelumnya (S2 p.67) tetapi menambah dua set token dan permukaan uji tanpa melayani requirement mana pun |
-| Endpoint multimodal (`/generate-from-image` dll.) | Milik proyek Sesi 2 `gemini-flash-api`. Final Project = chatbot Sesi 3 |
-| `multer` | Tidak ada di dependency Sesi 3 (S3 p.25) |
+| ~~Endpoint multimodal~~ | ⚠️ **DICABUT** pada keputusan D-24 atas permintaan pengguna. Yang dikerjakan bukan empat endpoint Sesi 2, melainkan **satu** endpoint `POST /api/chat-with-file` yang melayani chatbot yang sama. Bentuk deliverable tetap chatbot sesuai brief S3 p.49 |
+| ~~`multer`~~ | ⚠️ **DICABUT** pada keputusan D-24. `multer` tercatat di `docs/SPEC-API.md` §2.1 sebagai dependency materi Sesi 2 (S2 p.30, p.31), jadi bukan dependency di luar materi. Jumlah dependency menjadi **5** |
+| Endpoint audio (`/generate-from-audio`) | Materi menyediakan kodenya (S2 p.52), tetapi pengguna hanya meminta foto dan dokumen. Transkrip pesan suara memaksa model membacakan nama dan nomor yang terdengar — bertabrakan `PG-07`. Token audio mahal terhadap kuota 20 permintaan per hari. Alasan lengkap: `design.md` D-24b |
+| Files API Gemini untuk berkas besar | Tidak ada di materi. Menambah permukaan API beserta siklus hidup berkas yang harus dikelola. Berkas dibatasi 4 MB dan dikirim sebagai `inlineData` seperti S2 p.43 |
+| Menyimpan berkas ke disk atau folder `uploads/` | `multer()` tanpa argumen memakai memory storage. S2 p.56 mengonfirmasi: "file diproses langsung dari memory buffer ... tanpa perlu menghapus file karena tidak ada penyimpanan ke disk" |
+| Menyimpan base64 berkas ke riwayat percakapan | Riwayat dikirim utuh setiap turn (`UI-04`, D-06), sehingga gambar akan dikirim ulang berkali-kali dan menghabiskan kuota. Alasan: `design.md` D-24c |
+| Validasi magic byte pada berkas unggahan | Menuntut dependency di luar daftar materi. Yang dipakai allowlist MIME sisi server; keterbatasannya dicatat apa adanya di `SECURITY.md` (D-24e) |
 | Integrasi API eksternal (cek daftar OJK otomatis) | Brief menyebutnya sebagai *contoh* kreativitas opsional, bukan kewajiban. Menambahnya berarti dependency baru + risiko klaim legalitas yang justru dilarang guardrail |
 | Menanam statistik ke dalam `systemInstruction` | Angka berubah tiap periode; akan jadi halusinasi. Lihat `docs/RISET-LAPANGAN.md` header. CI job `prompt-audit` menegakkan ini otomatis |
 | Bot menilai entitas tertentu legal/ilegal | **Larangan inti proyek.** Data dinamis, bot tidak punya akses daftar resmi |
@@ -145,7 +156,7 @@ Change ini selesai ketika kelima gate `docs/METODOLOGI.md` §5 lewat dengan bukt
 1. Setiap requirement punya sumber tertulis — diperiksa manual dan oleh CI job `traceability`
 2. `node index.js` hidup tanpa error
 3. `curl` positif → `200 { result }`; `curl` negatif → `500 { error }`
-4. 17 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser; **UJI-03 lulus mutlak**;
+4. 21 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser; **UJI-03 dan UJI-18 lulus mutlak**;
    `UI-11` diverifikasi lewat navigasi keyboard, kontras, pembesaran 200%, dan
    `prefers-reduced-motion`
 5. `.env` tidak ter-track, tidak ada dependency di luar 4 yang diizinkan, tidak ada

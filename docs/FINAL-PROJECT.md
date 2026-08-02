@@ -101,7 +101,7 @@ Catatan footer form: "Jangan pernah mengirimkan sandi melalui Google Formulir."
 
 Backend — **selesai**, diverifikasi di `docs/QA-REPORT.md`:
 - [x] `package.json` ada `"type": "module"`
-- [x] Dependencies: `express`, `dotenv`, `cors`, `@google/genai` — tanpa `multer` karena tidak ada endpoint file
+- [x] Dependencies: `express`, `dotenv`, `cors`, `@google/genai`, `multer` — `multer` ditambahkan untuk lampiran berkas (`API-07`, keputusan `design.md` D-24)
 - [x] `index.js` inisialisasi `new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })`
 - [x] `const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'` — materi menetapkan `gemini-2.5-flash`, tetapi model itu ditutup Google (`KENDALA-API.md` §1)
 - [x] `app.use(cors())` dan `app.use(express.json())`
@@ -140,7 +140,7 @@ Kesiapan isi form:
 - [x] Jawaban "Siapa target pengguna" siap → `USE-CASE-CEKDULU.md` §2
 - [x] Jawaban "Bagaimana chatbot membantu pengguna" siap → `USE-CASE-CEKDULU.md` §2
 - [ ] File UI: **1 file** PDF atau image, **≤ 1 MB** — Fase F
-- [x] 17 skenario uji `USE-CASE-CEKDULU.md` §5 dijalankan — **17/17 lulus**, termasuk UJI-03 guardrail legalitas
+- [x] 21 skenario uji `USE-CASE-CEKDULU.md` §5 dijalankan — **21/21 lulus**, termasuk UJI-03 dan UJI-18 guardrail legalitas
 - [ ] Nomor telepon format `628...` tanpa `+` atau `-` — diisi saat submit
 
 ---
