@@ -1163,9 +1163,11 @@ Komposer WAJIB menyusun elemennya dalam urutan berikut, dari atas ke bawah:
 - Pemilih berkas, kolom pesan, dan tombol kirim WAJIB **sejajar dalam satu baris**. Pola ini
   mengikuti komposer WhatsApp dan Telegram, rujukan yang sama dipakai `UI-01` untuk konvensi
   Enter dan Shift+Enter.
-- Penyejajaran WAJIB memakai `align-items: flex-end`. Kolom pesan tumbuh ke bawah sampai enam
-  baris (`UI-01`), sehingga kedua tombol harus menempel tepi bawah agar tidak melayang di
-  tengah saat kolom memanjang.
+- Penyejajaran WAJIB memakai `align-items: center`. Kolom pesan setinggi 52px pada keadaan satu
+  baris sementara tombol ikon 32px; dengan `flex-end` pusat keduanya berselisih 10px sehingga
+  ikon terlihat turun. Keadaan satu baris adalah keadaan yang paling sering dilihat pengguna.
+  Konsekuensinya saat kolom memanjang kedua ikon berada di tengah tinggi kolom, bukan menempel
+  dasar — pola yang dipakai WhatsApp Web dan Telegram Web. Alasan lengkap: `design.md` D-25c.
 - Pratinjau lampiran WAJIB berada **di atas** baris komposer. Bila di bawah label, munculnya
   lampiran akan mendorong kolom pesan dan menggeser tata letak saat pengguna mengetik.
 
@@ -1259,10 +1261,15 @@ Komposer WAJIB menyusun elemennya dalam urutan berikut, dari atas ke bawah:
 - **Then** yang dibacakan menyebut fungsi melampirkan berkas
 - **And** teks itu tidak terlihat secara visual
 
-#### Scenario: tombol menempel tepi bawah saat kolom memanjang
+#### Scenario: ikon sejajar tengah kolom pada satu baris
+- **Given** kolom pesan berisi satu baris
+- **When** baris komposer diperiksa
+- **Then** pusat vertikal ikon lampiran, kolom pesan, dan ikon kirim berada pada satu garis
+
+#### Scenario: ikon tetap di tengah saat kolom memanjang
 - **Given** kolom pesan sudah tumbuh beberapa baris
 - **When** baris komposer diperiksa
-- **Then** ikon lampiran dan ikon kirim tetap sejajar dengan tepi bawah kolom pesan
+- **Then** kedua ikon berada di tengah tinggi kolom pesan, bukan menempel tepi bawah
 
 ---
 

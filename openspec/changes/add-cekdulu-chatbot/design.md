@@ -1112,9 +1112,40 @@ Susunan final komposer, dari atas ke bawah:
 [ nota disclaimer ]
 ```
 
-**Penyejajaran memakai `align-items: flex-end`.** Kolom pesan tumbuh ke bawah sampai enam baris
-(`UI-01`), sehingga kedua tombol harus menempel ke tepi bawah agar tidak melayang di tengah
+**Penyejajaran memakai `align-items: center`.**
+
+Versi pertama keputusan ini memakai `flex-end` dengan alasan kolom pesan tumbuh ke bawah sampai
+enam baris (`UI-01`), sehingga tombol dianggap perlu menempel tepi bawah agar tidak melayang
 ketika kolom memanjang.
+
+**Alasan itu memprioritaskan keadaan yang salah.** Tangkapan layar dari pengguna menunjukkan
+kedua ikon duduk lebih rendah daripada tengah kolom pesan. Perhitungan dari token yang ada
+menjelaskan sebabnya:
+
+| Besaran | Nilai | Asal |
+|---|---|---|
+| Tinggi kolom pesan saat satu baris | **52px** | `16px × 1,6` + `--ruang-3` 12px × 2 + border 1px × 2 |
+| Tinggi tombol ikon | **32px** | `--ukuran-avatar` |
+
+Dengan `flex-end`, pusat tombol berjarak 36px dari atas baris sementara pusat kolom 26px —
+**selisih 10px**, dan itu terlihat sebagai ikon yang turun. Dengan `center`, selisihnya nol.
+
+Keadaan **satu baris** adalah keadaan yang paling sering dilihat pengguna, dan justru di situ
+`flex-end` gagal. Kolom yang memanjang sampai enam baris adalah kasus yang lebih jarang.
+
+**Konsekuensi yang diterima:** saat kolom memanjang, kedua ikon berada di tengah tinggi kolom,
+bukan menempel dasar. Ini pola yang dipakai WhatsApp Web dan Telegram Web — rujukan yang sama
+dengan yang dipakai D-21a untuk konvensi Enter dan Shift+Enter, sehingga konsisten dengan
+keputusan sebelumnya.
+
+**Ditolak: `align-self: flex-end` pada kedua tombol.** Mengembalikan penempelan dasar saat
+kolom panjang, tetapi memunculkan kembali selisih 10px pada keadaan satu baris — persis masalah
+yang sedang diperbaiki. Menukar cacat yang sering terlihat dengan cacat yang jarang terlihat
+adalah pertukaran yang salah arah.
+
+**Ditolak: menyamakan tinggi tombol dengan tinggi kolom satu baris (32px menjadi 52px).**
+Menghapus selisih tanpa mengubah `align-items`, tetapi tombol 52px terlalu besar untuk ikon
+dan memakan lebar yang justru sedang dihemat oleh D-25.
 
 ---
 

@@ -3649,9 +3649,9 @@ berkas dipindahkan ke dalam baris komposer, wadah `.lampiran` yang sebelumnya me
 posisi ikut dibubarkan — tanpa `relative` pada baris komposer, input akan melayang ke sudut
 panel.
 
-`align-items: flex-end` pada baris komposer bersifat wajib, bukan pilihan estetis. Kolom pesan
-tumbuh ke bawah sampai enam baris (`UI-01`), sehingga kedua tombol harus menempel tepi bawah
-agar tidak melayang di tengah saat kolom memanjang.
+`align-items: center` pada baris komposer. Nilai ini **dikoreksi dari `flex-end`** setelah
+pengguna melaporkan kedua ikon duduk lebih rendah daripada tengah kolom pesan — lihat bagian
+**Koreksi penyejajaran** di bawah.
 
 Kedua tombol memakai `--ukuran-avatar` sebagai lebar dan tinggi, sehingga ukurannya identik
 tanpa nilai literal baru.
@@ -3717,3 +3717,84 @@ Penilaian visual dilakukan pengguna langsung di browser.
 | Sintaks kedua berkas JS | CI `syntax` | LULUS |
 | Keterlacakan 40 requirement | Gate 1 | LULUS |
 | Kesejajaran visual, kontras tombol ikon, urutan Tab | — | **BELUM DIVERIFIKASI** — di luar cakupan atas permintaan pengguna |
+
+
+---
+
+## Koreksi penyejajaran baris komposer
+
+| Meta | Nilai |
+|---|---|
+| Tanggal | 2 Agustus 2026 |
+| Requirement | `UI-16` diamandemen |
+| Keputusan | `design.md` D-25c dikoreksi |
+| Cakupan verifikasi | **Dibatasi atas permintaan pengguna** — tanpa Playwright. Penilaian visual dilakukan pengguna |
+| Kuota API terpakai | **0** |
+
+### Masalah yang dilaporkan
+
+Tangkapan layar dari pengguna menunjukkan ikon lampiran dan ikon kirim duduk **lebih rendah**
+daripada tengah kolom pesan. Ketiganya berada pada satu baris, tetapi tidak sejajar secara
+vertikal.
+
+### Penyebab, dihitung dari token yang ada
+
+Penyebabnya `align-items: flex-end` yang dipasang pada commit Fase L. Perhitungan memakai nilai
+token di `:root`, bukan angka yang dikarang:
+
+| Besaran | Perhitungan | Nilai |
+|---|---|---|
+| Tinggi kolom pesan, satu baris | `16px × 1,6` + `--ruang-3` 12px × 2 + border 1px × 2 | **52px** |
+| Tinggi tombol ikon | `--ukuran-avatar` 2rem | **32px** |
+
+```
+flex-end -> pusat tombol 36px dari atas baris
+            pusat kolom  26px dari atas baris
+            selisih      10px   <- ikon tampak turun
+
+center   -> selisih       0px
+```
+
+### Mengapa alasan awal salah
+
+`flex-end` dipilih dengan alasan kolom pesan tumbuh sampai enam baris (`UI-01`), sehingga tombol
+dianggap perlu menempel tepi bawah agar tidak melayang saat kolom memanjang.
+
+Alasan itu memprioritaskan keadaan yang salah. Keadaan **satu baris** adalah keadaan yang paling
+sering dilihat pengguna, dan justru di situ `flex-end` gagal. Kolom yang memanjang sampai enam
+baris adalah kasus yang lebih jarang.
+
+### Perbaikan
+
+`align-items: center` pada `.composer__row`. Satu properti, satu nilai.
+
+Konsekuensi yang diterima: saat kolom memanjang, kedua ikon berada di tengah tinggi kolom, bukan
+menempel dasar. Ini pola WhatsApp Web dan Telegram Web — rujukan yang sama dipakai D-21a untuk
+konvensi Enter dan Shift+Enter, sehingga konsisten dengan keputusan sebelumnya.
+
+Pilihan ini dikonfirmasi pengguna sebelum diterapkan.
+
+### Alternatif yang ditolak
+
+**`align-self: flex-end` pada kedua tombol.** Mengembalikan penempelan dasar saat kolom panjang,
+tetapi memunculkan kembali selisih 10px pada keadaan satu baris — persis masalah yang sedang
+diperbaiki.
+
+**Menyamakan tinggi tombol dengan tinggi kolom satu baris.** Menghapus selisih tanpa mengubah
+`align-items`, tetapi tombol 52px terlalu besar untuk ikon dan memakan lebar yang justru sedang
+dihemat oleh D-25.
+
+### Pemeriksaan yang dijalankan
+
+```
+syntax index.js + public/script.js   OK
+nol innerHTML                        OK
+nol warna literal di luar :root      OK
+traceability 40 requirement          OK
+```
+
+### Batas verifikasi ini
+
+Kesejajaran vertikal **tidak diukur di browser** karena pengguna meminta perubahan posisi saja
+tanpa Playwright. Yang tersedia adalah perhitungan aritmetika dari token, dan itu menjelaskan
+sebab masalah tetapi bukan bukti hasilnya. Penilaian visual dilakukan pengguna langsung.

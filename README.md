@@ -78,7 +78,7 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | L | Komposer satu baris, tombol ikon (`UI-16`) | ✅ Selesai — verifikasi statis, visual oleh pengguna |
 | F | Screenshot UI + submit ke form | ⬜ Belum |
 
-Progres task: **172 dari 179** selesai (`tasks.md`).
+Progres task: **173 dari 180** selesai (`tasks.md`).
 
 Aplikasi berjalan utuh dan **seluruh gate verifikasi terpenuhi**: buka
 `http://localhost:3000/`, gulir landing page, lalu klik tombol **Cek Dulu** di sudut kanan
@@ -111,7 +111,7 @@ openspec/
 └── changes/add-cekdulu-chatbot/
     ├── proposal.md                # WHY: masalah, scope, 22 non-goals
     ├── design.md                  # HOW: 25 keputusan + alternatif ditolak + matriks sumber
-    ├── tasks.md                   # STEPS: 179 task dalam 12 fase
+    ├── tasks.md                   # STEPS: 180 task dalam 12 fase
     └── specs/
         ├── web-server/spec.md     # WS-01 … WS-05
         ├── chat-api/spec.md       # API-01 … API-08
@@ -425,7 +425,7 @@ curl -s -X POST http://localhost:3000/api/chat-with-file \
 | [`openspec/project.md`](openspec/project.md) | Batasan stack & aturan yang selalu berlaku |
 | [`openspec/changes/add-cekdulu-chatbot/proposal.md`](openspec/changes/add-cekdulu-chatbot/proposal.md) | Scope & non-goals |
 | [`openspec/changes/add-cekdulu-chatbot/design.md`](openspec/changes/add-cekdulu-chatbot/design.md) | Keputusan teknis + alternatif ditolak + matriks sumber |
-| [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 179 task dalam 12 fase |
+| [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 180 task dalam 12 fase |
 
 **Referensi materi:**
 

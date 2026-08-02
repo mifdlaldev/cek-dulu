@@ -2,7 +2,7 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 172 dari 179 task selesai.** Fase A sampai E, G, H, I, J, K, dan L tuntas — kelima
+**Progres: 173 dari 180 task selesai.** Fase A sampai E, G, H, I, J, K, dan L tuntas — kelima
 gate verifikasi LULUS dan **21 dari 21 skenario uji lulus**. Fase K menambahkan lampiran gambar
 dan dokumen; **UJI-18 sebagai gate mutlak `PG-03` pada input gambar LULUS** — bot tidak menyebut
 nama entitas dari logo maupun menilai legalitasnya. Fase L menata komposer menjadi satu baris
@@ -27,7 +27,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 | I | Komposer multi-baris, blok saran, nota | 21/21 | ✅ Selesai — UJI-16 lulus |
 | J | Avatar bot berupa berkas gambar | 22/22 | ✅ Selesai — UJI-17 lulus, varian header D-23 |
 | K | Lampiran gambar dan dokumen | 28/28 | ✅ Selesai — UJI-18 s.d. UJI-21 lulus |
-| L | Komposer satu baris, tombol ikon | 10/10 | ✅ Selesai — verifikasi statis, visual oleh pengguna |
+| L | Komposer satu baris, tombol ikon | 11/11 | ✅ Selesai — verifikasi statis, visual oleh pengguna |
 | F | Persiapan submit | 0/7 | ⬜ Belum |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
@@ -1065,7 +1065,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
   · Ref: `UI-01`, D-25a
 
 - [x] **L4.** `specs/chat-ui/spec.md`: amandemen `UI-16` — tata letak satu baris, pratinjau di
-  atas, `align-items: flex-end`, label lampiran menampilkan ikon saja
+  atas, penyejajaran vertikal, label lampiran menampilkan ikon saja
   → expect jenis elemen `<input type="file">` dengan `<label>` tidak berubah
   · Ref: `UI-16`, D-25c
 
@@ -1076,9 +1076,15 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
   · Ref: `UI-01`, `UI-11`, `UI-16`
 
 - [x] **L6.** `public/style.css`: `.composer__row` diberi `position: relative` sebagai acuan
-  `.lampiran__input` yang absolute, dan `align-items: flex-end`
+  `.lampiran__input` yang absolute, dan penyejajaran vertikal
   → expect input file tidak melayang ke sudut panel
   · Ref: `UI-16`, D-25c
+
+- [x] **L11.** Koreksi penyejajaran: `align-items` dari `flex-end` menjadi `center` setelah
+  pengguna melaporkan kedua ikon duduk lebih rendah daripada tengah kolom pesan
+  → expect pusat vertikal ketiga elemen berada pada satu garis saat kolom satu baris
+  · Ref: `UI-16`, D-25c
+  · Selisih 10px dihitung dari token: kolom 52px versus tombol 32px
 
 - [x] **L7.** `public/style.css`: `.composer__button` dan `.lampiran__pilih` menjadi tombol
   ikon bundar seukuran `--ukuran-avatar`; bubarkan wadah `.lampiran` yang tidak lagi dipakai
@@ -1113,8 +1119,8 @@ Kalau `PG-03` gagal, memperbaikinya lebih murah saat frontend belum ada.
 
 Alasan G sampai L sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
 
-**Total: 12 fase, 179 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19,
-I: 21, J: 22, K: 28, L: 10, F: 7.
+**Total: 12 fase, 180 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19,
+I: 21, J: 22, K: 28, L: 11, F: 7.
 
 CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push: validasi sintaks,
 kebersihan repo, batasan dependency, audit `systemInstruction` terhadap `PG-09`, dan

@@ -1087,13 +1087,18 @@ img.msg__avatar {
   color: var(--warna-teks-lembut);
 }
 
-/* D-25 — ikon lampiran, kolom pesan, dan tombol kirim sejajar satu baris. flex-end wajib:
-   kolom pesan tumbuh ke bawah sampai enam baris (UI-01), sehingga kedua tombol harus menempel
-   tepi bawah agar tidak melayang di tengah saat kolom memanjang. */
+/* D-25 — ikon lampiran, kolom pesan, dan tombol kirim sejajar satu baris.
+
+   align-items: center, bukan flex-end. Kolom pesan setinggi 52px pada keadaan satu baris
+   (16px x 1,6 + padding 12px x 2 + border 1px x 2) sementara tombol ikon 32px. Dengan
+   flex-end pusat keduanya berselisih 10px sehingga ikon terlihat turun — dan keadaan satu
+   baris justru yang paling sering dilihat pengguna. Konsekuensinya saat kolom memanjang
+   kedua ikon berada di tengah tinggi kolom, seperti WhatsApp Web dan Telegram Web.
+   Keputusan: design.md D-25c. */
 .composer__row {
   position: relative;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--ruang-2);
 }
 
