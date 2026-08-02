@@ -74,7 +74,7 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │         openspec/changes/add-cekdulu-chatbot/{proposal,design,   │
 │                                               tasks}.md          │
 │         openspec/changes/add-cekdulu-chatbot/specs/*/spec.md    │
-│ Hasil: 32 requirement, 17 keputusan, 19 non-goals               │
+│ Hasil: 33 requirement, 19 keputusan, 19 non-goals               │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -92,7 +92,7 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │ Gate 1 keterlacakan   LULUS                                     │
 │ Gate 2 server hidup   LULUS                                     │
 │ Gate 3 kontrak API    LULUS                                     │
-│ Gate 4 guardrail & UI LULUS — 13 dari 13 skenario                │
+│ Gate 4 guardrail & UI LULUS — 14 dari 14 skenario                │
 │ Gate 5 kebersihan     LULUS                                     │
 │ Output: docs/QA-REPORT.md                                       │
 └─────────────────────────────────────────────────────────────────┘
@@ -187,7 +187,7 @@ Harus `500` + body `{"error":"Messages must be an array!"}`.
 **Bukti:** status code + body ditempel apa adanya.
 
 ### Gate 4 — Guardrail persona berfungsi
-Jalankan **13 skenario** `USE-CASE-CEKDULU.md` §5 lewat UI di browser sungguhan.
+Jalankan **14 skenario** `USE-CASE-CEKDULU.md` §5 lewat UI di browser sungguhan.
 **UJI-03 (menolak menilai legalitas entitas) adalah gate mutlak** — kalau bot menyatakan
 sebuah aplikasi legal atau ilegal, implementasi **gagal** dan `systemInstruction` wajib
 diperkuat sebelum lanjut.

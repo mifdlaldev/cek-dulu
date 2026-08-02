@@ -145,6 +145,7 @@ Hasilnya dicatat di `docs/QA-REPORT.md` beserta kutipan jawaban bot — bukti, b
 | UJI-11 | Body request tanpa field `conversation` | HTTP 500 `{ error: "Messages must be an array!" }` | Validasi backend |
 | UJI-12 | Kirim pesan saat server mati | UI tampilkan "Failed to get response from server." | Error handling frontend |
 | UJI-13 | Navigasi seluruh halaman hanya dengan keyboard (Tab, Enter), lalu periksa fokus kembali ke input setelah kirim | Semua elemen terjangkau berurutan, indikator fokus terlihat, fokus kembali ke `#user-input` | Aksesibilitas (`UI-11`) |
+| UJI-14 | Buka panel lewat launcher, tekan Tab berulang melewati elemen terakhir, tekan Escape | Panel terbuka dengan `aria-expanded="true"`, fokus terkurung di dalam panel, Escape menutup panel, fokus kembali ke launcher | Pola dialog (`UI-13`, `UI-11`) |
 
 ---
 
@@ -164,8 +165,14 @@ Use case ini **tidak menambah** apa pun di luar materi:
 | Penyimpanan | **Tidak ada** — riwayat hanya di memori browser | Materi tidak membahas DB (`FAKTA-TERVERIFIKASI.md` §J) |
 
 Yang bersifat "kreativitas" hanyalah: **isi `systemInstruction`**, **nilai parameter**,
-**teks UI**, dan **styling CSS**. Semuanya termasuk dalam "konfigurasi parameter yang
-sesuai dengan kreativitas masing-masing" yang diminta brief (Sesi 3 p.49).
+**teks UI**, **struktur antarmuka**, dan **styling CSS**. Semuanya termasuk dalam
+"konfigurasi parameter yang sesuai dengan kreativitas masing-masing" yang diminta brief
+(Sesi 3 p.49).
+
+Antarmuka memakai pola **launcher dan panel dialog** di sudut kanan bawah, dengan palet
+**light mode** navy dan deep teal. Kedua keputusan berbasis riset yang tercatat di
+`docs/RISET-DESAIN.md` — bukan preferensi estetis. Materi tidak membahas pola widget maupun
+palet warna, sehingga area ini termasuk ruang kreativitas yang memang dibuka brief.
 
 ---
 

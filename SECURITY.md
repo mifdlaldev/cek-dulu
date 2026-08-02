@@ -44,5 +44,5 @@ dapat dipakai siapa saja.
 Model bahasa bersifat probabilistik. `systemInstruction` menurunkan risiko
 keluaran yang tidak diinginkan, tetapi tidak menghilangkannya. Antarmuka memuat
 disclaimer permanen sebagai lapis pertahanan kedua, dan setiap guardrail
-diverifikasi melalui 13 skenario pengujian manual yang terdokumentasi di
+diverifikasi melalui 14 skenario pengujian manual yang terdokumentasi di
 `docs/USE-CASE-CEKDULU.md` §5.

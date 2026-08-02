@@ -12,7 +12,7 @@
 | Browser uji | Chromium 151.0.7922.34 (headless, via CDP) |
 | Model dipakai | `gemini-flash-latest` (bawaan `WS-02`, lihat `KENDALA-API.md` §1) |
 | Tier akun | Free tier |
-| Status | Fase A, B, C, dan D selesai. **Kelima gate verifikasi LULUS, 13 dari 13 skenario uji lulus.** Sisa: Fase F (screenshot dan submit) |
+| Status | Fase A sampai E dan G selesai. **Kelima gate verifikasi LULUS, 14 dari 14 skenario uji lulus.** Sisa: Fase F (screenshot dan submit) |
 
 ---
 
@@ -893,7 +893,9 @@ Amandemen `PG-08` (keputusan D-17) terbukti konsisten pada lima jawaban berturut
 bukan hanya pada satu uji. Tidak ada satu pun jawaban yang memuat `**`, `*` sebagai penanda
 daftar, backtick, maupun `#`.
 
-**Verdict Gate 4: LULUS — 13 dari 13 skenario.**
+**Verdict Gate 4 pada tahap ini: LULUS — 13 dari 13 skenario yang berlaku saat itu.**
+UJI-14 ditambahkan kemudian bersama requirement `UI-13` pada Fase G; hasilnya tercatat di
+bagian Fase G.
 
 ---
 
@@ -914,8 +916,325 @@ daftar, backtick, maupun `#`.
 | UJI-11 | Validasi body backend | `API-02`, `API-06` | LULUS |
 | UJI-12 | Fallback server mati | `UI-06` | LULUS |
 | UJI-13 | Navigasi keyboard | `UI-11` | LULUS |
+| UJI-14 | Buka/tutup panel, focus trap, Escape | `UI-13`, `UI-11` | LULUS |
 
-**13 dari 13 skenario lulus. Kelima gate verifikasi terpenuhi.**
+**14 dari 14 skenario lulus. Kelima gate verifikasi terpenuhi.**
+
+---
+
+## Fase G — Verifikasi redesain antarmuka widget
+
+Latar belakang: desain Fase D terbaca sebagai formulir, bukan percakapan. Antarmuka
+diubah menjadi pola launcher dan panel dialog, dengan palet light mode. Spec diamandemen
+lebih dahulu sesuai `docs/METODOLOGI.md` §6. Riset dan sitasi: `docs/RISET-DESAIN.md`.
+
+Seluruh verifikasi dijalankan di Chromium nyata melalui protokol CDP.
+
+### Kontras palet baru · `UI-11`, `UI-12`
+
+Token warna dibaca langsung dari blok `:root` pada `public/style.css`, lalu tiga belas
+pasangan dihitung dengan formula luminansi relatif WCAG 2.1:
+
+| Pasangan | Rasio | AA 4,5:1 | AAA 7:1 |
+|---|---|---|---|
+| teks pada latar halaman | 15,40:1 | LULUS | ya |
+| teks pada permukaan | 16,68:1 | LULUS | ya |
+| teks lembut pada permukaan | 7,06:1 | LULUS | ya |
+| teks lembut pada latar | 6,52:1 | LULUS | — |
+| teks pada bubble bot | 14,83:1 | LULUS | ya |
+| teks lembut pada bubble bot | 6,28:1 | LULUS | — |
+| teks invers pada bubble pengguna | 9,45:1 | LULUS | ya |
+| teks invers pada aksen | 5,10:1 | LULUS | — |
+| teks invers pada aksen pekat | 7,79:1 | LULUS | ya |
+| aksen pekat pada permukaan | 7,79:1 | LULUS | ya |
+| aksen pekat pada latar | 7,20:1 | LULUS | ya |
+| fokus pada permukaan | 5,69:1 | LULUS | — |
+| fokus pada latar | 5,26:1 | LULUS | — |
+
+Tiga belas pasangan lulus AA, tujuh di antaranya lulus AAA. Rasio terendah 5,10:1.
+
+Pemeriksaan token terpusat:
+
+```
+$ awk '/^:root \{/,/^\}/{next} /#[0-9a-fA-F]{3,8}\b/{print}' public/style.css
+(kosong)
+```
+
+Sebelas token warna terbaca dari `:root`, nol nilai warna literal di luar blok tersebut.
+
+**LULUS.**
+
+### Keadaan awal halaman · `UI-13`, `UI-01`, `UI-11`
+
+```json
+{
+  "panelHidden": true,
+  "ariaExpanded": "false",
+  "launcherPunyaLabel": "Cek Dulu",
+  "adaBadge": false,
+  "panelRole": "dialog",
+  "ariaModal": "false",
+  "ariaLabelledby": "panel-title",
+  "ariaControls": "chat-panel",
+  "lang": "id",
+  "fontDasar": "16px",
+  "idDiDalamPanel": true,
+  "disclaimerDiBadan": true,
+  "kanalDiBadan": true
+}
+```
+
+Panel tertutup saat halaman dimuat — memenuhi larangan sapaan proaktif yang membuka panel
+otomatis. Launcher memuat label teks "Cek Dulu", bukan ikon buta. Tidak ada badge
+notifikasi. Ketiga ID wajib berada di dalam panel, sementara disclaimer dan kanal resmi
+tetap di badan halaman.
+
+Posisi launcher:
+
+```json
+{ "kanan": 24, "bawah": 24, "lebar": 145, "tinggi": 58 }
+```
+
+Sudut kanan bawah dengan jarak 24px dari kedua sisi. Tinggi 58px melebihi ambang target
+sentuh 44px.
+
+**LULUS.**
+
+### Membuka panel · `UI-13`, `UI-11`
+
+```json
+{
+  "panelHidden": false,
+  "ariaExpanded": "true",
+  "launcherVisibility": "hidden",
+  "fokus": "user-input",
+  "lebarPanel": 380,
+  "tinggiPanel": 560,
+  "jumlahBubble": 1,
+  "adaIndikator": false
+}
+```
+
+Ukuran panel tepat 380×560px sesuai spesifikasi. Fokus berpindah ke kolom pesan.
+`jumlahBubble: 1` adalah sapaan pembuka statis `UI-07`, dan `adaIndikator: false`
+membuktikan indikator mengetik tidak muncul sebelum pengguna terlibat — larangan
+messengerbot.app terpenuhi.
+
+Tujuh elemen dapat menerima fokus di dalam panel: tombol tutup, area chat, tiga chip,
+kolom pesan, tombol kirim.
+
+**LULUS.**
+
+### Focus trap, Escape, dan pengembalian fokus · `UI-11`, UJI-14
+
+Sembilan kali Tab ditekan setelah panel dibuka. Seluruh sembilan pendaratan fokus berada
+di dalam panel — `semuaFokusDiPanel: true`. Urutan bersiklus:
+
+```
+send-button → close-button → chat-box → chip → chip → chip → user-input
+            → send-button → close-button
+```
+
+Siklus terbukti: setelah `user-input` dan `send-button`, fokus kembali ke `close-button`
+alih-alih lolos ke badan halaman.
+
+Shift+Tab dari `close-button`:
+
+```json
+{ "id": "send-button", "diDalamPanel": true }
+```
+
+Melompat ke elemen terakhir panel, bukan keluar ke belakang.
+
+Escape:
+
+```json
+{ "panelHidden": true, "ariaExpanded": "false", "fokus": "launcher" }
+```
+
+Tombol tutup:
+
+```json
+{ "panelHidden": true, "ariaExpanded": "false", "fokus": "launcher" }
+```
+
+Keempat kegagalan tersering yang dirangkum ExceedAbility — latar terjangkau Tab, Escape
+tidak berfungsi, fokus tidak kembali ke pemicu, dialog tanpa nama yang dapat diakses —
+semuanya tertangani.
+
+**LULUS.**
+
+### Indikator tiga titik · `UI-05`, D-19
+
+Kondisi saat permintaan berjalan:
+
+```json
+{
+  "ariaBusy": "true",
+  "adaTigaTitik": 3,
+  "teksSrOnly": "Cek Dulu sedang menyiapkan jawaban",
+  "tombolNonaktif": true,
+  "jumlahBubble": 3
+}
+```
+
+Tiga titik hadir, disertai teks tersembunyi untuk screen reader karena animasi tidak
+menyampaikan apa pun kepada pembaca layar.
+
+Kondisi setelah jawaban tiba:
+
+```json
+{
+  "ariaBusy": "false",
+  "jumlahBubble": 3,
+  "indikatorHilang": true,
+  "fokus": "user-input",
+  "tombolAktif": true,
+  "lebarBubble": 291
+}
+```
+
+Jumlah bubble tetap 3 sebelum dan sesudah — isi diganti di tempat, tidak ditambah elemen
+baru. Lebar bubble 291px, di dalam rentang keterbacaan 280–320px yang disebut Clutch dan
+di bawah batas 320px yang ditetapkan `UI-10`.
+
+**LULUS.**
+
+### Uji ujung ke ujung dengan API nyata
+
+Pesan dikirim melalui antarmuka baru:
+
+> Ada WA menawarkan pinjaman cair 10 menit tanpa BI checking, cuma butuh foto KTP dan izin
+> akses seluruh kontak di HP saya
+
+Kutipan jawaban, verbatim:
+
+> Ada beberapa ciri dari penawaran pesan tersebut yang perlu dicermati dengan tenang dan
+> hati-hati.
+>
+> Berikut adalah ciri-ciri yang perlu diwaspadai beserta risikonya:
+>
+> 1. Penawaran dikirim melalui pesan pribadi seperti WhatsApp.
+>    Risiko: Penyedia layanan keuangan yang terdaftar dan berizin umumnya tidak menawarkan
+>    pinjaman secara langsung melalui pesan pribadi tanpa permintaan dari pengguna.
+>
+> 2. Iming-iming cair sangat cepat tanpa pengecekan riwayat kredit.
+>    Risiko: Kemudahan berlebihan tanpa syarat yang jelas sering kali digunakan untuk
+>    memikat peminjam agar terburu-buru, yang berpotensi menyembunyikan biaya administrasi
+>    tinggi, bunga sangat besar, atau jangka waktu pelunasan yang sangat singkat.
+>
+> 3. Meminta izin akses ke seluruh kontak di ponsel.
+>    Risiko: Akses kontak ini sangat berbahaya karena bisa digunakan untuk menyebarkan data
+>    pribadi, melakukan penagihan secara tidak beretika, atau mengintimidasi orang-orang
+>    terdekat jika terjadi kendala pembayaran.
+>
+> 4. Meminta foto dokumen penting seperti KTP melalui saluran tidak resmi.
+>    Risiko: Identitas diri yang dikirimkan secara sembarangan dapat disalahgunakan untuk
+>    tindakan yang merugikan atau mendaftarkan pinjaman lain tanpa izin pemilik identitas.
+>
+> Berikut langkah yang bisa dilakukan untuk memeriksa secara mandiri:
+>
+> 1. Jangan memberikan foto KTP, data pribadi, atau mengizinkan aplikasi mengakses kontak di
+>    ponsel.
+>
+> 2. Cek status terdaftar dan izin dari penyedia layanan tersebut secara mandiri melalui
+>    saluran resmi Otoritas Jasa Keuangan, seperti situs resmi OJK atau layanan pesan
+>    WhatsApp resmi OJK.
+>
+> 3. Abaikan, laporkan, atau blokir nomor yang mengirimkan penawaran tersebut agar tidak
+>    mengganggu ketenangan.
+>
+> Selalu pastikan untuk memverifikasi kelegalan penyedia layanan keuangan ke sumber resmi
+> Otoritas Jasa Keuangan sebelum mengambil keputusan.
+
+Jawaban bebas penanda Markdown (`PG-08`), tanpa nomor telepon maupun tautan (`PG-04`),
+dengan struktur ciri lalu risiko lalu langkah dan kalimat penutup verifikasi.
+
+**LULUS.**
+
+### Riwayat bertahan saat panel ditutup lalu dibuka · `UI-13`, `UI-04`
+
+```json
+{ "sebelumTutup": 3, "setelahBukaUlang": { "jumlahBubble": 3, "panelHidden": false } }
+```
+
+Panel disembunyikan dengan atribut `hidden`, bukan dibongkar dari DOM, sehingga riwayat
+utuh.
+
+**LULUS.**
+
+### Responsif, pembesaran, dan preferensi gerak · `UI-10`, `UI-11`, `UI-13`
+
+Viewport ponsel 375px:
+
+```json
+{
+  "lebarPanel": 360,
+  "clientWidth": 360,
+  "penuhTerhadapClientWidth": true,
+  "penuhTerhadapTinggi": true,
+  "borderRadius": "0px",
+  "posisiKiri": 0,
+  "posisiAtas": 0,
+  "scrollHorizontal": false
+}
+```
+
+Panel menempati layar penuh. Selisih 15px antara `innerWidth` 375 dan `clientWidth` 360
+adalah lebar scrollbar headless, bukan celah tata letak.
+
+Desktop 1280px dan pembesaran 200%:
+
+```json
+{
+  "desktopTertutup": { "scrollHorizontal": false },
+  "zoom200": { "scrollHorizontal": false, "judulTerlihat": true, "disclaimerTerlihat": true, "launcherTerlihat": true }
+}
+```
+
+`prefers-reduced-motion: reduce`:
+
+```json
+{ "launcherTransisi": "0s", "inputTransisi": "0s" }
+```
+
+Seluruh transisi menjadi nol detik. Tiga titik tetap terlihat statis dengan opasitas penuh
+sehingga informasi tidak hilang.
+
+**LULUS.**
+
+### Console browser
+
+```
+Total messages: 0 (Errors: 0, Warnings: 0)
+```
+
+**LULUS.**
+
+---
+
+## Temuan Fase G: chip membungkus tiga baris di ponsel
+
+Tangkapan layar viewport 375px menunjukkan tiga chip contoh pertanyaan membungkus menjadi
+tiga baris terpisah, memakan tinggi yang seharusnya menjadi area percakapan.
+
+Ditangani dengan mengubah `flex-wrap` menjadi `nowrap` disertai `overflow-x: auto` pada
+layar sempit, sehingga chip digulir horizontal dalam satu baris. Setelah perbaikan:
+
+```json
+{ "tinggiAreaChat": 391, "tinggiChip": 88, "scrollHorizontalDokumen": false }
+```
+
+Area percakapan naik menjadi 391px, dan penggulingan horizontal terbatas pada daftar chip —
+dokumen tetap bebas scroll horizontal.
+
+Perbaikan ini bersifat tata letak dan tidak menyentuh requirement mana pun; dicatat di sini
+agar riwayat verifikasi utuh.
+
+### Konsumsi kuota Fase G
+
+Satu permintaan untuk uji ujung ke ujung. Seluruh verifikasi lain memakai inspeksi DOM,
+pengukuran geometri, atau bubble contoh yang disuntikkan langsung — sehingga **nol kuota**.
 
 ---
 

@@ -4,12 +4,20 @@
 //   UI-02  pesan pengguna langsung tampil
 //   UI-03  payload memakai field conversation, bukan messages
 //   UI-04  riwayat multi-turn disimpan di memori browser
-//   UI-05  indikator sedang berpikir diganti di tempat
+//   UI-05  indikator tiga titik diganti di tempat
 //   UI-06  penanganan respons dan teks fallback
-//   UI-11  aria-busy, pengembalian fokus, penanda pengirim
+//   UI-11  aria-busy, aria-expanded, focus trap, Escape, pengembalian fokus
+//   UI-13  buka dan tutup panel dialog
+//
+// Pola dialog mengikuti W3C ARIA Authoring Practices: fokus masuk saat dibuka, fokus
+// terkurung selama terbuka, Escape menutup, fokus kembali ke pemicu saat ditutup.
+// Sitasi: docs/RISET-DESAIN.md bagian 2. Keputusan: design.md D-18.
 //
 // Spesifikasi: openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md
 
+const launcher = document.getElementById('launcher');
+const panel = document.getElementById('chat-panel');
+const closeButton = document.getElementById('close-button');
 const form = document.getElementById('chat-form');
 const input = document.getElementById('user-input');
 const chatBox = document.getElementById('chat-box');
@@ -21,9 +29,12 @@ const sendButton = document.getElementById('send-button');
 // membingungkan konteks model.
 const conversation = [];
 
-const TEKS_MENUNGGU = 'Cek Dulu sedang memeriksa...';
+const TEKS_MENUNGGU = 'Cek Dulu sedang menyiapkan jawaban';
 const TEKS_TANPA_HASIL = 'Sorry, no response received.';
 const TEKS_GAGAL = 'Failed to get response from server.';
+
+// Selector elemen yang dapat menerima fokus di dalam panel, dipakai oleh focus trap.
+const SELECTOR_FOKUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 /**
  * Menggulir area percakapan ke pesan terbaru. (UI-06)
@@ -35,38 +46,75 @@ function scrollKeBawah() {
 }
 
 /**
- * Menambahkan satu bubble pesan ke area percakapan. (UI-02, UI-05, UI-11)
+ * Membuat bubble pesan beserta avatar dan penanda pengirim. (UI-02, UI-10, UI-11)
  *
  * Isi pesan diset dengan `textContent`, bukan `innerHTML`. Selain menghindari
  * kebutuhan pustaka sanitasi, ini mencegah keluaran model dieksekusi sebagai HTML.
- * Keputusan D-07; larangan `innerHTML` ditegakkan otomatis oleh CI.
+ * Keputusan D-07; larangan penulisan HTML mentah ditegakkan otomatis oleh CI.
  *
  * @param {'user' | 'bot'} pengirim Peran pengirim pesan.
  * @param {string} teks Isi pesan yang ditampilkan.
- * @param {boolean} [menunggu=false] Menandai bubble sebagai indikator sementara.
- * @returns {{ artikel: HTMLElement, paragraf: HTMLElement }} Referensi elemen agar
- *   isinya dapat diganti di tempat oleh `UI-05`.
+ * @returns {{ artikel: HTMLElement, isi: HTMLElement }} Referensi elemen agar isinya
+ *   dapat diganti di tempat oleh `UI-05`.
  */
-function appendMessage(pengirim, teks, menunggu = false) {
+function appendMessage(pengirim, teks) {
   const artikel = document.createElement('article');
   artikel.classList.add('msg', pengirim === 'user' ? 'msg--user' : 'msg--bot');
-  if (menunggu) artikel.classList.add('msg--menunggu');
 
-  // UI-11 — penanda pengirim ditulis sebagai teks agar terbaca screen reader,
-  // tidak hanya dibedakan lewat warna dan posisi.
+  // D-19 — avatar dari CSS dan teks, disembunyikan dari screen reader agar peran
+  // tidak dibaca dua kali bersama penanda pengirim di bawahnya.
+  const avatar = document.createElement('span');
+  avatar.className = 'msg__avatar';
+  avatar.setAttribute('aria-hidden', 'true');
+  avatar.textContent = pengirim === 'user' ? 'A' : 'CD';
+
+  const body = document.createElement('div');
+  body.className = 'msg__body';
+
+  // UI-11 — penanda pengirim berupa teks agar terbaca screen reader, bukan hanya
+  // dibedakan lewat warna dan posisi.
   const label = document.createElement('span');
   label.className = 'msg__who';
   label.textContent = pengirim === 'user' ? 'Anda' : 'Cek Dulu';
 
-  const paragraf = document.createElement('p');
-  paragraf.className = 'msg__text';
-  paragraf.textContent = teks;
+  const isi = document.createElement('p');
+  isi.className = 'msg__text';
+  isi.textContent = teks;
 
-  artikel.append(label, paragraf);
+  body.append(label, isi);
+  artikel.append(avatar, body);
   chatBox.appendChild(artikel);
   scrollKeBawah();
 
-  return { artikel, paragraf };
+  return { artikel, isi };
+}
+
+/**
+ * Mengganti isi bubble menunggu dengan tiga titik beranimasi. (UI-05)
+ *
+ * Titik disertai teks tersembunyi karena animasi tidak menyampaikan apa pun kepada
+ * screen reader. Keputusan D-19.
+ *
+ * @param {HTMLElement} isi Elemen paragraf yang akan diisi indikator.
+ * @returns {void}
+ */
+function pasangIndikator(isi) {
+  isi.textContent = '';
+
+  const wadah = document.createElement('span');
+  wadah.className = 'dots';
+  wadah.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 3; i += 1) {
+    const titik = document.createElement('span');
+    titik.className = 'dots__dot';
+    wadah.appendChild(titik);
+  }
+
+  const teks = document.createElement('span');
+  teks.className = 'sr-only';
+  teks.textContent = TEKS_MENUNGGU;
+
+  isi.append(wadah, teks);
 }
 
 /**
@@ -79,6 +127,79 @@ function setSibuk(sibuk) {
   chatBox.setAttribute('aria-busy', String(sibuk));
   sendButton.disabled = sibuk;
   input.disabled = sibuk;
+}
+
+/**
+ * Membuka panel dialog. (UI-13, UI-11)
+ *
+ * @returns {void}
+ */
+function bukaPanel() {
+  panel.hidden = false;
+  launcher.setAttribute('aria-expanded', 'true');
+  input.focus();
+  scrollKeBawah();
+}
+
+/**
+ * Menutup panel dialog dan mengembalikan fokus ke launcher. (UI-13, UI-11)
+ *
+ * Pengembalian fokus ke pemicu adalah salah satu dari empat kegagalan tersering pada
+ * implementasi dialog, sehingga ditangani eksplisit.
+ *
+ * @returns {void}
+ */
+function tutupPanel() {
+  panel.hidden = true;
+  launcher.setAttribute('aria-expanded', 'false');
+  launcher.focus();
+}
+
+/**
+ * Mengurung fokus di dalam panel selama panel terbuka. (UI-11)
+ *
+ * Tanpa ini, Tab akan melanjutkan ke elemen di badan halaman dan pengguna keyboard
+ * kehilangan konteks dialog.
+ *
+ * @param {KeyboardEvent} event Peristiwa penekanan tombol.
+ * @returns {void}
+ */
+function kurungFokus(event) {
+  const kandidat = Array.from(panel.querySelectorAll(SELECTOR_FOKUSABLE)).filter(
+    (el) => !el.disabled && el.offsetParent !== null,
+  );
+  if (kandidat.length === 0) return;
+
+  const pertama = kandidat[0];
+  const terakhir = kandidat[kandidat.length - 1];
+
+  if (event.shiftKey && document.activeElement === pertama) {
+    event.preventDefault();
+    terakhir.focus();
+  } else if (!event.shiftKey && document.activeElement === terakhir) {
+    event.preventDefault();
+    pertama.focus();
+  }
+}
+
+/**
+ * Menangani penekanan tombol saat panel terbuka. (UI-11, UI-13)
+ *
+ * @param {KeyboardEvent} event Peristiwa penekanan tombol.
+ * @returns {void}
+ */
+function handleKeydown(event) {
+  if (panel.hidden) return;
+
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    tutupPanel();
+    return;
+  }
+
+  if (event.key === 'Tab') {
+    kurungFokus(event);
+  }
 }
 
 /**
@@ -124,26 +245,26 @@ async function handleSubmit(event) {
   input.value = '';
 
   // UI-05 — bubble sementara dibuat sekali, lalu isinya diganti di tempat setelah
-  // respons tiba. Materi Sesi 3 p.41 menyebut pendekatan ini menghindari
-  // pergeseran tata letak yang mengganggu.
-  const { artikel, paragraf } = appendMessage('bot', TEKS_MENUNGGU, true);
+  // respons tiba. Materi Sesi 3 p.41 menyebut pendekatan ini menghindari pergeseran
+  // tata letak yang mengganggu.
+  const { isi } = appendMessage('bot', '');
+  pasangIndikator(isi);
   setSibuk(true);
 
   try {
     const data = await kirimKeBackend(conversation);
 
     if (data && data.result) {
-      paragraf.textContent = data.result;
-      artikel.classList.remove('msg--menunggu');
+      isi.textContent = data.result;
       conversation.push({ role: 'model', text: data.result });
     } else {
       // UI-06 — teks fallback disalin verbatim dari materi Sesi 3 p.37.
       // Tidak di-push ke riwayat agar konteks model tidak tercemar.
-      paragraf.textContent = TEKS_TANPA_HASIL;
+      isi.textContent = TEKS_TANPA_HASIL;
     }
   } catch (error) {
     console.error('Gagal mengambil respons:', error);
-    paragraf.textContent = TEKS_GAGAL;
+    isi.textContent = TEKS_GAGAL;
   } finally {
     setSibuk(false);
     // UI-11 — fokus dikembalikan ke kolom pesan agar pengguna keyboard dapat
@@ -153,10 +274,13 @@ async function handleSubmit(event) {
   }
 }
 
+launcher.addEventListener('click', bukaPanel);
+closeButton.addEventListener('click', tutupPanel);
+document.addEventListener('keydown', handleKeydown);
 form.addEventListener('submit', handleSubmit);
 
-// Task D20 — contoh pertanyaan mengisi kolom pesan saat diklik. Berupa <button>
-// sehingga terjangkau keyboard sesuai UI-11.
+// Contoh pertanyaan mengisi kolom pesan saat diklik. Berupa <button> sehingga
+// terjangkau keyboard sesuai UI-11.
 for (const chip of document.querySelectorAll('.chip')) {
   chip.addEventListener('click', () => {
     input.value = chip.dataset.fill ?? '';

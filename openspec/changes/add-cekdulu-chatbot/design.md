@@ -202,7 +202,7 @@ tidak sebanding dengan risiko menyebarkan angka kedaluwarsa.
 
 ### D-10 — Verifikasi manual terdokumentasi, tanpa test framework
 
-**Keputusan:** 13 skenario uji ditulis dengan ID, input, dan ekspektasi. Dijalankan manual.
+**Keputusan:** 14 skenario uji ditulis dengan ID, input, dan ekspektasi. Dijalankan manual.
 Tidak ada Jest/Vitest/Supertest.
 
 **Alasan:** materi tidak membahas test framework, dan `package.json` di slide (S2 p.31,
@@ -234,35 +234,80 @@ jelas bahwa itu keputusan, bukan halusinasi.
 
 ---
 
-### D-12 — Arah visual restrained, menolak "aesthetic risk"
+### D-12 — Arah visual restrained; light mode palet navy dan deep teal
 
-**Keputusan:** arah desain **restrained, kontras tinggi, tipografi tenang**. Menolak arah
-brutalist, maximalist, retro-futuristic, dan eksperimen tipografi berat.
+**Keputusan:** arah desain **restrained, kontras tinggi, tipografi tenang**, diwujudkan
+dengan **light mode** berpalet navy sebagai teks dan **deep teal** sebagai aksen tunggal.
+Menolak arah brutalist, maximalist, retro-futuristic, dan eksperimen tipografi berat.
 
-**Alasan:** panduan desain frontend modern umumnya mendorong pengambilan risiko estetis agar
-antarmuka tidak terasa generik. Nasihat itu ditulis untuk portfolio, landing page, dan
-produk yang bersaing memperebutkan perhatian — konteks di mana "tidak terlupakan" adalah
-tujuan yang benar.
+> **Amandemen.** Versi pertama keputusan ini memilih dark navy tanpa dasar riset. Riset
+> desain yang dilakukan kemudian menunjukkan pilihan tersebut tidak optimal untuk target
+> pengguna. Bagian "restrained, kontras tinggi, tipografi tenang" tetap berlaku dan justru
+> diperkuat riset; yang berubah adalah polaritas kontras. Bukti dan sitasi:
+> `docs/RISET-DESAIN.md` §3.
 
-Konteks Cek Dulu berbeda secara mendasar. Penggunanya **sedang cemas**: baru menerima pesan
-yang mungkin penipuan, atau sudah kehilangan uang. Bagi audiens ini, kualitas antarmuka
-diukur dari **keterbacaan, ketenangan, dan kredibilitas** — bukan dari keunikan visual.
-Antarmuka eksperimental pada alat kewaspadaan finansial terasa seperti mainan, dan itu
-menurunkan kepercayaan tepat pada momen kepercayaan paling dibutuhkan.
+**Alasan menolak arah eksperimental:** panduan desain frontend modern umumnya menganjurkan
+pengambilan risiko estetis agar antarmuka tidak terasa generik. Nasihat itu tepat untuk
+portfolio dan landing page, tetapi tidak untuk konteks ini. Pengguna Cek Dulu sedang cemas —
+baru menerima pesan yang mungkin menipu, atau sudah kehilangan uang. Bagi audiens tersebut,
+kualitas antarmuka diukur dari keterbacaan dan ketenangan, bukan keunikan.
 
-Ada juga alasan struktural: seluruh nilai proyek ini bertumpu pada bot **menahan diri** —
-tidak menilai legalitas, tidak mengarang angka, tidak memberi nasihat di luar kompetensi
-(`PG-03` s.d. `PG-06`). Antarmuka yang berteriak bertentangan dengan pesan itu. Bentuk
-mengikuti sikap.
+Ada pula alasan struktural: seluruh nilai proyek ini bertumpu pada chatbot yang menahan
+diri — tidak menilai legalitas, tidak mengarang angka, tidak memberi nasihat di luar
+kompetensi (`PG-03` s.d. `PG-06`). Antarmuka yang berteriak bertentangan dengan pesannya
+sendiri. Bentuk mengikuti sikap.
+
+**Alasan memilih light mode:** tiga sumber independen mengarah ke kesimpulan sama.
+
+Kajian literatur sistematis 2025 menemukan light mode lebih baik untuk keterbacaan, sementara
+dark mode unggul untuk kenyamanan visual pada cahaya rendah. Jurnal Ergonomics 2025
+menyatakan bahwa bagi orang dengan perubahan penglihatan terkait usia, antarmuka light mode
+sejalan dengan anjuran mengurangi hambatan visual. Nielsen Norman Group mencatat performa
+visual umumnya lebih baik dengan light mode pada penglihatan normal atau terkoreksi.
+
+Target pengguna Cek Dulu mencakup **orang lanjut usia dan berliterasi rendah**
+(`docs/USE-CASE-CEKDULU.md` §2) — kelompok yang paling sering menjadi sasaran penawaran
+ilegal. Aplikasi juga dipakai pada siang hari saat pesan mencurigakan diterima, bukan dalam
+kondisi cahaya rendah. Kedua faktor mengarah ke light mode.
+
+**Alasan memilih navy dan deep teal:**
+
+Penilaian produk terbentuk dalam 90 detik dengan 62–90% bergantung pada warna (Institute for
+Color Research, dikutip Bethany Works). Deep teal digambarkan sumber yang sama sebagai
+"combines blue's trustworthiness with green's growth associations. More distinctive than navy
+while maintaining professionalism".
+
+Navy dipilih untuk teks dan bubble pengguna karena pengguna Indonesia sudah mengasosiasikan
+biru dengan lembaga keuangan yang dapat dipercaya — logo Bank Indonesia, Mandiri, dan BCA
+semuanya biru, dengan makna kepercayaan dan stabilitas yang dinyatakan eksplisit dalam
+dokumentasi merek masing-masing.
+
+Palet memakai **delapan token dengan satu aksen** — menerapkan Tonal Restraint, konsep yang
+menyebut palet sempit menandakan disiplin organisasi. Sekaligus menghindari Chromatic
+Anxiety, yaitu stres akumulatif dari warna berlebihan atau tidak koheren pada antarmuka
+finansial.
+
+**Ditolak: ungu.** Referensi visual yang diberikan pengguna memakai ungu cerah, tetapi
+konteksnya e-commerce dan customer service. Literatur mengaitkan ungu dengan kreativitas dan
+feminitas, bukan otoritas, dan warna itu sudah padat dipakai fintech sehingga kehilangan daya
+beda. Yang diadopsi dari referensi tersebut adalah struktur dan pola interaksinya, bukan
+paletnya.
+
+**Ditolak: merah, kuning, oranye sebagai warna utama.** Merah "can trigger anxiety around
+money" — persis yang harus dihindari. Kuning "can undermine seriousness". Oranye "lacks the
+authority most financial clients seek".
+
+**Ditolak: dark mode toggle.** Literatur memang menunjukkan preferensi bervariasi, dan
+sebagian pengguna dengan katarak justru lebih baik dengan dark mode. Namun toggle menambah
+dua set token dan dua permukaan uji tanpa melayani requirement mana pun. Pilihan tunggal
+harus melayani mayoritas target, dan itu light mode. Keterbatasan ini diakui terbuka di
+`docs/RISET-DESAIN.md` §5.
 
 **Yang membedakan ini dari desain malas:** presisi. Skala tipografi konsisten, spacing
 berirama dari satu satuan dasar, state lengkap (hover, focus, disabled, loading, error),
-kontras lulus WCAG AA, token terpusat. "Minimal yang digarap serius" dan "minimal karena
-tidak digarap" terlihat berbeda pada detail-detail itu — dan detail itulah yang menjadi
-requirement `UI-10`, `UI-11`, `UI-12`.
-
-**Ditolak:** mengambil satu risiko estetis demi menghindari kesan generik. Pada domain ini,
-risiko tersebut merugikan pengguna.
+kontras lulus WCAG AA dengan enam pasangan mencapai AAA, token terpusat. "Minimal yang
+digarap serius" dan "minimal karena tidak digarap" terlihat berbeda pada detail-detail itu —
+dan detail itulah yang menjadi requirement `UI-10`, `UI-11`, `UI-12`, `UI-13`.
 
 ---
 
@@ -468,6 +513,110 @@ diulang pada Gate 4 penuh.
 
 ---
 
+### D-18 — Antarmuka memakai pola widget: launcher dan panel dialog
+
+**Keputusan:** antarmuka disusun sebagai **launcher di sudut kanan bawah** yang membuka
+**panel dialog**, bukan sebagai halaman datar berisi elemen berjejer vertikal.
+
+**Alasan:** implementasi Fase D menempatkan judul, disclaimer, area chat, kolom pesan, chip,
+dan kanal resmi berjejer vertikal di tengah halaman. Susunan itu terbaca sebagai **formulir**,
+bukan percakapan — tidak ada pemisahan konteks antara halaman informasi dan ruang bicara,
+sehingga pengguna tidak mendapat isyarat visual bahwa ada percakapan yang bisa dimulai.
+
+Kritik tersebut datang dari pengguna dan terbukti sejalan dengan literatur. Parallel HQ
+menyatakan: "A chatbot isn't a website with a text box; it's a conversational interface that
+must guide users without a visual map."
+
+Data penempatan dari survei Clutch:
+
+| Temuan | Angka |
+|---|---|
+| Widget chat memakai posisi bottom-right | 89% |
+| Penurunan engagement bila ditempatkan di posisi lain | 25–40% |
+| Lebar maksimal bubble | 280–320px desktop |
+
+Posisi bottom-right bukan preferensi estetis, melainkan konvensi yang sudah dipelajari
+pengguna. Menyimpang darinya membebani pengguna dengan biaya belajar tanpa imbalan.
+
+Sitasi lengkap: `docs/RISET-DESAIN.md` §1.
+
+**Keputusan turunan — panel bersifat non-modal.**
+
+Panel memakai `role="dialog"` dengan `aria-modal="false"`, disertai focus trap manual, tanpa
+membuat konten latar menjadi inert.
+
+Alasannya: `UI-09` mewajibkan kanal resmi OJK tertulis statis di halaman, dan `UI-08`
+mewajibkan disclaimer selalu terlihat. Membuat latar inert akan menyembunyikan keduanya dari
+screen reader tepat saat pengguna sedang berdialog — merugikan requirement yang justru
+dirancang untuk melindungi.
+
+Elemen `<dialog>` native menangani focus trap dan Escape secara otomatis, tetapi memaksa
+perilaku modal. Karena itu pola manual dipilih meski lebih banyak kode.
+
+**Ditolak: mempertahankan halaman datar.** Kritik penggunanya tepat dan didukung literatur.
+
+**Ditolak: modal penuh yang menutupi halaman.** Bertentangan dengan `UI-08` dan `UI-09`.
+
+**Ditolak: panel yang terbuka otomatis saat halaman dimuat.** Clutch mencatat 55% konsumen
+meninggalkan alat AI yang mengganggu penjelajahan. Panel dibuka hanya atas tindakan pengguna.
+
+**Ditolak: launcher berupa ikon gelembung tanpa label.** messengerbot.app menyatakan "the
+default speech-bubble icon is rarely enough on its own" — launcher harus mengomunikasikan
+peran sekali pandang. Launcher Cek Dulu memuat ikon dan teks "Cek Dulu".
+
+**Ditolak: badge notifikasi.** Sumber yang sama melarang "unread badges as fake urgency if no
+real message exists". Tidak ada pesan nyata yang menunggu, jadi badge apa pun adalah urgensi
+buatan.
+
+Enam kewajiban aksesibilitas dialog — `role`, `aria-labelledby`, fokus masuk, focus trap,
+Escape menutup, fokus kembali ke launcher — diambil dari pola W3C ARIA Authoring Practices
+sebagaimana dirangkum UXPin dan ExceedAbility. Keempat kegagalan tersering yang mereka
+sebutkan dijadikan skenario uji pada `UI-13`.
+
+---
+
+### D-19 — Avatar bot dan indikator mengetik
+
+**Keputusan:** setiap bubble bot didahului **avatar** berbentuk lingkaran berisi inisial, dan
+indikator menunggu berupa **tiga titik beranimasi** menggantikan teks "sedang memeriksa".
+
+**Alasan avatar:** referensi visual yang diberikan pengguna menampilkan avatar bot pada setiap
+bubble, dan Parallel HQ menyebut "visual elements like icons, avatars and progress indicators
+help users understand what the bot is doing". Avatar memberi penanda peran yang cepat dibaca
+tanpa menambah teks.
+
+Avatar dibuat dari CSS dan teks, bukan berkas gambar. Tidak menambah permintaan jaringan dan
+tidak menambah berkas ke repositori.
+
+Penanda pengirim berupa teks tetap dipertahankan di samping avatar, karena `UI-11` melarang
+informasi disampaikan hanya lewat elemen visual. Avatar memakai `aria-hidden="true"` agar
+screen reader tidak membacanya dua kali.
+
+**Alasan indikator mengetik:** Clutch menyatakan indikator diperlukan untuk respons 1–3 detik
+agar pengguna tidak menyimpulkan chat rusak. Respons Gemini pada proyek ini berkisar 5–30
+detik — jauh di atas ambang itu.
+
+messengerbot.app melarang menampilkan indikator sebelum pengguna benar-benar terlibat. Karena
+itu indikator hanya muncul setelah pengguna mengirim pesan, tidak pernah saat halaman dibuka.
+
+Animasi dinonaktifkan oleh blok `prefers-reduced-motion` yang sudah ada pada `UI-11`. Dalam
+kondisi itu, tiga titik tetap terlihat statis sehingga informasi tidak hilang.
+
+Teks tersembunyi untuk screen reader tetap disediakan, karena titik beranimasi tidak
+menyampaikan apa pun kepada pembaca layar.
+
+**Ditolak: avatar berupa berkas gambar atau emoji robot.** Berkas gambar menambah permintaan
+jaringan; emoji robot menggeser nada menjadi ceria, tidak sesuai konteks pengguna yang cemas.
+
+**Ditolak: carousel dan kartu produk.** Clutch menyebutnya sebagai elemen antarmuka chatbot,
+tetapi Cek Dulu tidak memiliki produk untuk ditampilkan. Menambahkannya berarti fitur tanpa
+kegunaan.
+
+**Ditolak: spinner sebagai pengganti tiga titik.** Tiga titik adalah konvensi khas percakapan;
+spinner mengesankan pemuatan halaman, bukan lawan bicara yang sedang menyusun jawaban.
+
+---
+
 ## 3. Matriks keterlacakan requirement → sumber
 
 | Req | Isi singkat | Sumber |
@@ -492,24 +641,25 @@ diulang pada Gate 4 penuh.
 | `PG-07` | Ingatkan data pribadi | S1 p.99 (Privasi) |
 | `PG-08` | Format output 3 langkah + larangan penanda Markdown | S3 p.22; diamandemen D-17 ⚠️ temuan Fase D |
 | `PG-09` | Prompt bebas data yang berubah | `RISET-LAPANGAN.md` header |
-| `UI-01` | ID elemen `chat-form`/`user-input`/`chat-box` | S3 p.37; S3 p.34 |
+| `UI-01` | ID elemen `chat-form`/`user-input`/`chat-box`, ditempatkan di dalam panel | S3 p.37; S3 p.34; penempatan diamandemen D-18 |
 | `UI-02` | Pesan pengguna langsung tampil | S3 p.37, p.39 |
 | `UI-03` | Payload `conversation` (perbaikan bug slide) | S3 p.29 vs p.39 |
 | `UI-04` | Riwayat multi-turn | S3 p.29, p.37 |
-| `UI-05` | Indikator berpikir, diganti di tempat | S3 p.37, p.41, p.42 |
+| `UI-05` | Indikator berpikir, diganti di tempat | S3 p.37, p.41, p.42; bentuk tiga titik dari D-19 |
 | `UI-06` | Fallback `Sorry, no response received.` / `Failed to get response from server.` | S3 p.37, p.42 |
 | `UI-07` | Sapaan pembuka statis | S2 p.67 (pola batch lalu) |
 | `UI-08` | Disclaimer permanen | S2 p.67; S1 p.99 (Transparansi) |
 | `UI-09` | Kanal resmi statis | `RISET-LAPANGAN.md` §7 |
 | `UI-10` | Pembeda peran, scroll, responsif | S3 p.10, p.14, p.34 |
-| `UI-11` | Aksesibilitas — ARIA live, fokus, kontras, reduced-motion | S1 p.99 (Keadilan) + D-13 ⚠️ interpretasi |
-| `UI-12` | Design token + arah visual restrained | S3 p.34 + D-12 ⚠️ interpretasi |
+| `UI-11` | Aksesibilitas — ARIA live, fokus, kontras, reduced-motion, pola dialog | S1 p.99 (Keadilan) + D-13; pola dialog dari D-18 ⚠️ interpretasi |
+| `UI-12` | Design token + light mode navy dan deep teal | S3 p.34 + D-12, `RISET-DESAIN.md` §3 ⚠️ interpretasi |
+| `UI-13` | Launcher dan panel dialog | `RISET-DESAIN.md` §1–2 + D-18 ⚠️ di luar materi |
 
-**32 requirement, semuanya punya sumber.** Dua di antaranya (`UI-11`, `UI-12`) berbasis
-**interpretasi prinsip** dari materi, bukan kutipan langsung — ditandai `⚠️` dan alasannya
-tertulis penuh di D-12 dan D-13. Satu requirement (`WS-02`) **diamandemen dari nilai materi**
-karena model yang ditetapkan materi ditutup Google; bukti dan alasan di `docs/KENDALA-API.md`
-§1 dan keputusan D-15. Sisanya merujuk nomor halaman langsung.
+**33 requirement, semuanya punya sumber.** Tiga di antaranya berbasis **interpretasi atau
+riset di luar materi**, ditandai `⚠️` dengan alasan tertulis penuh: `UI-11` (D-13), `UI-12`
+(D-12), `UI-13` (D-18). Satu requirement (`WS-02`) **diamandemen dari nilai materi** karena
+model yang ditetapkan materi ditutup Google; bukti dan alasan di `docs/KENDALA-API.md` §1 dan
+keputusan D-15. Sisanya merujuk nomor halaman langsung.
 
 ---
 
@@ -530,8 +680,9 @@ karena model yang ditetapkan materi ditutup Google; bukti dan alasan di `docs/KE
 | UJI-11 | `API-02`, `API-06` |
 | UJI-12 | `UI-06` |
 | UJI-13 | `UI-11` |
+| UJI-14 | `UI-13`, `UI-11` |
 
-Requirement yang diverifikasi lewat gate lain (bukan 13 skenario UI):
+Requirement yang diverifikasi lewat gate lain (bukan 14 skenario UI):
 `WS-01` s.d. `WS-05` → Gate 2; `API-01`, `API-04`, `API-05` → Gate 3;
 `PG-01`, `PG-02`, `PG-09`, `UI-08`, `UI-10`, `UI-12` → inspeksi kode & halaman;
 `PG-07` → uji ad-hoc saat Gate 4.

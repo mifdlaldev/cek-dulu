@@ -3,11 +3,16 @@
   Cek Dulu — antarmuka chat.
 
   Requirement yang diimplementasikan berkas ini:
-    UI-01  struktur HTML dasar: #chat-form, #user-input, #chat-box
+    UI-01  struktur dasar: #chat-form, #user-input, #chat-box di dalam panel
     UI-07  sapaan pembuka statis, tanpa memanggil API
-    UI-08  disclaimer permanen
+    UI-08  disclaimer permanen di badan halaman
     UI-09  kanal resmi OJK ditulis statis, tidak digenerate model
-    UI-11  atribut aksesibilitas: lang, aria-live, label, penanda pengirim
+    UI-11  atribut aksesibilitas dan pola dialog
+    UI-13  launcher sudut kanan bawah dan panel dialog
+
+  Struktur widget dipilih setelah kritik bahwa susunan sebelumnya terbaca sebagai
+  formulir. Posisi sudut kanan bawah mengikuti konvensi 89% widget chat.
+  Sitasi: docs/RISET-DESAIN.md bagian 1. Keputusan: design.md D-18.
 
   Spesifikasi: openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md
 -->
@@ -22,100 +27,50 @@
     <title>Cek Dulu — Chatbot Edukasi Kewaspadaan Keuangan Digital</title>
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f1a2e'/%3E%3Cpath d='M16 5l9 3v8c0 6-4 9.5-9 11-5-1.5-9-5-9-11V8l9-3z' fill='none' stroke='%232dd4bf' stroke-width='2'/%3E%3Ccircle cx='16' cy='15' r='3.5' fill='none' stroke='%232dd4bf' stroke-width='2'/%3E%3Cpath d='M18.6 17.6L21 20' stroke='%232dd4bf' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230E4A6E'/%3E%3Cpath d='M16 5l9 3v8c0 6-4 9.5-9 11-5-1.5-9-5-9-11V8l9-3z' fill='none' stroke='%23FFFFFF' stroke-width='2'/%3E%3Ccircle cx='16' cy='15' r='3.5' fill='none' stroke='%23FFFFFF' stroke-width='2'/%3E%3Cpath d='M18.6 17.6L21 20' stroke='%23FFFFFF' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
     />
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
-    <a class="skip-link" href="#user-input">Lewati ke kolom pesan</a>
+    <a class="skip-link" href="#launcher">Lewati ke tombol chat</a>
 
-    <main class="app">
-      <header class="app__header">
-        <h1 class="app__title">Cek Dulu</h1>
-        <p class="app__tagline">Cek dulu sebelum percaya</p>
-      </header>
+    <main class="page">
+      <section class="hero">
+        <p class="hero__eyebrow">Edukasi kewaspadaan keuangan digital</p>
+        <h1 class="hero__title">Cek Dulu</h1>
+        <p class="hero__lead">
+          Menerima tawaran pinjaman, tawaran investasi, atau pesan yang membuat Anda ragu?
+          Tempelkan isinya, dan Cek Dulu akan menjelaskan ciri-ciri yang perlu diwaspadai
+          beserta cara memeriksanya sendiri.
+        </p>
+        <p class="hero__hint">
+          Buka percakapan lewat tombol <strong>Cek Dulu</strong> di sudut kanan bawah halaman.
+        </p>
+      </section>
 
-      <!-- UI-08 — disclaimer permanen, selalu terlihat tanpa interaksi tambahan -->
-      <aside class="notice" aria-label="Batas penggunaan">
+      <!-- UI-08 — disclaimer permanen. Ditempatkan di badan halaman, bukan di dalam
+           panel, agar terlihat sebelum percakapan dimulai dan tetap terbaca meski panel
+           ditutup. Panel bersifat non-modal justru agar bagian ini tidak tersembunyi dari
+           screen reader saat panel terbuka. -->
+      <aside class="notice" aria-labelledby="notice-title">
+        <h2 class="notice__title" id="notice-title">Batas penggunaan</h2>
         <p class="notice__text">
           Alat ini bersifat <strong>edukatif</strong>, bukan nasihat keuangan, hukum, atau
           investasi profesional. Cek Dulu <strong>tidak menilai</strong> apakah sebuah
-          perusahaan atau aplikasi itu legal maupun ilegal. Keputusan dan verifikasi akhir
-          tetap tanggung jawab Anda.
+          perusahaan atau aplikasi itu legal maupun ilegal, karena data legalitas terus
+          berubah. Keputusan dan verifikasi akhir tetap tanggung jawab Anda.
         </p>
       </aside>
-
-      <!-- UI-01, UI-11 — area percakapan. aria-live agar jawaban bot diumumkan
-           screen reader; aria-busy ditandai script.js selama menunggu respons. -->
-      <section
-        id="chat-box"
-        class="chat"
-        role="log"
-        aria-live="polite"
-        aria-busy="false"
-        aria-label="Riwayat percakapan"
-        tabindex="0"
-      >
-        <!-- UI-07 — sapaan pembuka statis. Tidak memanggil API dan tidak dimasukkan
-             ke array riwayat yang dikirim ke server. -->
-        <article class="msg msg--bot">
-          <span class="msg__who">Cek Dulu</span>
-          <p class="msg__text">Halo. Saya Cek Dulu, asisten edukasi kewaspadaan keuangan digital.
-
-Anda bisa menempelkan isi tawaran pinjaman, tawaran investasi, atau pesan mencurigakan yang Anda terima. Saya akan menjelaskan ciri-ciri yang perlu diwaspadai dari teks tersebut dan cara memeriksanya sendiri.
-
-Saya tidak menilai legalitas perusahaan atau aplikasi tertentu, dan tidak memberi nasihat investasi. Untuk memastikan status suatu penawaran, gunakan kanal resmi OJK yang tercantum di bawah halaman ini.</p>
-        </article>
-      </section>
-
-      <!-- UI-01, UI-11 — form pengiriman pesan -->
-      <form id="chat-form" class="composer">
-        <label class="composer__label" for="user-input">Tulis pesan Anda</label>
-        <div class="composer__row">
-          <input
-            type="text"
-            id="user-input"
-            class="composer__input"
-            name="message"
-            placeholder="Contoh: ada WA menawarkan pinjaman cair 10 menit tanpa BI checking"
-            autocomplete="off"
-            required
-          />
-          <button type="submit" id="send-button" class="composer__button">Kirim</button>
-        </div>
-      </form>
-
-      <!-- Task D20 (opsional) — contoh pertanyaan mengikuti pola batch sebelumnya
-           pada materi Sesi 2 p.67. Berupa <button> agar terjangkau keyboard (UI-11).
-           Tidak memiliki requirement UI tersendiri. -->
-      <section class="samples" aria-label="Contoh pertanyaan">
-        <h2 class="samples__title">Contoh pertanyaan</h2>
-        <ul class="samples__list">
-          <li>
-            <button type="button" class="chip" data-fill="Apa saja ciri pinjaman online yang perlu diwaspadai?">
-              Ciri pinjaman online yang perlu diwaspadai
-            </button>
-          </li>
-          <li>
-            <button type="button" class="chip" data-fill="Bagaimana cara memeriksa apakah sebuah tawaran investasi wajar?">
-              Cara memeriksa tawaran investasi
-            </button>
-          </li>
-          <li>
-            <button type="button" class="chip" data-fill="Saya sudah transfer ke penawaran yang ternyata bermasalah. Apa yang sebaiknya saya lakukan?">
-              Sudah transfer, apa yang harus dilakukan
-            </button>
-          </li>
-        </ul>
-      </section>
 
       <!-- UI-09 — kanal resmi ditulis statis di HTML, tidak digenerate model.
            Nomor kontak adalah data presisi tinggi dengan risiko halusinasi besar bila
            diserahkan ke LLM. PG-04 melarang bot menyebutkannya dari ingatan.
            Nilai disalin dari docs/RISET-LAPANGAN.md bagian 7. -->
-      <footer class="channels">
-        <h2 class="channels__title">Kanal resmi Otoritas Jasa Keuangan</h2>
+      <section class="channels" aria-labelledby="channels-title">
+        <h2 class="channels__title" id="channels-title">
+          Kanal resmi Otoritas Jasa Keuangan
+        </h2>
         <dl class="channels__list">
           <div class="channels__item">
             <dt class="channels__label">Telepon</dt>
@@ -138,8 +93,144 @@ Saya tidak menilai legalitas perusahaan atau aplikasi tertentu, dan tidak member
           Sumber: siaran pers Satgas Pemberantasan Aktivitas Keuangan Ilegal, dicatat di
           <code>docs/RISET-LAPANGAN.md</code> bagian 7.
         </p>
-      </footer>
+      </section>
     </main>
+
+    <!-- UI-13 — launcher. Memuat ikon dan label teks karena ikon gelembung saja jarang
+         cukup untuk mengomunikasikan peran. Tanpa badge notifikasi: tidak ada pesan nyata
+         yang menunggu, sehingga badge apa pun adalah urgensi buatan. -->
+    <button
+      type="button"
+      id="launcher"
+      class="launcher"
+      aria-expanded="false"
+      aria-controls="chat-panel"
+    >
+      <span class="launcher__icon" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M16 4l10 3.5v8.5c0 6.6-4.4 10.6-10 12.5-5.6-1.9-10-5.9-10-12.5V7.5L16 4z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linejoin="round"
+          />
+          <circle cx="16" cy="15" r="4" stroke="currentColor" stroke-width="2" />
+          <path
+            d="M19 18l3 3"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+      </span>
+      <span class="launcher__label">Cek Dulu</span>
+    </button>
+
+    <!-- UI-13, UI-11 — panel dialog. Non-modal (aria-modal="false") agar disclaimer dan
+         kanal resmi di badan halaman tetap terjangkau screen reader. Tertutup saat
+         halaman pertama dimuat: 55% konsumen meninggalkan alat AI yang mengganggu
+         penjelajahan, jadi panel dibuka hanya atas tindakan pengguna. -->
+    <section
+      id="chat-panel"
+      class="panel"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="panel-title"
+      hidden
+    >
+      <header class="panel__header">
+        <span class="panel__avatar" aria-hidden="true">CD</span>
+        <div class="panel__identity">
+          <h2 class="panel__title" id="panel-title">Cek Dulu</h2>
+          <span class="panel__status">Siap membantu memeriksa</span>
+        </div>
+        <button type="button" id="close-button" class="panel__close">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Tutup percakapan</span>
+        </button>
+      </header>
+
+      <!-- UI-01, UI-11 — area percakapan. aria-live agar jawaban bot diumumkan screen
+           reader; aria-busy ditandai script.js selama menunggu respons. -->
+      <div
+        id="chat-box"
+        class="chat"
+        role="log"
+        aria-live="polite"
+        aria-busy="false"
+        aria-label="Riwayat percakapan"
+        tabindex="0"
+      >
+        <!-- UI-07 — sapaan pembuka statis. Tidak memanggil API dan tidak dimasukkan ke
+             array riwayat yang dikirim ke server. -->
+        <article class="msg msg--bot">
+          <span class="msg__avatar" aria-hidden="true">CD</span>
+          <div class="msg__body">
+            <span class="msg__who">Cek Dulu</span>
+            <p class="msg__text">Halo. Saya Cek Dulu, asisten edukasi kewaspadaan keuangan digital.
+
+Tempelkan isi tawaran atau pesan mencurigakan yang Anda terima. Saya akan menjelaskan ciri-ciri yang perlu diwaspadai dan cara memeriksanya sendiri.
+
+Saya tidak menilai legalitas perusahaan atau aplikasi tertentu. Kanal resmi OJK tersedia di halaman ini.</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- Contoh pertanyaan mengikuti pola batch sebelumnya pada materi Sesi 2 p.67.
+           Berupa <button> agar terjangkau keyboard (UI-11). -->
+      <section class="samples" aria-labelledby="samples-title">
+        <h3 class="samples__title" id="samples-title">Contoh pertanyaan</h3>
+        <ul class="samples__list">
+          <li>
+            <button
+              type="button"
+              class="chip"
+              data-fill="Apa saja ciri pinjaman online yang perlu diwaspadai?"
+            >
+              Ciri pinjaman online
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="chip"
+              data-fill="Bagaimana cara memeriksa apakah sebuah tawaran investasi wajar?"
+            >
+              Memeriksa tawaran investasi
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="chip"
+              data-fill="Saya sudah transfer ke penawaran yang ternyata bermasalah. Apa yang sebaiknya saya lakukan?"
+            >
+              Sudah transfer
+            </button>
+          </li>
+        </ul>
+      </section>
+
+      <!-- UI-01, UI-11 — form pengiriman pesan -->
+      <form id="chat-form" class="composer">
+        <label class="composer__label" for="user-input">Tulis pesan Anda</label>
+        <div class="composer__row">
+          <input
+            type="text"
+            id="user-input"
+            class="composer__input"
+            name="message"
+            placeholder="Contoh: ada WA menawarkan pinjaman cair 10 menit"
+            autocomplete="off"
+            required
+          />
+          <button type="submit" id="send-button" class="composer__button">Kirim</button>
+        </div>
+        <p class="composer__note">
+          Bersifat edukatif. Cek Dulu tidak menilai legalitas entitas mana pun.
+        </p>
+      </form>
+    </section>
 
     <script src="script.js"></script>
   </body>

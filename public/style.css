@@ -2,43 +2,46 @@
  * Cek Dulu — tampilan antarmuka chat.
  *
  * Requirement yang diimplementasikan berkas ini:
- *   UI-10  pembeda peran, scroll terbatas, responsif, kontras cukup
- *   UI-11  state fokus terlihat, kontras minimal 4,5:1, font dasar 16px,
+ *   UI-05  indikator tiga titik beranimasi
+ *   UI-10  pembeda peran, avatar bot, batas lebar bubble, scroll, responsif
+ *   UI-11  state fokus terlihat, kontras WCAG AA, font dasar 16px,
  *          dukungan prefers-reduced-motion
  *   UI-12  seluruh nilai visual sebagai design token dalam satu blok :root
+ *   UI-13  launcher sudut kanan bawah dan panel dialog
  *
- * Arah visual: restrained, kontras tinggi, tipografi tenang. Pengguna Cek Dulu
- * sedang cemas, sehingga antarmuka ramai atau eksperimental justru menurunkan
- * kredibilitas. Justifikasi: design.md keputusan D-12.
+ * Light mode dipilih karena target pengguna mencakup orang lanjut usia dan
+ * berliterasi rendah; literatur keterbacaan mengarah ke light mode untuk kelompok
+ * tersebut. Palet navy dan deep teal dipilih atas dasar riset psikologi warna
+ * layanan keuangan. Sitasi: docs/RISET-DESAIN.md bagian 3 dan 4.
+ * Keputusan: design.md D-12 (amandemen), D-18, D-19.
  *
  * Spesifikasi: openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md
  */
 
-/* UI-12 — design token terpusat. Nilai literal di luar blok ini hanya dipakai
-   untuk angka struktural seperti 0, 1px border, dan 100%. */
+/* UI-12 — design token terpusat. Nilai literal di luar blok ini hanya dipakai untuk
+   angka struktural seperti 0, 1px border, 100%, dan transform. */
 :root {
-  /* Palet. Kontras terhadap latar diperiksa memenuhi WCAG 2.1 AA (UI-11). */
-  --warna-latar: #0f1a2e;
-  --warna-permukaan: #16233c;
-  --warna-permukaan-naik: #1e2f4d;
-  --warna-garis: #2b3d5f;
-  --warna-teks: #f5f7fa;
-  --warna-teks-lembut: #b8c4d6;
-  --warna-aksen: #2dd4bf;
-  --warna-aksen-teks: #0f1a2e;
-  --warna-bubble-pengguna: #24405e;
-  --warna-bubble-bot: #1b2b47;
-  --warna-fokus: #7dd3fc;
+  /* Palet delapan token, satu aksen. Seluruh pasangan diukur memenuhi WCAG 2.1 AA;
+     hasil pengukuran tercatat di docs/RISET-DESAIN.md bagian 4. */
+  --warna-latar: #f4f6f9;
+  --warna-permukaan: #ffffff;
+  --warna-bubble-bot: #eef2f7;
+  --warna-bubble-pengguna: #0e4a6e;
+  --warna-teks: #111f2e;
+  --warna-teks-lembut: #4a5a6d;
+  --warna-teks-invers: #ffffff;
+  --warna-aksen: #0e7c6b;
+  --warna-aksen-pekat: #0a5d50;
+  --warna-fokus: #0b63ce;
+  --warna-garis: #d3dce6;
 
   /* Skala tipografi, kelipatan tetap dari ukuran dasar 16px. */
   --teks-dasar: 1rem;
-  --teks-kecil: 0.875rem;
   --teks-mikro: 0.8125rem;
+  --teks-kecil: 0.875rem;
   --teks-sedang: 1.125rem;
-  --teks-besar: 1.5rem;
   --teks-judul: 2rem;
 
-  --tebal-normal: 400;
   --tebal-sedang: 500;
   --tebal-tegas: 600;
 
@@ -54,20 +57,28 @@
   --ruang-6: 2rem;
   --ruang-7: 2.5rem;
 
-  /* Radius. */
   --radius-kecil: 6px;
   --radius-sedang: 10px;
-  --radius-besar: 14px;
+  --radius-besar: 16px;
   --radius-penuh: 999px;
 
-  /* Durasi transisi. */
   --durasi-cepat: 120ms;
-  --durasi-sedang: 200ms;
 
-  /* Ukuran struktural. */
-  --lebar-maks: 44rem;
-  --tinggi-chat: 26rem;
+  --bayang-lembut: 0 1px 2px rgba(17, 31, 46, 0.06), 0 2px 8px rgba(17, 31, 46, 0.06);
+  --bayang-kuat: 0 4px 12px rgba(17, 31, 46, 0.12), 0 12px 32px rgba(17, 31, 46, 0.14);
+
+  /* Ukuran struktural. Lebar bubble 20rem setara 320px, mengikuti batas keterbacaan
+     280–320px dari survei Clutch. Ukuran panel 380x560px dari praktik widget umum. */
+  --lebar-halaman: 46rem;
+  --lebar-panel: 23.75rem;
+  --tinggi-panel: 35rem;
+  --lebar-bubble-maks: 20rem;
+  --ukuran-launcher: 3.5rem;
+  --ukuran-avatar: 2rem;
+  --ukuran-titik: 0.5rem;
   --tebal-fokus: 3px;
+  --z-launcher: 40;
+  --z-panel: 50;
 }
 
 *,
@@ -78,7 +89,7 @@
 
 body {
   margin: 0;
-  padding: var(--ruang-5) var(--ruang-4);
+  padding: var(--ruang-6) var(--ruang-4) var(--ruang-7);
   background-color: var(--warna-latar);
   color: var(--warna-teks);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
@@ -92,9 +103,10 @@ body {
   position: absolute;
   left: var(--ruang-4);
   top: calc(var(--ruang-4) * -4);
+  z-index: var(--z-panel);
   padding: var(--ruang-2) var(--ruang-4);
   background-color: var(--warna-aksen);
-  color: var(--warna-aksen-teks);
+  color: var(--warna-teks-invers);
   font-weight: var(--tebal-tegas);
   border-radius: var(--radius-kecil);
   text-decoration: none;
@@ -105,41 +117,77 @@ body {
   top: var(--ruang-4);
 }
 
-.app {
-  max-width: var(--lebar-maks);
+/* UI-11 — teks khusus screen reader, dipakai untuk indikator tiga titik. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ==== Badan halaman ==== */
+
+.page {
+  max-width: var(--lebar-halaman);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--ruang-5);
+  gap: var(--ruang-6);
 }
 
-.app__header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ruang-1);
+.hero__eyebrow {
+  margin: 0 0 var(--ruang-2);
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-tegas);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--warna-aksen-pekat);
 }
 
-.app__title {
-  margin: 0;
+.hero__title {
+  margin: 0 0 var(--ruang-3);
   font-size: var(--teks-judul);
   font-weight: var(--tebal-tegas);
   line-height: var(--tinggi-baris-rapat);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
-.app__tagline {
+.hero__lead {
   margin: 0;
+  max-width: 36rem;
+  font-size: var(--teks-sedang);
   color: var(--warna-teks-lembut);
-  font-size: var(--teks-kecil);
 }
 
-/* UI-08 — disclaimer permanen. Dibedakan dengan garis aksen di sisi kiri, bukan
-   hanya lewat warna, sesuai UI-11 yang melarang informasi disampaikan hanya oleh warna. */
+.hero__hint {
+  margin: var(--ruang-4) 0 0;
+  font-size: var(--teks-kecil);
+  color: var(--warna-teks-lembut);
+}
+
+/* UI-08 — disclaimer permanen di badan halaman. Dibedakan garis aksen di sisi kiri,
+   bukan hanya lewat warna, sesuai UI-11. */
 .notice {
-  padding: var(--ruang-4);
+  padding: var(--ruang-4) var(--ruang-5);
   background-color: var(--warna-permukaan);
+  border: 1px solid var(--warna-garis);
   border-left: var(--tebal-fokus) solid var(--warna-aksen);
-  border-radius: var(--radius-kecil);
+  border-radius: var(--radius-sedang);
+  box-shadow: var(--bayang-lembut);
+}
+
+.notice__title {
+  margin: 0 0 var(--ruang-2);
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-tegas);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warna-teks-lembut);
 }
 
 .notice__text {
@@ -153,48 +201,17 @@ body {
   font-weight: var(--tebal-tegas);
 }
 
-/* UI-10 — area percakapan dengan tinggi terbatas dan scroll vertikal. */
-.chat {
-  height: var(--tinggi-chat);
-  overflow-y: auto;
-  padding: var(--ruang-4);
+/* UI-09 — kanal resmi statis di badan halaman. */
+.channels {
+  padding: var(--ruang-5);
   background-color: var(--warna-permukaan);
   border: 1px solid var(--warna-garis);
-  border-radius: var(--radius-besar);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ruang-3);
-}
-
-.chat:focus-visible {
-  outline: var(--tebal-fokus) solid var(--warna-fokus);
-  outline-offset: 2px;
-}
-
-/* UI-10 — pembeda peran memakai posisi, warna, dan label pengirim sekaligus. */
-.msg {
-  max-width: 85%;
-  padding: var(--ruang-3);
   border-radius: var(--radius-sedang);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ruang-1);
+  box-shadow: var(--bayang-lembut);
 }
 
-.msg--bot {
-  align-self: flex-start;
-  background-color: var(--warna-bubble-bot);
-  border: 1px solid var(--warna-garis);
-}
-
-.msg--user {
-  align-self: flex-end;
-  background-color: var(--warna-bubble-pengguna);
-  border: 1px solid var(--warna-garis);
-}
-
-/* UI-11 — penanda pengirim terbaca screen reader, bukan hanya dibedakan warna. */
-.msg__who {
+.channels__title {
+  margin: 0 0 var(--ruang-4);
   font-size: var(--teks-mikro);
   font-weight: var(--tebal-tegas);
   letter-spacing: 0.06em;
@@ -202,139 +219,11 @@ body {
   color: var(--warna-teks-lembut);
 }
 
-/* UI-10 — pre-wrap agar baris baru dari respons model tetap terlihat, dan
-   overflow-wrap agar teks panjang tanpa spasi tidak meluber keluar kontainer. */
-.msg__text {
-  margin: 0;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.msg--menunggu .msg__text {
-  color: var(--warna-teks-lembut);
-  font-style: italic;
-}
-
-.composer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ruang-2);
-}
-
-.composer__label {
-  font-size: var(--teks-kecil);
-  font-weight: var(--tebal-sedang);
-  color: var(--warna-teks-lembut);
-}
-
-.composer__row {
-  display: flex;
-  gap: var(--ruang-2);
-  flex-wrap: wrap;
-}
-
-.composer__input {
-  flex: 1 1 14rem;
-  min-width: 0;
-  padding: var(--ruang-3);
-  background-color: var(--warna-permukaan);
-  color: var(--warna-teks);
-  border: 1px solid var(--warna-garis);
-  border-radius: var(--radius-sedang);
-  font-family: inherit;
-  font-size: var(--teks-dasar);
-  transition: border-color var(--durasi-cepat) ease;
-}
-
-.composer__input::placeholder {
-  color: var(--warna-teks-lembut);
-}
-
-.composer__input:hover:not(:disabled) {
-  border-color: var(--warna-aksen);
-}
-
-/* UI-11 — indikator fokus terlihat jelas. outline tidak dihapus. */
-.composer__input:focus-visible,
-.composer__button:focus-visible,
-.chip:focus-visible,
-.skip-link:focus-visible {
-  outline: var(--tebal-fokus) solid var(--warna-fokus);
-  outline-offset: 2px;
-}
-
-.composer__input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.composer__button {
-  padding: var(--ruang-3) var(--ruang-5);
-  background-color: var(--warna-aksen);
-  color: var(--warna-aksen-teks);
-  border: 1px solid var(--warna-aksen);
-  border-radius: var(--radius-sedang);
-  font-family: inherit;
-  font-size: var(--teks-dasar);
-  font-weight: var(--tebal-tegas);
-  cursor: pointer;
-  transition: opacity var(--durasi-cepat) ease;
-}
-
-.composer__button:hover:not(:disabled) {
-  opacity: 0.85;
-}
-
-.composer__button:disabled {
-  opacity: 0.5;
-  cursor: progress;
-}
-
-.samples__title,
-.channels__title {
-  margin: 0 0 var(--ruang-3);
-  font-size: var(--teks-kecil);
-  font-weight: var(--tebal-tegas);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--warna-teks-lembut);
-}
-
-.samples__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ruang-2);
-}
-
-.chip {
-  padding: var(--ruang-2) var(--ruang-3);
-  background-color: var(--warna-permukaan-naik);
-  color: var(--warna-teks);
-  border: 1px solid var(--warna-garis);
-  border-radius: var(--radius-penuh);
-  font-family: inherit;
-  font-size: var(--teks-kecil);
-  cursor: pointer;
-  transition: border-color var(--durasi-cepat) ease;
-}
-
-.chip:hover {
-  border-color: var(--warna-aksen);
-}
-
-.channels {
-  padding-top: var(--ruang-5);
-  border-top: 1px solid var(--warna-garis);
-}
-
 .channels__list {
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-  gap: var(--ruang-3);
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--ruang-4);
 }
 
 .channels__item {
@@ -366,28 +255,456 @@ body {
   overflow-wrap: anywhere;
 }
 
-/* UI-10 — penyesuaian layar sempit. Tombol melebar penuh agar mudah dijangkau. */
-@media (max-width: 32rem) {
-  :root {
-    --tinggi-chat: 22rem;
-    --teks-judul: 1.75rem;
-  }
+/* ==== UI-13 — launcher ==== */
 
-  body {
-    padding: var(--ruang-4) var(--ruang-3);
-  }
+/* Posisi sudut kanan bawah mengikuti konvensi 89% widget chat (survei Clutch).
+   Memuat ikon dan label teks karena ikon gelembung saja jarang cukup untuk
+   mengomunikasikan peran. Tanpa badge notifikasi. */
+.launcher {
+  position: fixed;
+  right: var(--ruang-5);
+  bottom: var(--ruang-5);
+  z-index: var(--z-launcher);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ruang-3);
+  min-height: var(--ukuran-launcher);
+  padding: var(--ruang-3) var(--ruang-5) var(--ruang-3) var(--ruang-3);
+  background-color: var(--warna-aksen);
+  color: var(--warna-teks-invers);
+  border: 1px solid var(--warna-aksen-pekat);
+  border-radius: var(--radius-penuh);
+  box-shadow: var(--bayang-kuat);
+  font-family: inherit;
+  font-size: var(--teks-kecil);
+  font-weight: var(--tebal-tegas);
+  cursor: pointer;
+  transition: background-color var(--durasi-cepat) ease;
+}
 
-  .msg {
-    max-width: 92%;
-  }
+.launcher:hover {
+  background-color: var(--warna-aksen-pekat);
+}
 
-  .composer__button {
-    flex: 1 1 100%;
+.launcher[aria-expanded="true"] {
+  visibility: hidden;
+}
+
+.launcher__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ukuran-avatar);
+  height: var(--ukuran-avatar);
+  flex: 0 0 auto;
+}
+
+.launcher__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ==== UI-13 — panel dialog ==== */
+
+.panel {
+  position: fixed;
+  right: var(--ruang-5);
+  bottom: var(--ruang-5);
+  z-index: var(--z-panel);
+  width: var(--lebar-panel);
+  height: var(--tinggi-panel);
+  max-height: calc(100vh - var(--ruang-6));
+  display: flex;
+  flex-direction: column;
+  background-color: var(--warna-permukaan);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-besar);
+  box-shadow: var(--bayang-kuat);
+  overflow: hidden;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.panel__header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--ruang-3);
+  padding: var(--ruang-3) var(--ruang-4);
+  background-color: var(--warna-bubble-pengguna);
+  color: var(--warna-teks-invers);
+}
+
+.panel__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ukuran-avatar);
+  height: var(--ukuran-avatar);
+  flex: 0 0 auto;
+  background-color: var(--warna-aksen);
+  border-radius: var(--radius-penuh);
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-tegas);
+}
+
+.panel__identity {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel__title {
+  margin: 0;
+  font-size: var(--teks-dasar);
+  font-weight: var(--tebal-tegas);
+  line-height: var(--tinggi-baris-rapat);
+}
+
+.panel__status {
+  font-size: var(--teks-mikro);
+  color: var(--warna-teks-invers);
+}
+
+.panel__close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ukuran-avatar);
+  height: var(--ukuran-avatar);
+  background-color: transparent;
+  color: var(--warna-teks-invers);
+  border: 1px solid transparent;
+  border-radius: var(--radius-kecil);
+  font-family: inherit;
+  font-size: var(--teks-sedang);
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--durasi-cepat) ease;
+}
+
+.panel__close:hover {
+  border-color: var(--warna-teks-invers);
+}
+
+/* ==== UI-10 — aliran chat ==== */
+
+.chat {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--ruang-4);
+  background-color: var(--warna-latar);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-4);
+}
+
+.msg {
+  display: flex;
+  gap: var(--ruang-2);
+  max-width: 100%;
+}
+
+.msg--bot {
+  align-self: flex-start;
+}
+
+.msg--user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+/* D-19 — avatar bot dari CSS dan teks, bukan berkas gambar. aria-hidden diterapkan
+   di HTML agar screen reader tidak membacanya dua kali. */
+.msg__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ukuran-avatar);
+  height: var(--ukuran-avatar);
+  flex: 0 0 auto;
+  background-color: var(--warna-aksen);
+  color: var(--warna-teks-invers);
+  border-radius: var(--radius-penuh);
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-tegas);
+}
+
+.msg__body {
+  min-width: 0;
+  max-width: var(--lebar-bubble-maks);
+  padding: var(--ruang-3);
+  border-radius: var(--radius-sedang);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-1);
+}
+
+.msg--bot .msg__body {
+  background-color: var(--warna-bubble-bot);
+  border: 1px solid var(--warna-garis);
+}
+
+.msg--user .msg__body {
+  background-color: var(--warna-bubble-pengguna);
+  border: 1px solid var(--warna-bubble-pengguna);
+  color: var(--warna-teks-invers);
+}
+
+/* UI-11 — penanda pengirim berupa teks, bukan hanya dibedakan warna dan posisi. */
+.msg__who {
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-tegas);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warna-teks-lembut);
+}
+
+.msg--user .msg__who {
+  color: var(--warna-teks-invers);
+}
+
+/* UI-10 — pre-wrap agar baris baru dari respons model tetap terlihat, overflow-wrap
+   agar teks panjang tanpa spasi tidak meluber keluar kontainer. */
+.msg__text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ==== UI-05 — indikator tiga titik ==== */
+
+/* Clutch menyatakan indikator diperlukan untuk respons 1–3 detik; respons model pada
+   proyek ini berkisar 5–30 detik. Titik disertai teks tersembunyi karena animasi
+   tidak menyampaikan apa pun kepada screen reader. */
+.dots {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ruang-1);
+  padding: var(--ruang-1) 0;
+}
+
+.dots__dot {
+  width: var(--ukuran-titik);
+  height: var(--ukuran-titik);
+  background-color: var(--warna-teks-lembut);
+  border-radius: var(--radius-penuh);
+  animation: denyut 1.2s ease-in-out infinite;
+}
+
+.dots__dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dots__dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes denyut {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
   }
 }
 
-/* UI-11 — hormati preferensi pengguna yang mengurangi gerak. Seluruh fungsi
-   tetap bekerja tanpa transisi. */
+/* ==== Chip contoh pertanyaan ==== */
+
+.samples {
+  flex: 0 0 auto;
+  padding: 0 var(--ruang-4) var(--ruang-3);
+  background-color: var(--warna-latar);
+}
+
+.samples__title {
+  margin: 0 0 var(--ruang-2);
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-tegas);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warna-teks-lembut);
+}
+
+.samples__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ruang-2);
+}
+
+.chip {
+  padding: var(--ruang-1) var(--ruang-3);
+  background-color: var(--warna-permukaan);
+  color: var(--warna-aksen-pekat);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-penuh);
+  font-family: inherit;
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-sedang);
+  cursor: pointer;
+  transition: border-color var(--durasi-cepat) ease;
+}
+
+.chip:hover {
+  border-color: var(--warna-aksen);
+}
+
+/* ==== Komposer ==== */
+
+.composer {
+  flex: 0 0 auto;
+  padding: var(--ruang-3) var(--ruang-4) var(--ruang-4);
+  background-color: var(--warna-permukaan);
+  border-top: 1px solid var(--warna-garis);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-2);
+}
+
+.composer__label {
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-sedang);
+  color: var(--warna-teks-lembut);
+}
+
+.composer__row {
+  display: flex;
+  gap: var(--ruang-2);
+}
+
+.composer__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--ruang-3);
+  background-color: var(--warna-permukaan);
+  color: var(--warna-teks);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-sedang);
+  font-family: inherit;
+  font-size: var(--teks-dasar);
+  transition: border-color var(--durasi-cepat) ease;
+}
+
+.composer__input::placeholder {
+  color: var(--warna-teks-lembut);
+}
+
+.composer__input:hover:not(:disabled) {
+  border-color: var(--warna-aksen);
+}
+
+.composer__input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.composer__button {
+  flex: 0 0 auto;
+  padding: var(--ruang-3) var(--ruang-4);
+  background-color: var(--warna-aksen);
+  color: var(--warna-teks-invers);
+  border: 1px solid var(--warna-aksen-pekat);
+  border-radius: var(--radius-sedang);
+  font-family: inherit;
+  font-size: var(--teks-kecil);
+  font-weight: var(--tebal-tegas);
+  cursor: pointer;
+  transition: background-color var(--durasi-cepat) ease;
+}
+
+.composer__button:hover:not(:disabled) {
+  background-color: var(--warna-aksen-pekat);
+}
+
+.composer__button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.composer__note {
+  margin: 0;
+  font-size: var(--teks-mikro);
+  color: var(--warna-teks-lembut);
+}
+
+/* ==== UI-11 — indikator fokus. outline tidak dihapus tanpa pengganti setara. ==== */
+
+.launcher:focus-visible,
+.composer__input:focus-visible,
+.composer__button:focus-visible,
+.chip:focus-visible,
+.chat:focus-visible,
+.skip-link:focus-visible {
+  outline: var(--tebal-fokus) solid var(--warna-fokus);
+  outline-offset: 2px;
+}
+
+/* Tombol tutup berada di atas latar navy, sehingga outline memakai warna permukaan
+   agar tetap terlihat. */
+.panel__close:focus-visible {
+  outline: var(--tebal-fokus) solid var(--warna-permukaan);
+  outline-offset: 2px;
+}
+
+/* ==== UI-13, UI-10 — layar sempit: panel menempati layar penuh ==== */
+
+@media (max-width: 30rem) {
+  :root {
+    --teks-judul: 1.625rem;
+  }
+
+  body {
+    padding: var(--ruang-5) var(--ruang-3) var(--ruang-7);
+  }
+
+  .launcher {
+    right: var(--ruang-4);
+    bottom: var(--ruang-4);
+  }
+
+  .panel {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  /* Chip digulir horizontal di layar sempit agar tidak membungkus menjadi tiga baris
+     dan memakan area percakapan. */
+  .samples__list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: var(--ruang-1);
+  }
+
+  .chip {
+    white-space: nowrap;
+  }
+
+  .msg__body {
+    max-width: 85%;
+  }
+}
+
+/* ==== UI-11 — hormati preferensi pengguna yang mengurangi gerak ==== */
+
+/* Animasi titik dihentikan, namun titik tetap terlihat dengan opasitas penuh agar
+   informasi tidak hilang. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -396,5 +713,10 @@ body {
     animation-duration: 0ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
+  }
+
+  .dots__dot {
+    opacity: 1;
+    transform: none;
   }
 }

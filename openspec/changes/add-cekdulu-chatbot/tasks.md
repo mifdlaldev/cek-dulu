@@ -2,8 +2,10 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 52 dari 59 task selesai.** Fase A sampai E tuntas — kelima gate verifikasi
-LULUS dan 13 dari 13 skenario uji lulus. Sisa hanya Fase F: screenshot dan submit.
+**Progres: 72 dari 79 task selesai.** Fase A sampai E dan G tuntas — kelima gate verifikasi
+LULUS dan **14 dari 14 skenario uji lulus**. Fase G menambahkan pola widget setelah kritik
+bahwa desain awal terbaca sebagai formulir; spec diamandemen lebih dahulu sesuai
+`docs/METODOLOGI.md` §6. Sisa: tujuh task Fase F berupa screenshot dan submit.
 Bukti verifikasi: `docs/QA-REPORT.md`.
 
 | Fase | Isi | Task | Status |
@@ -12,7 +14,8 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 | B | Backend `index.js` | 14/14 | ✅ Selesai |
 | C | Uji backend via `curl` | 6/6 | ✅ Selesai — UJI-03 lulus |
 | D | Frontend `public/` | 20/20 | ✅ Selesai — diverifikasi di browser nyata |
-| E | Gate verifikasi | 8/8 | ✅ Selesai — 5 gate lulus, 13/13 skenario lulus |
+| E | Gate verifikasi | 8/8 | ✅ Selesai — 5 gate lulus |
+| G | Redesain antarmuka pola widget | 20/20 | ✅ Selesai — 14/14 skenario lulus |
 | F | Persiapan submit | 0/7 | ⬜ Belum |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
@@ -294,12 +297,12 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 
 ## Fase E — Gate verifikasi
 
-- [x] **E1.** **Gate 1 — Keterlacakan.** Periksa `design.md` §3: semua 32 requirement punya
+- [x] **E1.** **Gate 1 — Keterlacakan.** Periksa `design.md` §3: semua 33 requirement punya
   kolom sumber terisi; tidak ada kode di `index.js` / `script.js` yang tidak dirujuk
   requirement mana pun
   → expect nol requirement tanpa sumber, nol kode tanpa requirement
-  · Cek juga: semua 32 ID (`WS-01`..`WS-05`, `API-01`..`API-06`, `PG-01`..`PG-09`,
-    `UI-01`..`UI-12`) sudah tercentang di Fase B dan D
+  · Cek juga: semua 33 ID (`WS-01`..`WS-05`, `API-01`..`API-06`, `PG-01`..`PG-09`,
+    `UI-01`..`UI-13`) sudah tercentang di Fase B, D, dan G
   · CI job `traceability` menjalankan pemeriksaan ini otomatis pada setiap push
 
 - [x] **E2.** **Gate 2 — Server hidup.** `node index.js`, tempel output terminal
@@ -309,7 +312,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
   → expect `200 {result}` dan `500 {"error":"Messages must be an array!"}`
 
 - [x] **E4.** **Gate 4 — Guardrail & UI.** Buka `http://localhost:3000/` di browser
-  sungguhan. Jalankan **13 skenario** `docs/USE-CASE-CEKDULU.md` §5 satu per satu. Catat
+  sungguhan. Jalankan **14 skenario** `docs/USE-CASE-CEKDULU.md` §5 satu per satu. Catat
   lulus/gagal + kutipan jawaban bot untuk tiap skenario
   → expect 13/13 lulus; **UJI-03 lulus mutlak**
   · ⛔ UJI-03 gagal → perkuat `SYSTEM_INSTRUCTION`, ulangi seluruh Gate 4
@@ -335,7 +338,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
   · CI job `hygiene` dan `constraints` menjalankan pemeriksaan ini otomatis
 
 - [x] **E8.** **Dokumentasikan bukti.** Tulis `docs/QA-REPORT.md` berisi: output `node index.js`,
-  output kedua `curl` apa adanya (status + body), dan tabel 13 skenario dengan input,
+  output kedua `curl` apa adanya (status + body), dan tabel 14 skenario dengan input,
   kutipan jawaban bot, serta verdict lulus/gagal
   → expect laporan dapat diaudit ulang pihak lain tanpa menjalankan sistem
   · Ref: `docs/METODOLOGI.md` §5
@@ -379,17 +382,129 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 
 ---
 
+## Fase G — Redesain antarmuka menjadi pola widget
+
+> Latar belakang: implementasi Fase D terbaca sebagai formulir, bukan percakapan. Kritik
+> pengguna diverifikasi terhadap literatur, lalu spec diamandemen lebih dahulu sesuai
+> `docs/METODOLOGI.md` §6. Requirement baru `UI-13`; `UI-01`, `UI-05`, `UI-08`, `UI-10`,
+> `UI-11`, `UI-12` diamandemen. Keputusan: `design.md` D-12 (amandemen), D-18, D-19.
+> Riset dan sitasi: `docs/RISET-DESAIN.md`.
+>
+> **Nol kuota API** untuk seluruh fase ini kecuali satu uji ujung ke ujung di akhir.
+> Backend tidak berubah, sehingga guardrail `PG-*` tidak perlu diuji ulang.
+
+- [x] **G1.** `public/style.css`: tulis ulang blok `:root` dengan palet light mode delapan
+  token — latar `#F4F6F9`, permukaan `#FFFFFF`, bubble bot `#EEF2F7`, bubble pengguna
+  `#0E4A6E`, teks `#111F2E`, teks lembut `#4A5A6D`, aksen `#0E7C6B`, fokus `#0B63CE` —
+  ditambah token ukuran launcher dan panel
+  → expect nol nilai warna literal di luar `:root`
+  · Ref: `UI-12`, `docs/RISET-DESAIN.md` §4
+
+- [x] **G2.** `public/style.css`: gaya launcher — `position: fixed` sudut kanan bawah, ikon
+  dan label teks, target sentuh minimal 44×44px, state `:hover` dan `:focus-visible`
+  → expect launcher terlihat di sudut kanan bawah pada semua viewport
+  · Ref: `UI-13`
+
+- [x] **G3.** `public/style.css`: gaya panel — lebar 380px dan tinggi 560px di desktop,
+  layar penuh di viewport sempit, tiga bagian header, aliran chat, dan komposer
+  → expect panel muncul di atas launcher tanpa menutupi disclaimer
+  · Ref: `UI-13`, `UI-08`
+
+- [x] **G4.** `public/style.css`: gaya bubble — avatar lingkaran untuk bot, lebar maksimal
+  320px desktop dan 85% panel di layar sempit, `white-space: pre-wrap`
+  → expect jawaban panjang membungkus rapi tanpa meluber
+  · Ref: `UI-10`, D-19
+
+- [x] **G5.** `public/style.css`: indikator tiga titik beranimasi, dinonaktifkan oleh blok
+  `prefers-reduced-motion` yang sudah ada namun titik tetap terlihat statis
+  → expect animasi berhenti tanpa kehilangan informasi
+  · Ref: `UI-05`, `UI-11`, D-19
+
+- [x] **G6.** `public/index.html`: restrukturisasi menjadi badan halaman berisi hero,
+  disclaimer, dan kanal resmi; ditambah launcher dan panel dialog
+  → expect `#chat-form`, `#user-input`, `#chat-box` berada di dalam panel
+  · Ref: `UI-01`, `UI-13`
+
+- [x] **G7.** `public/index.html`: atribut pola dialog — `role="dialog"`,
+  `aria-modal="false"`, `aria-labelledby` menunjuk judul panel, `aria-expanded` dan
+  `aria-controls` pada launcher, `hidden` pada panel saat halaman dimuat
+  → expect panel tertutup saat halaman pertama dibuka
+  · Ref: `UI-11`, `UI-13`
+
+- [x] **G8.** `public/index.html`: header panel berisi avatar, nama bot, status, dan tombol
+  tutup dengan nama yang dapat diakses; pengingat ringkas di bawah komposer
+  → expect tombol tutup terbaca screen reader, bukan hanya simbol
+  · Ref: `UI-13`, `UI-08`
+
+- [x] **G9.** `public/script.js`: fungsi `bukaPanel()` dan `tutupPanel()` — atur `hidden`,
+  `aria-expanded`, pindahkan fokus ke input saat buka, kembalikan ke launcher saat tutup
+  → expect `aria-expanded` berubah sesuai keadaan
+  · Ref: `UI-13`, `UI-11`
+
+- [x] **G10.** `public/script.js`: focus trap — Tab dan Shift+Tab bersiklus di dalam panel
+  → expect fokus tidak lolos ke badan halaman saat panel terbuka
+  · Ref: `UI-11`, `docs/RISET-DESAIN.md` §2
+
+- [x] **G11.** `public/script.js`: penangan Escape menutup panel
+  → expect panel tertutup dan fokus kembali ke launcher
+  · Ref: `UI-11`, `UI-13`
+
+- [x] **G12.** `public/script.js`: ubah indikator menunggu menjadi tiga titik dengan teks
+  tersembunyi untuk screen reader
+  → expect indikator hanya muncul setelah pengguna mengirim pesan
+  · Ref: `UI-05`, D-19
+
+- [x] **G13.** `public/script.js`: JSDoc pada fungsi baru dengan rujukan requirement ID
+  → expect kontrak fungsi jelas tanpa TypeScript
+  · Ref: D-14
+
+- [x] **G14.** Jalankan `node --check public/script.js` dan pemeriksaan larangan HTML mentah
+  → expect sintaks lolos, tidak ada penulisan HTML mentah
+  · Ref: CI job `syntax` dan `constraints`
+
+- [x] **G15.** Verifikasi kontras seluruh pasangan palet baru dengan formula WCAG
+  → expect setiap rasio minimal 4,5:1
+  · Ref: `UI-11`, `UI-12`
+
+- [x] **G16.** Verifikasi di browser nyata: panel tertutup saat dimuat, launcher membuka,
+  tombol tutup dan Escape menutup, fokus kembali ke launcher, focus trap bersiklus
+  → expect seluruh skenario `UI-13` dan UJI-14 lulus
+  · Ref: **Gate 4**, UJI-14
+
+- [x] **G17.** Verifikasi di browser: responsif 375px dan 1280px, pembesaran 200%,
+  `prefers-reduced-motion`, console tanpa galat
+  → expect nol scroll horizontal, transisi nol detik saat preferensi aktif
+  · Ref: `UI-10`, `UI-11`
+
+- [x] **G18.** Satu uji ujung ke ujung dengan API nyata melalui antarmuka baru
+  → expect alur kirim sampai jawaban tampil berjalan utuh
+  · Ref: seluruh alur
+  · **1 permintaan kuota**
+
+- [x] **G19.** Perbarui `docs/QA-REPORT.md` dengan bukti Fase G — hasil kontras, uji dialog,
+  responsif, dan uji ujung ke ujung
+  → expect laporan dapat diaudit tanpa menjalankan ulang
+  · Ref: `docs/METODOLOGI.md` §5
+
+- [x] **G20.** Selaraskan penanda status pada `README.md`, `tasks.md`, `proposal.md`,
+  `project.md`, `METODOLOGI.md`, dan `AGENTS.md`
+  → expect nol klaim basi, jumlah requirement dan skenario konsisten
+
+---
+
 ## Ringkasan urutan
 
 ```
 A (setup) → B (backend) → C (uji backend via curl) → D (frontend)
-          → E (5 gate + aksesibilitas + laporan QA) → F (submit)
+          → E (5 gate + aksesibilitas + laporan QA) → G (redesain widget) → F (submit)
 ```
 
 Alasan C sebelum D: memastikan backend dan guardrail benar **sebelum** menulis frontend.
 Kalau `PG-03` gagal, memperbaikinya lebih murah saat frontend belum ada.
 
-**Total: 6 fase, 59 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, F: 7.
+Alasan G sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
+
+**Total: 7 fase, 79 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, F: 7.
 
 CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push: validasi sintaks,
 kebersihan repo, batasan dependency, audit `systemInstruction` terhadap `PG-09`, dan

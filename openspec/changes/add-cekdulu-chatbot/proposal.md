@@ -3,11 +3,11 @@
 | Meta | Nilai |
 |---|---|
 | ID change | `add-cekdulu-chatbot` |
-| Status | **Verified** — Fase A sampai E selesai, kelima gate lulus, 13/13 skenario lulus. Sisa Fase F |
+| Status | **Verified** — Fase A sampai E dan G selesai, kelima gate lulus, 14/14 skenario lulus. Sisa Fase F |
 | Tanggal dibuat | 1 Agustus 2026 |
 | Terakhir diperbarui | 1 Agustus 2026 |
 | Kapabilitas tersentuh | `web-server` ✅, `chat-api` ✅, `persona-guardrail` ✅, `chat-ui` ✅ |
-| Progres task | 52 dari 59 (`tasks.md`) |
+| Progres task | 72 dari 79 (`tasks.md`) |
 | Bukti verifikasi | `docs/QA-REPORT.md` |
 
 ---
@@ -64,7 +64,7 @@ Proyek greenfield. Semua kapabilitas berstatus **ADDED**.
 | `web-server` | Bootstrap Express, muat env, middleware CORS + JSON, sajikan `public/` sebagai static, listen port 3000 | `WS-01` … `WS-05` | ✅ Selesai |
 | `chat-api` | Endpoint `POST /api/chat`: validasi array, transformasi ke format Gemini, panggil `generateContent()`, balas `{ result }` / `{ error }` | `API-01` … `API-06` | ✅ Selesai |
 | `persona-guardrail` | `systemInstruction` persona "Cek Dulu" + `temperature`/`topP`/`topK` + larangan | `PG-01` … `PG-09` | ✅ Selesai — UJI-03 lulus |
-| `chat-ui` | Halaman chat Vanilla JS: form, riwayat multi-turn, indikator berpikir, fallback error, disclaimer, aksesibilitas, design token | `UI-01` … `UI-12` | ✅ Selesai — diverifikasi di browser |
+| `chat-ui` | Antarmuka widget Vanilla JS: launcher, panel dialog, riwayat multi-turn, indikator tiga titik, fallback error, disclaimer, aksesibilitas, design token | `UI-01` … `UI-13` | ✅ Selesai — diverifikasi di browser |
 
 Berkas yang sudah dibuat:
 
@@ -145,7 +145,7 @@ Change ini selesai ketika kelima gate `docs/METODOLOGI.md` §5 lewat dengan bukt
 1. Setiap requirement punya sumber tertulis — diperiksa manual dan oleh CI job `traceability`
 2. `node index.js` hidup tanpa error
 3. `curl` positif → `200 { result }`; `curl` negatif → `500 { error }`
-4. 13 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser; **UJI-03 lulus mutlak**;
+4. 14 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser; **UJI-03 lulus mutlak**;
    `UI-11` diverifikasi lewat navigasi keyboard, kontras, pembesaran 200%, dan
    `prefers-reduced-motion`
 5. `.env` tidak ter-track, tidak ada dependency di luar 4 yang diizinkan, tidak ada
@@ -154,7 +154,7 @@ Change ini selesai ketika kelima gate `docs/METODOLOGI.md` §5 lewat dengan bukt
 Ditambah satu syarat dokumentasi:
 
 6. `docs/QA-REPORT.md` memuat bukti mentah — output `node index.js`, output `curl` apa
-   adanya, dan tabel 13 skenario beserta kutipan jawaban bot. Klaim tanpa bukti tidak sah.
+   adanya, dan tabel 14 skenario beserta kutipan jawaban bot. Klaim tanpa bukti tidak sah.
 
 CI (`.github/workflows/ci.yml`) menjaga gate 1, 5, dan sebagian `PG-09` secara otomatis
 pada setiap push. Detail: `design.md` D-14.
