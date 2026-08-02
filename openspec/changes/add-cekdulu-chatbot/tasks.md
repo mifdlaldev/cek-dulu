@@ -2,11 +2,12 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 112 dari 119 task selesai.** Fase A sampai E, G, H, dan I tuntas — kelima gate
-verifikasi LULUS dan **16 dari 16 skenario uji lulus**. Fase G menambahkan pola widget setelah
+**Progres: 130 dari 137 task selesai.** Fase A sampai E, G, H, I, dan J tuntas — kelima gate
+verifikasi LULUS dan **17 dari 17 skenario uji lulus**. Fase G menambahkan pola widget setelah
 kritik bahwa desain awal terbaca sebagai formulir; Fase H menambahkan landing page sembilan
-section; Fase I mengubah komposer menjadi multi-baris dan memberi tombol tutup pada blok saran.
-Pada ketiganya spec diamandemen lebih dahulu sesuai `docs/METODOLOGI.md` §6.
+section; Fase I mengubah komposer menjadi multi-baris dan memberi tombol tutup pada blok saran;
+Fase J mengganti inisial `CD` dengan avatar gambar. Pada keempatnya spec diamandemen lebih
+dahulu sesuai `docs/METODOLOGI.md` §6.
 
 Sisa: tujuh task Fase F berupa screenshot dan submit.
 Bukti verifikasi: `docs/QA-REPORT.md`.
@@ -21,6 +22,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 | G | Redesain antarmuka pola widget | 20/20 | ✅ Selesai — 14/14 skenario lulus |
 | H | Landing page sembilan section | 19/19 | ✅ Selesai — UJI-15 lulus |
 | I | Komposer multi-baris, blok saran, nota | 21/21 | ✅ Selesai — UJI-16 lulus |
+| J | Avatar bot berupa berkas gambar | 18/18 | ✅ Selesai — UJI-17 lulus |
 | F | Persiapan submit | 0/7 | ⬜ Belum |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
@@ -734,8 +736,105 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 
 - [x] **I21.** Selaraskan penanda status pada `README.md`, `tasks.md`, `proposal.md`,
   `project.md`, `METODOLOGI.md`, `CONTRIBUTING.md`, dan `AGENTS.md` — 35 requirement,
-  16 skenario uji, dua penyimpangan dari materi
+  jumlah requirement dan skenario konsisten, dua penyimpangan dari materi
   → expect nol klaim basi, jumlah requirement dan skenario konsisten di semua berkas
+
+---
+
+## Fase J — Avatar bot berupa berkas gambar
+
+> Latar belakang: pengguna menyediakan berkas `docs/assets/avatar.png` (1024×1024px, 1170 KB)
+> untuk menggantikan inisial `CD`. Gambarnya berupa lingkaran teal berisi perisai dengan kaca
+> pembaca — arah yang sama dengan yang direkomendasikan `docs/PROMPT-AVATAR.md` bagian 3.
+>
+> Keputusan D-22 **mengamandemen D-19**, yang sebelumnya menolak avatar berupa berkas gambar.
+> `UI-10` diamandemen; UJI-17 ditambahkan. Spec diperbarui lebih dahulu sesuai
+> `docs/METODOLOGI.md` §6.
+>
+> **Nol kuota API.** Backend, `SYSTEM_INSTRUCTION`, dan kontrak API tidak berubah.
+
+- [x] **J1.** Periksa berkas sumber: dimensi, color type, chunk, bounding box lingkaran, warna
+  dominan, dan rasio kontras glyph terhadap isian
+  → expect data terukur, bukan asumsi
+  · Ref: D-22
+
+- [x] **J2.** Bandingkan warna isian sumber terhadap token `--warna-aksen`, ukur selisih per
+  kanal
+  → expect keputusan menyelaraskan atau menolak berbasis angka
+  · Ref: `UI-12`, D-22
+
+- [x] **J3.** Potong ke bounding box lingkaran, jadikan bujur sangkar, perkecil ke 64×64px
+  → expect nol bagian lingkaran terpotong
+  · Ref: D-22
+
+- [x] **J4.** Selaraskan piksel teal ke `#0E7C6B` dengan mempertahankan rasio kecerahan agar
+  antialias tetap halus; glyph putih dan alpha tidak disentuh
+  → expect warna opak dominan tepat `#0E7C6B`
+  · Ref: `UI-12`, D-22
+
+- [x] **J5.** Bandingkan ukuran berkas 64px RGBA versus palette 64 warna, ukur RMSE
+  → expect palette dipilih hanya bila RMSE di bawah 3
+  · Ref: D-22
+
+- [x] **J6.** Simpan hasil ke `public/avatar.png`
+  → expect di bawah 5 KB dan berada di bawah `public/` agar disajikan `express.static`
+  · Ref: `WS-03`, `UI-10`, D-22
+
+- [x] **J7.** `public/index.html`: ganti dua `<span>CD</span>` menjadi `<img>` dengan `src`,
+  `alt=""`, `width`, `height`, dan `aria-hidden="true"`
+  → expect nol teks `CD` tersisa di halaman
+  · Ref: `UI-10`, `UI-11`, D-22
+
+- [x] **J8.** `public/style.css`: `.panel__avatar` dan `img.msg__avatar` — matikan latar dan
+  radius yang tidak lagi dibutuhkan, kunci ukuran tampil pada `--ukuran-avatar`
+  → expect avatar pengguna tetap memakai latar dan radius CSS
+  · Ref: `UI-10`, `UI-12`, D-22
+
+- [x] **J9.** `public/script.js`: `appendMessage()` membuat `<img>` untuk bot dan `<span>`
+  untuk pengguna; konstanta `AVATAR_BOT` dipakai bersama
+  → expect nol pemakaian `innerHTML`
+  · Ref: `UI-10`, D-07, D-22
+
+- [x] **J10.** Ukur kontras lingkaran avatar terhadap latar header navy dan latar bubble bot
+  → expect keputusan ring pemisah berbasis angka, bukan selera
+  · Ref: `UI-11`, D-22
+
+- [x] **J11.** `public/style.css`: pasang ring pemisah **hanya** pada avatar header bila
+  pengukuran J10 menunjukkan rasio di bawah 3:1
+  → expect nol ring di dalam bubble terang
+  · Ref: `UI-11`, D-22
+
+- [x] **J12.** Jalankan `node --check public/script.js`, pemeriksaan larangan `innerHTML`, dan
+  pemeriksaan warna literal di luar `:root`
+  → expect ketiganya lolos
+  · Ref: CI job `syntax` dan `constraints`
+
+- [x] **J13.** Verifikasi di browser: kedua avatar termuat, ukuran tampil 32×32px, natural
+  64×64px, `alt=""`, `aria-hidden="true"`, atribut dimensi ada
+  → expect seluruh skenario avatar `UI-10` lulus
+  · Ref: **Gate 4**, UJI-17
+
+- [x] **J14.** Verifikasi di browser: avatar pengguna tetap `span` berisi inisial setelah
+  pesan dikirim, penanda pengirim teks tetap ada pada setiap bubble
+  → expect pembeda peran tidak bergantung pada gambar semata
+  · Ref: UJI-17, `UI-11`
+
+- [x] **J15.** Verifikasi permintaan jaringan dan console
+  → expect empat permintaan, `avatar.png` menghasilkan 200, nol galat tak terduga
+  · Ref: `UI-10`, D-22
+
+- [x] **J16.** Verifikasi responsif 375px dan pembesaran 200%
+  → expect ukuran avatar tetap 32×32px dan nol scroll horizontal
+  · Ref: `UI-10`, `UI-11`
+
+- [x] **J17.** Perbarui `docs/QA-REPORT.md` dengan bukti Fase J, dan `docs/PROMPT-AVATAR.md`
+  dengan catatan bahwa avatar sudah dipasang
+  → expect laporan dapat diaudit tanpa menjalankan ulang
+  · Ref: `docs/METODOLOGI.md` §5
+
+- [x] **J18.** Selaraskan penanda status pada berkas yang menyebut jumlah requirement,
+  skenario, keputusan, dan klaim "nol berkas gambar"
+  → expect nol klaim basi
 
 ---
 
@@ -744,16 +843,17 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 ```
 A (setup) → B (backend) → C (uji backend via curl) → D (frontend)
           → E (5 gate + aksesibilitas + laporan QA) → G (redesain widget)
-          → H (landing page) → I (komposer multi-baris) → F (submit)
+          → H (landing page) → I (komposer multi-baris) → J (avatar gambar)
+          → F (submit)
 ```
 
 Alasan C sebelum D: memastikan backend dan guardrail benar **sebelum** menulis frontend.
 Kalau `PG-03` gagal, memperbaikinya lebih murah saat frontend belum ada.
 
-Alasan G, H, dan I sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
+Alasan G, H, I, dan J sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
 
-**Total: 9 fase, 119 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19,
-I: 21, F: 7.
+**Total: 10 fase, 137 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19,
+I: 21, J: 18, F: 7.
 
 CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push: validasi sintaks,
 kebersihan repo, batasan dependency, audit `systemInstruction` terhadap `PG-09`, dan

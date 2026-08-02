@@ -85,7 +85,7 @@ nyata**, bukan pernyataan:
 1. **Keterlacakan** — requirement yang tersentuh punya sumber tertulis
 2. **Server hidup** — `node index.js` jalan, tempel keluaran terminal
 3. **Kontrak API** — `curl` positif → `200 {result}`; `curl` negatif → `500 {error}`
-4. **Guardrail** — 16 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser.
+4. **Guardrail** — 17 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser.
    **UJI-03 wajib lulus** — bila bot menyatakan sebuah entitas legal atau ilegal,
    perubahan Anda tidak dapat diterima
 5. **Kebersihan** — `.env` tidak ter-track, tidak ada dependency tambahan

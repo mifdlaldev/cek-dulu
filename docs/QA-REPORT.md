@@ -12,7 +12,7 @@
 | Browser uji | Chromium 151.0.7922.34 (headless, via CDP) |
 | Model dipakai | `gemini-flash-latest` (bawaan `WS-02`, lihat `KENDALA-API.md` §1) |
 | Tier akun | Free tier |
-| Status | Fase A sampai E, G, H, dan I selesai. **Kelima gate verifikasi LULUS, 16 dari 16 skenario uji lulus.** Sisa: Fase F (screenshot dan submit) |
+| Status | Fase A sampai E, G, H, I, dan J selesai. **Kelima gate verifikasi LULUS, 17 dari 17 skenario uji lulus.** Sisa: Fase F (screenshot dan submit) |
 
 ---
 
@@ -920,9 +920,9 @@ bagian Fase G.
 
 **14 dari 14 skenario yang berlaku saat pengujian ini lulus.**
 
-> UJI-15 (`UI-14`, landing page) dan UJI-16 (`UI-01`, `UI-15`, komposer) ditambahkan setelah
-> bagian ini ditulis. Buktinya ada pada bagian **Fase H** dan **Fase I** di bawah, keduanya
-> LULUS. Dengan begitu Gate 4 lengkap untuk seluruh 16 skenario.
+> UJI-15 (landing page), UJI-16 (komposer), dan UJI-17 (avatar gambar) ditambahkan setelah
+> bagian ini ditulis. Buktinya ada pada bagian **Fase H**, **Fase I**, dan **Fase J** di bawah,
+> ketiganya LULUS. Dengan begitu Gate 4 lengkap untuk seluruh 17 skenario.
 
 ---
 
@@ -1565,8 +1565,9 @@ dilarang D-20:
 }
 ```
 
-**Nol temuan.** Nol berkas gambar — hanya dua SVG inline, yaitu logo brand dan ikon launcher,
-keduanya dibuat sendiri. Tidak ada logo Hacktiv8 maupun OJK sebagai gambar; kedua lembaga
+**Nol temuan.** Nol berkas gambar pada saat audit ini — hanya dua SVG inline, yaitu logo brand
+dan ikon launcher, keduanya dibuat sendiri. (Angka `jumlahImg` berubah menjadi 2 pada Fase J
+ketika avatar bot dipasang; larangan terhadap logo lembaga tetap terpenuhi.) Tidak ada logo Hacktiv8 maupun OJK sebagai gambar; kedua lembaga
 disebut sebagai teks pada konteks sumber data dan atribusi.
 
 Tiga angka pada section Data & Sumber, semuanya bersitasi:
@@ -1893,7 +1894,7 @@ dan simulasi media query.
 | Screenshot untuk submit | Fase F. Tangkapan layar verifikasi dibuat sebagai berkas sementara dan sudah dihapus |
 
 Seluruh gate verifikasi `docs/METODOLOGI.md` §5 sudah terpenuhi dengan bukti mentah, mencakup
-35 requirement dan 16 skenario uji. Butir yang belum diverifikasi khusus untuk Fase I tercatat
+35 requirement dan 17 skenario uji. Butir yang belum diverifikasi khusus untuk Fase I tercatat
 pada akhir bagian Fase I.
 
 
@@ -2475,7 +2476,8 @@ bila placeholder diubah lagi di kemudian hari.
 | `prefers-reduced-motion` | `UI-11` | LULUS |
 | Console bersih | — | LULUS |
 
-**UJI-16 LULUS.** Dengan ini seluruh 16 skenario `docs/USE-CASE-CEKDULU.md` §5 lulus.
+**UJI-16 LULUS.** Enam belas skenario yang berlaku saat pengujian Fase I lulus. UJI-17
+ditambahkan setelahnya dan diverifikasi pada bagian **Fase J**.
 
 ### Konsumsi kuota Fase I
 
@@ -2489,3 +2491,301 @@ pengukuran geometri, pengukuran lebar teks, perhitungan kontras, dan simulasi me
 |---|---|
 | Fallback `scrollHeight` pada browser yang benar-benar tidak mendukung `field-sizing` | Browser uji mendukungnya. Jalur fallback diverifikasi dengan mematikan `field-sizing` lewat gaya inline — mekanismenya terbukti, tetapi bukan pada Safari atau Firefox versi lama secara langsung |
 | Avatar bot pengganti inisial `CD` | Prompt sudah ditulis di `docs/PROMPT-AVATAR.md`, tetapi gambar belum digenerate dan belum dipasang. Avatar `CD` masih berlaku |
+
+
+---
+
+## Fase J — Verifikasi avatar bot berupa berkas gambar
+
+| Meta | Nilai |
+|---|---|
+| Tanggal | 2 Agustus 2026 |
+| Browser uji | Chromium 151.0.7922.34 (headless, via CDP `localhost:9222`) |
+| Requirement | `UI-10` diamandemen; keputusan D-22 **mengamandemen D-19** |
+| Skenario | UJI-17 |
+| Kuota API terpakai | **0** |
+
+---
+
+### Pemeriksaan berkas sumber
+
+```
+ukuran berkas: 1198354 byte = 1170.3 KB
+dimensi: 1024x1024
+bit depth: 8, color type: 6 (RGBA)
+chunk: IHDR(13), caBX(24853), IDAT×19, IEND(0)
+```
+
+Bounding box alpha non-nol: `(146,138)-(879,854)`, lebar 733 tinggi 716 — lingkaran tidak
+persis bulat, selisih 17px, dan pusatnya di `(512,496)` bukan `(512,512)`. Sudut kanvas
+transparan (`alpha 0`), jadi latar putih pada pratinjau berasal dari penampil, bukan berkas.
+
+Warna opak dominan:
+
+```
+rgb(0, 127, 143)  #007F8F  5501 sampel
+rgb(0, 126, 143)  #007E8F  5444 sampel
+rgb(0, 127, 144)  #007F90  5185 sampel
+```
+
+---
+
+### Penyelarasan warna ke token · `UI-12`
+
+Isian sumber `#007F8F` versus token `--warna-aksen` `#0E7C6B`:
+
+| Pasangan | Rasio terhadap putih |
+|---|---|
+| Teal sumber `#007D8F` | 4,85 |
+| Token aksen `#0E7C6B` | **5,10** |
+
+Selisih per kanal `(-14, +1, +36)` — nyata pada biru. Membiarkannya berarti halaman memakai dua
+teal berbeda, melanggar `UI-12`.
+
+Setelah 3.185 piksel teal diselaraskan dengan mempertahankan rasio kecerahan:
+
+```
+warna opak terbanyak:
+  rgb(14, 124, 107)  #0E7C6B  2150 px
+  rgb(14, 131, 113)  #0E8371  397 px
+  rgb(16, 144, 124)  #10907C  1 px
+
+glyph putih vs isian aksen: 5.1 (ambang non-teks 3:1)
+```
+
+Warna dominan kini tepat token. Dua warna sisanya adalah antialias tepi glyph.
+
+**LULUS.**
+
+---
+
+### Optimasi ukuran berkas
+
+| Langkah | Hasil |
+|---|---|
+| Sumber | 1024×1024px, **1170,3 KB** |
+| Potong ke bbox lingkaran, bujur sangkar | 733×733px |
+| 64×64px RGBA | 5,9 KB |
+| 64×64px palette 64 warna | **1,37 KB** |
+
+Perbandingan ukuran lain yang diukur: 96px = 10,8 KB, 128px = 16,9 KB. Dipilih 64px karena dua
+kali ukuran tampil 32px sudah cukup untuk layar kerapatan ganda.
+
+Kualitas palette versus RGBA:
+
+```
+RMSE palette vs RGBA: 1.42 (0 = identik, <3 tak terlihat mata)
+selisih maksimum per kanal: ((0, 5), (0, 13), (0, 18))
+level alpha: RGBA 235 → palette 25
+```
+
+RMSE 1,42 di bawah ambang 3. Penurunan level alpha dari 235 ke 25 tidak terlihat pada 32px.
+
+Alternatif data URI diukur dan ditolak: base64 menambah 33%, dari 1,37 KB menjadi 1,8 KB.
+
+Hasil akhir `public/avatar.png`: **1398 byte = 1,37 KB**, mode palette, `transparency` chunk
+ada. Penurunan ke **0,12%** ukuran asli.
+
+**LULUS.**
+
+---
+
+### Avatar termuat di kedua tempat · `UI-10`
+
+```json
+{
+  "avatarHeaderPanel": {
+    "tag": "IMG", "src": "avatar.png", "alt": "", "ariaHidden": "true",
+    "naturalW": 64, "naturalH": 64, "complete": true,
+    "tampilW": 32, "tampilH": 32,
+    "bgColor": "rgba(0, 0, 0, 0)"
+  },
+  "avatarBubbleSapaan": {
+    "tag": "IMG", "src": "avatar.png", "alt": "", "ariaHidden": "true",
+    "naturalW": 64, "naturalH": 64, "complete": true,
+    "tampilW": 32, "tampilH": 32
+  },
+  "adaTeksCDTersisa": false,
+  "jumlahImg": 2,
+  "srcSemuaImg": ["avatar.png", "avatar.png"]
+}
+```
+
+Keduanya `complete: true` dengan `naturalWidth 64`, tampil 32×32px. Latar CSS sudah transparan
+karena lingkaran menyatu di dalam gambar. **Nol teks `CD` tersisa.**
+
+**LULUS.**
+
+---
+
+### Avatar pengguna tetap inisial · `UI-10`, `UI-11`
+
+Satu pesan dikirim dengan server sengaja dimatikan agar tidak memakai kuota:
+
+```json
+{
+  "jumlahBubble": 3,
+  "daftar": [
+    { "peran": "msg msg--bot",  "avatarTag": "IMG",  "avatarSrc": "avatar.png", "termuat": true, "tampil": "32x32", "penandaTeks": "Cek Dulu" },
+    { "peran": "msg msg--user", "avatarTag": "SPAN", "avatarSrc": null, "avatarTeks": "A", "tampil": "32x32", "penandaTeks": "Anda" },
+    { "peran": "msg msg--bot",  "avatarTag": "IMG",  "avatarSrc": "avatar.png", "termuat": true, "tampil": "32x32", "penandaTeks": "Cek Dulu" }
+  ]
+}
+```
+
+Bubble bot yang dibuat runtime oleh `appendMessage()` memakai `img`; bubble pengguna tetap
+`span` berisi `A`. Ketiganya punya penanda pengirim berupa teks — `UI-11` melarang informasi
+disampaikan hanya lewat elemen visual.
+
+**LULUS.**
+
+---
+
+### Ring pemisah pada latar navy · `UI-11`
+
+Pengukuran yang memicu keputusan tambahan:
+
+| Pasangan | Rasio | Ambang WCAG 1.4.11 | Verdict |
+|---|---|---|---|
+| Lingkaran aksen vs latar header navy | **1,85** | 3,0 | **GAGAL** |
+| Lingkaran aksen vs latar bubble bot | **4,54** | 3,0 | LULUS |
+| Glyph putih vs lingkaran aksen | **5,10** | 3,0 | LULUS |
+
+Tepi lingkaran melebur ke latar header. Dua kandidat ring diukur terhadap navy:
+
+| Kandidat | Rasio |
+|---|---|
+| Putih `#FFFFFF` | **9,45** |
+| Garis `#D3DCE6` | 6,81 |
+
+Dipasang `box-shadow: 0 0 0 1px var(--warna-teks-invers)` **hanya** pada `.panel__avatar`.
+Verifikasi:
+
+```json
+{ "boxShadow": "rgb(255, 255, 255) 0px 0px 0px 1px", "borderRadius": "999px" }
+```
+
+Tangkapan layar avatar header sebelum dan sesudah dibandingkan: sebelum, tepi lingkaran tidak
+terbaca; sesudah, batasnya jelas. Di dalam bubble bot ring tidak dipasang karena 4,54:1 sudah
+cukup, dan garis putih di latar terang hanya akan menjadi kotoran visual.
+
+**LULUS.**
+
+---
+
+### Aksesibilitas dan pergeseran tata letak · `UI-11`
+
+```json
+{
+  "adaCD": false,
+  "jumlahImg": 2,
+  "imgTanpaAlt": 0,
+  "imgAriaHidden": true,
+  "imgAdaDimensi": true,
+  "penandaPengirimAda": true
+}
+```
+
+Keduanya punya `alt` (nilainya kosong, bukan atributnya hilang), keduanya `aria-hidden="true"`,
+dan keduanya memuat `width` serta `height` sehingga browser memesan ruang sebelum gambar
+termuat.
+
+**LULUS.**
+
+---
+
+### Permintaan jaringan dan console
+
+```
+1. [GET] http://localhost:3000/           => [200] OK
+2. [GET] http://localhost:3000/style.css  => [200] OK
+3. [GET] http://localhost:3000/avatar.png => [200] OK
+4. [GET] http://localhost:3000/script.js  => [200] OK
+```
+
+```bash
+curl -s -o /dev/null -w '%{http_code} (%{size_download} byte, %{content_type})' \
+  http://localhost:3000/avatar.png
+```
+
+```
+200 (1398 byte, image/png)
+```
+
+Bertambah dari tiga menjadi **empat** permintaan. Dua kemunculan avatar memakai satu `src`,
+sehingga hanya satu permintaan.
+
+Console setelah pemuatan bersih: `Total messages: 0 (Errors: 0, Warnings: 0)`.
+
+Dua galat pada uji sebelumnya berasal dari server yang sengaja dimatikan untuk menguji
+pengiriman tanpa kuota — bukti `UI-06` bekerja, bukan cacat.
+
+**LULUS.**
+
+---
+
+### Responsif dan pembesaran · `UI-10`, `UI-11`
+
+```json
+[
+  { "label": "desktop 1280", "avatarBubble": "32x32", "avatarHeader": "32x32", "keduaTermuat": true, "naturalBubble": "64x64", "scrollHorizontalDokumen": 0 },
+  { "label": "ponsel 375",   "avatarBubble": "32x32", "avatarHeader": "32x32", "keduaTermuat": true, "naturalBubble": "64x64", "scrollHorizontalDokumen": 0 },
+  { "label": "zoom 200%",    "avatarBubble": "32x32", "avatarHeader": "32x32", "keduaTermuat": true, "naturalBubble": "64x64", "scrollHorizontalDokumen": 0 }
+]
+```
+
+Ukuran tampil konsisten 32×32px pada ketiga kondisi, nol scroll horizontal.
+
+**LULUS.**
+
+---
+
+### Pemeriksaan sintaks, HTML mentah, dan warna literal
+
+```
+syntax OK
+OK nol HTML mentah
+OK nol warna literal
+```
+
+`appendMessage()` membuat elemen `img` dengan `document.createElement`, bukan string HTML —
+CI job `constraints` tetap lolos.
+
+**LULUS.**
+
+---
+
+## Rekapitulasi Fase J
+
+| Butir | Requirement | Hasil |
+|---|---|---|
+| Berkas 1,37 KB, turun dari 1170 KB | `UI-10`, D-22 | LULUS |
+| RMSE palette 1,42 di bawah ambang 3 | D-22 | LULUS |
+| Warna isian tepat token `#0E7C6B` | `UI-12` | LULUS |
+| Glyph putih vs isian 5,10:1 | `UI-11` | LULUS |
+| Avatar termuat di header dan bubble, 32×32px | `UI-10` | LULUS |
+| Sumber 64×64px untuk layar kerapatan ganda | `UI-10` | LULUS |
+| Avatar bot runtime memakai `img` | `UI-10` | LULUS |
+| Avatar pengguna tetap `span` inisial | `UI-10` | LULUS |
+| Nol teks `CD` tersisa | `UI-10` | LULUS |
+| `alt=""` ada, `aria-hidden="true"` ada | `UI-11` | LULUS |
+| Atribut `width` dan `height` ada | `UI-10` | LULUS |
+| Penanda pengirim teks tetap ada | `UI-11` | LULUS |
+| Ring pemisah hanya pada latar navy 1,85:1 | `UI-11` | LULUS |
+| Empat permintaan jaringan, `avatar.png` 200 | `UI-10` | LULUS |
+| Responsif 375px dan zoom 200% | `UI-10`, `UI-11` | LULUS |
+| Console bersih | — | LULUS |
+| Nol `innerHTML`, nol warna literal | D-07, `UI-12` | LULUS |
+
+**UJI-17 LULUS.** Dengan ini seluruh 17 skenario `docs/USE-CASE-CEKDULU.md` §5 lulus.
+
+### Catatan yang berubah karena Fase J
+
+Audit Fase H mencatat `jumlahImg: 0` sebagai bukti nol berkas gambar. **Angka itu tidak lagi
+berlaku** — sekarang 2, keduanya `avatar.png`. Perubahan ini disengaja dan tercatat sebagai
+D-22; larangan D-20 terhadap logo lembaga tetap berlaku dan tetap terpenuhi, karena avatar
+adalah lambang abstrak buatan sendiri, bukan logo pihak lain.
+
+### Konsumsi kuota Fase J
+
+**Nol permintaan API.**

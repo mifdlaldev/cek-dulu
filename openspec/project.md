@@ -99,9 +99,10 @@ Project-Akhir-Hacktiv8/
 ├── index.js              Backend, 20 requirement
 ├── package.json          4 dependency, ESM
 ├── public/               Frontend, 15 requirement UI
-│   ├── index.html        UI-01, UI-07, UI-08, UI-09, UI-11, UI-13, UI-14, UI-15
-│   ├── script.js         UI-01 s.d. UI-06, UI-11, UI-13, UI-15
-│   └── style.css         UI-01, UI-10, UI-11, UI-12, UI-13, UI-14, UI-15
+│   ├── index.html        UI-01, UI-07 s.d. UI-11, UI-13, UI-14, UI-15
+│   ├── script.js         UI-01 s.d. UI-06, UI-10, UI-11, UI-13, UI-15
+│   ├── style.css         UI-01, UI-10 s.d. UI-15
+│   └── avatar.png        UI-10 — avatar bot 64x64px, 1,37 KB
 ├── .env                  🔒 JANGAN commit, JANGAN tulis nilainya ke output
 ├── .env.example
 ├── .gitignore

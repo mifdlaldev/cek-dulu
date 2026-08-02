@@ -1,8 +1,15 @@
 # PROMPT-AVATAR.md — Prompt Pembuatan Avatar Bot
 
-> **Status berkas ini:** naskah prompt siap tempel untuk generator gambar. Berkas ini
-> **tidak** mengubah kode. Avatar hasil generasi belum dipasang ke `public/`; keputusan
-> memasangnya beserta konsekuensinya dibahas di bagian 6.
+> **Status berkas ini:** naskah prompt siap tempel untuk generator gambar, ditambah catatan
+> hasil pemasangannya.
+>
+> **Avatar sudah dipasang pada 2 Agustus 2026.** Arah yang dipakai adalah **arah A** (perisai
+> dan kaca pembaca), sesuai rekomendasi bagian 3. Berkas sumber pengguna berada di
+> `docs/assets/avatar.png` (1024×1024px), dan hasil olahannya di `public/avatar.png`
+> (64×64px, 1,37 KB). Keputusan: `design.md` D-22 yang mengamandemen D-19. Bukti verifikasi:
+> `docs/QA-REPORT.md` bagian Fase J.
+>
+> Bagian 5 dan 6 di bawah tetap berlaku sebagai rujukan bila avatar diganti lagi.
 >
 > Seluruh nilai warna, ukuran, dan larangan pada prompt ini **diambil dari keputusan yang
 > sudah ada di repositori**, bukan dikarang. Rujukannya dicantumkan per butir di bagian 2.

@@ -45,6 +45,10 @@ const TEKS_MENUNGGU = 'Cek Dulu sedang menyiapkan jawaban';
 const TEKS_TANPA_HASIL = 'Sorry, no response received.';
 const TEKS_GAGAL = 'Failed to get response from server.';
 
+// Berkas avatar bot. Nilai yang sama dipakai HTML statis pada sapaan pembuka dan header
+// panel, sehingga browser memakai satu permintaan jaringan dari cache.
+const AVATAR_BOT = 'avatar.png';
+
 // Selector elemen yang dapat menerima fokus di dalam panel, dipakai oleh focus trap.
 const SELECTOR_FOKUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
@@ -84,12 +88,20 @@ function appendMessage(pengirim, teks) {
   const artikel = document.createElement('article');
   artikel.classList.add('msg', pengirim === 'user' ? 'msg--user' : 'msg--bot');
 
-  // D-19 — avatar dari CSS dan teks, disembunyikan dari screen reader agar peran
-  // tidak dibaca dua kali bersama penanda pengirim di bawahnya.
-  const avatar = document.createElement('span');
+  // Avatar disembunyikan dari screen reader agar peran tidak dibaca dua kali bersama
+  // penanda pengirim di bawahnya. Bot memakai berkas gambar (D-22), pengguna tetap
+  // inisial dari CSS dan teks karena hanya satu huruf.
+  const avatar = pengirim === 'user' ? document.createElement('span') : document.createElement('img');
   avatar.className = 'msg__avatar';
   avatar.setAttribute('aria-hidden', 'true');
-  avatar.textContent = pengirim === 'user' ? 'A' : 'CD';
+  if (pengirim === 'user') {
+    avatar.textContent = 'A';
+  } else {
+    avatar.src = AVATAR_BOT;
+    avatar.alt = '';
+    avatar.width = 64;
+    avatar.height = 64;
+  }
 
   const body = document.createElement('div');
   body.className = 'msg__body';

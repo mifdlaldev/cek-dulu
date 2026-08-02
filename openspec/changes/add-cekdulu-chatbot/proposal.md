@@ -3,11 +3,11 @@
 | Meta | Nilai |
 |---|---|
 | ID change | `add-cekdulu-chatbot` |
-| Status | **Verified** — Fase A sampai E, G, H, dan I selesai, kelima gate lulus, 16/16 skenario lulus. Sisa Fase F |
+| Status | **Verified** — Fase A sampai E, G, H, I, dan J selesai, kelima gate lulus, 17/17 skenario lulus. Sisa Fase F |
 | Tanggal dibuat | 1 Agustus 2026 |
 | Terakhir diperbarui | 1 Agustus 2026 |
 | Kapabilitas tersentuh | `web-server` ✅, `chat-api` ✅, `persona-guardrail` ✅, `chat-ui` ✅ |
-| Progres task | 112 dari 119 (`tasks.md`) |
+| Progres task | 130 dari 137 (`tasks.md`) |
 | Bukti verifikasi | `docs/QA-REPORT.md` |
 
 ---
@@ -145,7 +145,7 @@ Change ini selesai ketika kelima gate `docs/METODOLOGI.md` §5 lewat dengan bukt
 1. Setiap requirement punya sumber tertulis — diperiksa manual dan oleh CI job `traceability`
 2. `node index.js` hidup tanpa error
 3. `curl` positif → `200 { result }`; `curl` negatif → `500 { error }`
-4. 16 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser; **UJI-03 lulus mutlak**;
+4. 17 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser; **UJI-03 lulus mutlak**;
    `UI-11` diverifikasi lewat navigasi keyboard, kontras, pembesaran 200%, dan
    `prefers-reduced-motion`
 5. `.env` tidak ter-track, tidak ada dependency di luar 4 yang diizinkan, tidak ada

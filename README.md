@@ -5,7 +5,7 @@
 # Cek Dulu — Chatbot Edukasi Kewaspadaan Keuangan Digital
 
 [![CI](https://github.com/mifdlaldev/cek-dulu/actions/workflows/ci.yml/badge.svg)](https://github.com/mifdlaldev/cek-dulu/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-terverifikasi%2016%2F16%20uji-brightgreen)](openspec/changes/add-cekdulu-chatbot/tasks.md)
+[![Status](https://img.shields.io/badge/status-terverifikasi%2017%2F17%20uji-brightgreen)](openspec/changes/add-cekdulu-chatbot/tasks.md)
 [![Requirement](https://img.shields.io/badge/requirement-35%20tertelusur-brightgreen)](openspec/changes/add-cekdulu-chatbot/design.md)
 [![Gate](https://img.shields.io/badge/5%20gate%20verifikasi-lulus-brightgreen)](docs/QA-REPORT.md)
 [![Aksesibilitas](https://img.shields.io/badge/WCAG%202.1-AA%20terverifikasi-blue)](docs/QA-REPORT.md)
@@ -73,15 +73,16 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | G | Redesain antarmuka pola widget | ✅ **Selesai — 14/14 skenario lulus** |
 | H | Landing page sembilan section (`UI-14`) | ✅ **Selesai — UJI-15 lulus** |
 | I | Komposer multi-baris, blok saran, nota (`UI-01`, `UI-15`) | ✅ **Selesai — UJI-16 lulus** |
+| J | Avatar bot berupa berkas gambar (`UI-10`) | ✅ **Selesai — UJI-17 lulus** |
 | F | Screenshot UI + submit ke form | ⬜ Belum |
 
-Progres task: **112 dari 119** selesai (`tasks.md`).
+Progres task: **130 dari 137** selesai (`tasks.md`).
 
 Aplikasi berjalan utuh dan **seluruh gate verifikasi terpenuhi**: buka
 `http://localhost:3000/`, gulir landing page, lalu klik tombol **Cek Dulu** di sudut kanan
-bawah untuk mengirim pesan. Enam belas skenario uji dijalankan di browser sungguhan, termasuk
+bawah untuk mengirim pesan. Tujuh belas skenario uji dijalankan di browser sungguhan, termasuk
 `PG-03` yang melarang bot menilai legalitas entitas, `UI-13` untuk pola dialog, `UI-14` untuk
-landing page, dan `UI-01` untuk komposer multi-baris.
+landing page, `UI-01` untuk komposer multi-baris, dan `UI-10` untuk avatar.
 
 Section "Social Proof" pada pola landing page konvensional diganti **"Data & Sumber"** berisi
 angka lembaga resmi bersitasi. Alasannya aplikasi ini belum punya pengguna — mengarang
@@ -107,8 +108,8 @@ openspec/
 ├── specs/                         # Spec aktif (terisi setelah implementasi diarsipkan)
 └── changes/add-cekdulu-chatbot/
     ├── proposal.md                # WHY: masalah, scope, 19 non-goals
-    ├── design.md                  # HOW: 21 keputusan + alternatif ditolak + matriks sumber
-    ├── tasks.md                   # STEPS: 119 task dalam 9 fase
+    ├── design.md                  # HOW: 22 keputusan + alternatif ditolak + matriks sumber
+    ├── tasks.md                   # STEPS: 137 task dalam 10 fase
     └── specs/
         ├── web-server/spec.md     # WS-01 … WS-05
         ├── chat-api/spec.md       # API-01 … API-06
@@ -169,6 +170,7 @@ Jawaban siap pakai untuk kedua pertanyaan wajib: `docs/USE-CASE-CEKDULU.md` §2.
 | Frontend | Vanilla JS (HTML + CSS + JS) di folder `public/` |
 | Pola antarmuka | Launcher sudut kanan bawah + panel dialog non-modal |
 | Kolom pesan | `<textarea>` auto-grow ⚠️ menyimpang dari materi — lihat catatan di bawah |
+| Avatar bot | `public/avatar.png` 64×64px, 1,37 KB, palet `UI-12` |
 | Port | 3000 |
 | Parameter | `temperature: 0.3`, `topP: 0.8`, `topK: 30` |
 | Tipe fungsi | JSDoc — kontrak terdokumentasi tanpa TypeScript |
@@ -241,7 +243,8 @@ Project-Akhir-Hacktiv8/
 ├── public/                   Frontend — 15 requirement UI
 │   ├── index.html            Landing page 9 section, launcher, panel dialog
 │   ├── script.js             Buka/tutup panel, focus trap, komposer multi-baris
-│   └── style.css             Design token light mode, launcher, panel, komposer
+│   ├── style.css             Design token light mode, launcher, panel, komposer
+│   └── avatar.png            Avatar bot 64×64px, 1,37 KB
 ├── .env                      🔒 Tidak di-commit
 ├── .env.example
 ├── .gitignore
@@ -372,7 +375,7 @@ Role valid: `"user"` dan `"model"`.
 | [`openspec/project.md`](openspec/project.md) | Batasan stack & aturan yang selalu berlaku |
 | [`openspec/changes/add-cekdulu-chatbot/proposal.md`](openspec/changes/add-cekdulu-chatbot/proposal.md) | Scope & non-goals |
 | [`openspec/changes/add-cekdulu-chatbot/design.md`](openspec/changes/add-cekdulu-chatbot/design.md) | Keputusan teknis + alternatif ditolak + matriks sumber |
-| [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 119 task dalam 9 fase |
+| [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 137 task dalam 10 fase |
 
 **Referensi materi:**
 
@@ -389,7 +392,7 @@ Role valid: `"user"` dan `"model"`.
 
 | File | Isi |
 |---|---|
-| [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) | Persona, guardrail, naskah `systemInstruction`, 16 skenario uji |
+| [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) | Persona, guardrail, naskah `systemInstruction`, 17 skenario uji |
 | [`docs/RISET-LAPANGAN.md`](docs/RISET-LAPANGAN.md) | Data eksternal + sitasi URL resmi |
 | [`docs/RISET-DESAIN.md`](docs/RISET-DESAIN.md) | **Riset pola widget, palet warna, landing page, komposer multi-baris** + sitasi URL |
 | [`docs/PROMPT-AVATAR.md`](docs/PROMPT-AVATAR.md) | Prompt pembuatan avatar bot + batasan dan cara mengujinya |

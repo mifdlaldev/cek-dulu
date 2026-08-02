@@ -202,7 +202,7 @@ tidak sebanding dengan risiko menyebarkan angka kedaluwarsa.
 
 ### D-10 — Verifikasi manual terdokumentasi, tanpa test framework
 
-**Keputusan:** 16 skenario uji ditulis dengan ID, input, dan ekspektasi. Dijalankan manual.
+**Keputusan:** 17 skenario uji ditulis dengan ID, input, dan ekspektasi. Dijalankan manual.
 Tidak ada Jest/Vitest/Supertest.
 
 **Alasan:** materi tidak membahas test framework, dan `package.json` di slide (S2 p.31,
@@ -861,6 +861,95 @@ diamandemen pada bagian ukuran teks nota.
 
 ---
 
+### D-22 — Avatar bot berupa berkas gambar, mengamandemen D-19
+
+**Keputusan:** avatar bot berganti dari inisial `CD` menjadi berkas gambar
+`public/avatar.png` — lingkaran deep teal berisi perisai dengan kaca pembaca. Avatar pengguna
+**tetap** inisial dari CSS dan teks.
+
+**Ini membalik satu larangan D-19**, yang menyatakan "Ditolak: avatar berupa berkas gambar atau
+emoji robot" dengan alasan berkas gambar menambah permintaan jaringan. Larangan itu dibuat
+sebelum ada gambar konkret untuk dinilai; sekarang ada, dan biayanya terukur.
+
+**Alasan mengamandemen.** Inisial `CD` berfungsi tetapi tidak menyampaikan peran. Pengguna yang
+baru membuka panel melihat dua huruf tanpa petunjuk bahwa yang dihadapinya adalah asisten yang
+memeriksa risiko. Gambar perisai dengan kaca pembaca menyampaikan "memeriksa" dan "melindungi"
+tanpa satu kata pun — dan bentuknya melanjutkan bahasa visual ikon launcher serta favicon yang
+sudah memakai perisai dengan kaca pembaca.
+
+Arah visual ini persis yang direkomendasikan `docs/PROMPT-AVATAR.md` bagian 3 sebagai arah A,
+dan alasannya sama: melanjutkan bahasa visual yang sudah ada, bukan memperkenalkan yang baru.
+
+**Biaya yang diterima, dengan angka.** Sumber 1024×1024px berukuran 1170 KB — terlalu besar
+untuk di-commit apa adanya. Yang dipasang adalah hasil olahan:
+
+| Langkah | Hasil |
+|---|---|
+| Potong ke bounding box lingkaran, jadikan bujur sangkar | 733×733px |
+| Perkecil ke 64×64px (dua kali ukuran tampil 32px) | 5,9 KB RGBA |
+| Konversi ke palette 64 warna | **1,37 KB** |
+
+Penurunan dari 1170 KB ke 1,37 KB, yaitu **0,12% ukuran asli**. RMSE palette terhadap RGBA
+terukur 1,42 — di bawah 3, yang berarti tidak terlihat mata. Permintaan jaringan bertambah dari
+tiga menjadi empat, dan keduanya dipakai bersama satu `src` sehingga browser memakai cache untuk
+kemunculan kedua.
+
+Ukuran 64px dipilih, bukan 32px, agar tetap tajam pada layar kerapatan ganda. Ukuran 128px
+diukur 16,9 KB — dua belas kali lebih besar untuk ketajaman yang tidak terlihat pada 32px.
+
+**Penyelarasan warna ke palet.** Isian lingkaran pada berkas sumber adalah `#007F8F`, sedangkan
+token `--warna-aksen` adalah `#0E7C6B`. Selisihnya nyata pada kanal biru (36 poin), dan
+membiarkannya berarti halaman memakai dua teal berbeda — melanggar `UI-12` yang mewajibkan
+seluruh nilai visual bersumber dari token.
+
+Karena itu 3.185 piksel teal diselaraskan ke `#0E7C6B` dengan mempertahankan rasio kecerahan
+aslinya, sehingga antialias tepi tetap halus. Glyph putih dan kanal alpha tidak disentuh.
+
+Rasio kontras glyph putih terhadap isian aksen terukur **5,10:1** — di atas ambang 3:1 untuk
+objek grafis (WCAG 1.4.11), dan kebetulan sama dengan pasangan yang sudah terukur pada Fase H.
+
+**Keputusan turunan — ring pemisah hanya di header.** Lingkaran aksen terhadap latar header navy
+terukur **1,85:1**; tepinya melebur. Terhadap latar bubble bot terukur **4,54:1**, cukup jelas.
+Karena itu `box-shadow` putih 1px dipasang **hanya** pada `.panel__avatar`, tidak pada
+`.msg__avatar`. Putih terhadap navy terukur 9,45:1.
+
+Menambahkan ring di kedua tempat akan menghasilkan garis putih yang tak berguna di dalam bubble
+terang, dan itu kotoran visual tanpa manfaat.
+
+**Mengapa avatar pengguna tidak diganti.** Avatar pengguna hanya berisi satu inisial `A`. Gambar
+untuk satu huruf berarti permintaan jaringan tambahan tanpa informasi tambahan.
+
+**Aksesibilitas tidak berubah.** Keduanya tetap `aria-hidden="true"` dengan `alt=""`, dan
+penanda pengirim berupa teks (`.msg__who`) tetap ada — `UI-11` melarang informasi disampaikan
+hanya lewat elemen visual. Atribut `alt` sengaja **kosong, bukan dihilangkan**: atribut kosong
+menandai gambar dekoratif, sedangkan yang hilang membuat screen reader membacakan nama berkas.
+
+Atribut `width` dan `height` dipasang agar browser memesan ruang sebelum gambar termuat,
+mencegah pergeseran tata letak.
+
+**Ditolak: menanam gambar sebagai data URI.** Menghapus permintaan jaringan, tetapi base64
+menambah 33% ukuran (1,37 KB menjadi 1,8 KB) dan menyisipkannya ke `script.js` lewat string
+membuat berkas sulit dibaca. Untuk 1,37 KB, satu permintaan yang dapat di-cache lebih baik
+daripada muatan yang diulang di dua tempat.
+
+**Ditolak: memasang berkas 1024px apa adanya dengan penyesuaian CSS.** 1170 KB untuk elemen
+32px adalah pemborosan 850 kali. Browser juga harus men-dekode gambar 1 megapiksel untuk
+menampilkan 1.024 piksel.
+
+**Ditolak: menggambar ulang sebagai SVG inline.** Nol permintaan jaringan dan itu jalur yang
+disarankan `docs/PROMPT-AVATAR.md` bagian 6. Ditolak karena menggambar ulang bentuk secara
+manual berisiko menyimpang dari gambar yang sudah disetujui pengguna, dan menanam SVG lewat
+JavaScript menuntut `createElementNS` — CI job `constraints` menolak `innerHTML`. Kerumitan itu
+tidak sepadan untuk penghematan 1,37 KB.
+
+**Ditolak: menyimpan avatar di `docs/assets/`.** Berkas yang disajikan browser harus berada di
+bawah `public/`, karena `express.static` hanya menyajikan direktori itu (`WS-03`). Berkas sumber
+1024px tetap tinggal di `docs/assets/avatar.png` sebagai arsip.
+
+`UI-10` diamandemen untuk requirement ini. `UJI-17` ditambahkan.
+
+---
+
 ## 3. Matriks keterlacakan requirement → sumber
 
 | Req | Isi singkat | Sumber |
@@ -894,7 +983,7 @@ diamandemen pada bagian ukuran teks nota.
 | `UI-07` | Sapaan pembuka statis | S2 p.67 (pola batch lalu) |
 | `UI-08` | Disclaimer permanen | S2 p.67; S1 p.99 (Transparansi); penempatan diamandemen D-20 |
 | `UI-09` | Kanal resmi statis | `RISET-LAPANGAN.md` §7; penempatan diamandemen D-20 |
-| `UI-10` | Pembeda peran, scroll, responsif | S3 p.10, p.14, p.34 |
+| `UI-10` | Pembeda peran, avatar gambar, scroll, responsif | S3 p.10, p.14, p.34; avatar diamandemen D-22 ⚠️ mengamandemen D-19 |
 | `UI-11` | Aksesibilitas — ARIA live, fokus, kontras, reduced-motion, pola dialog | S1 p.99 (Keadilan) + D-13; pola dialog dari D-18 ⚠️ interpretasi |
 | `UI-12` | Design token + light mode navy dan deep teal | S3 p.34 + D-12, `RISET-DESAIN.md` §3 ⚠️ interpretasi |
 | `UI-13` | Launcher dan panel dialog | `RISET-DESAIN.md` §1–2 + D-18 ⚠️ di luar materi |
@@ -936,10 +1025,11 @@ Sisanya merujuk nomor halaman langsung.
 | UJI-14 | `UI-13`, `UI-11` |
 | UJI-15 | `UI-14`, `UI-11` |
 | UJI-16 | `UI-01`, `UI-15`, `UI-11` |
+| UJI-17 | `UI-10`, `UI-11` |
 
-Requirement yang diverifikasi lewat gate lain (bukan 16 skenario UI):
+Requirement yang diverifikasi lewat gate lain (bukan 17 skenario UI):
 `WS-01` s.d. `WS-05` → Gate 2; `API-01`, `API-04`, `API-05` → Gate 3;
-`PG-01`, `PG-02`, `PG-09`, `UI-08`, `UI-09`, `UI-10`, `UI-12` → inspeksi kode & halaman;
+`PG-01`, `PG-02`, `PG-09`, `UI-08`, `UI-09`, `UI-12` → inspeksi kode & halaman;
 `PG-07` → uji ad-hoc saat Gate 4.
 
 Sebagian `PG-09`, `UI-12` (larangan `innerHTML`), dan kebersihan dependency juga dijaga

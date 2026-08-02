@@ -786,17 +786,19 @@ main {
   color: var(--warna-teks-invers);
 }
 
+/* D-19, amandemen D-22 — avatar berupa berkas PNG 64x64 dengan lingkaran teal dan glyph
+   perisai serta kaca pembaca sudah menyatu di dalam gambar. Latar dan radius CSS tidak lagi
+   diperlukan, tetapi ukuran tampil tetap dikunci --ukuran-avatar agar konsisten dengan
+   bubble. aria-hidden diterapkan di HTML karena peran pengirim sudah disampaikan .msg__who.
+
+   Ring pemisah dipakai hanya di header: lingkaran aksen terukur 1,85:1 terhadap latar navy
+   sehingga tepinya melebur. Di dalam bubble bot rasionya 4,54:1 dan ring tidak dibutuhkan. */
 .panel__avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: var(--ukuran-avatar);
   height: var(--ukuran-avatar);
   flex: 0 0 auto;
-  background-color: var(--warna-aksen);
   border-radius: var(--radius-penuh);
-  font-size: var(--teks-mikro);
-  font-weight: var(--tebal-tegas);
+  box-shadow: 0 0 0 1px var(--warna-teks-invers);
 }
 
 .panel__identity {
@@ -867,8 +869,9 @@ main {
   flex-direction: row-reverse;
 }
 
-/* D-19 — avatar bot dari CSS dan teks, bukan berkas gambar. aria-hidden diterapkan
-   di HTML agar screen reader tidak membacanya dua kali. */
+/* Avatar bot memakai berkas gambar; avatar pengguna tetap dari CSS dan teks karena hanya
+   berupa satu inisial. Modifier --gambar mematikan latar dan radius yang tidak lagi
+   dibutuhkan. Keputusan: design.md D-22, amandemen D-19. */
 .msg__avatar {
   display: flex;
   align-items: center;
@@ -881,6 +884,12 @@ main {
   border-radius: var(--radius-penuh);
   font-size: var(--teks-mikro);
   font-weight: var(--tebal-tegas);
+}
+
+img.msg__avatar {
+  display: block;
+  background-color: transparent;
+  border-radius: 0;
 }
 
 .msg__body {

@@ -464,16 +464,28 @@ Sumber data WAJIB dicantumkan agar bisa diaudit ulang.
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S3 p.10 & p.14 (screenshot tampilan target), S3 p.34 (`style.css` mengatur tampilan); batas lebar bubble dari `docs/RISET-DESAIN.md` §1 |
-| Berkas | `public/style.css` |
+| Sumber | S3 p.10 & p.14 (screenshot tampilan target), S3 p.34 (`style.css` mengatur tampilan); batas lebar bubble dari `docs/RISET-DESAIN.md` §1; bentuk avatar diamandemen `design.md` D-22 |
+| Berkas | `public/style.css`, `public/index.html`, `public/script.js`, `public/avatar.png` |
+| Uji | UJI-17 |
 
 Tampilan WAJIB memenuhi:
 
 - Pesan pengguna dan pesan bot **dapat dibedakan secara visual** (posisi dan/atau warna).
   Pada starter code S3 p.10: bubble pengguna rata kanan, bubble bot rata kiri.
-- Setiap bubble bot didahului **avatar** berbentuk lingkaran (`design.md` D-19). Avatar dibuat
-  dari CSS dan teks, bukan berkas gambar, dan memakai `aria-hidden="true"` agar tidak dibaca
-  ganda oleh screen reader.
+- Setiap bubble bot didahului **avatar** berbentuk lingkaran (`design.md` D-19, diamandemen
+  D-22). Avatar bot berupa **berkas gambar** `public/avatar.png`; avatar pengguna tetap dibuat
+  dari CSS dan teks karena hanya berisi satu inisial. Keduanya memakai `aria-hidden="true"`
+  agar tidak dibaca ganda oleh screen reader.
+- Berkas avatar WAJIB memenuhi: ukuran sumber **64×64px** (dua kali ukuran tampil 32px agar
+  tajam pada layar kerapatan ganda), ukuran berkas **di bawah 5 KB**, dan hanya memakai warna
+  dari palet `UI-12`.
+- Elemen `<img>` avatar WAJIB memuat atribut `width` dan `height` agar browser memesan ruang
+  sebelum gambar termuat, sehingga tidak terjadi pergeseran tata letak.
+- Elemen `<img>` avatar WAJIB memakai `alt=""`, bukan `alt` yang dihilangkan — atribut kosong
+  menandai gambar dekoratif, sedangkan atribut yang hilang membuat screen reader membacakan
+  nama berkas.
+- Lingkaran avatar pada latar yang kontrasnya di bawah 3:1 WAJIB diberi pemisah tepi, karena
+  tanpanya bentuk lingkaran melebur ke latar.
 - Lebar bubble maksimal **320px** pada desktop dan **85%** lebar panel pada layar sempit.
   Clutch menyebut rentang 280–320px sebagai batas keterbacaan.
 - `#chat-box` memiliki tinggi terbatas dengan scroll vertikal.
@@ -484,6 +496,34 @@ Tampilan WAJIB memenuhi:
 
 Styling ditulis dengan CSS biasa. **DILARANG** memakai framework CSS via CDN atau
 dependency baru — materi menetapkan Vanilla (S3 p.34).
+
+#### Scenario: avatar bot berupa gambar yang termuat
+- **Given** panel dialog terbuka
+- **When** bubble bot diperiksa
+- **Then** avatarnya adalah elemen `img` dengan `src` menunjuk `avatar.png`
+- **And** gambar berhasil termuat
+- **And** ukuran tampilnya 32×32px
+
+#### Scenario: avatar pengguna tetap inisial
+- **Given** pengguna sudah mengirim satu pesan
+- **When** bubble pengguna diperiksa
+- **Then** avatarnya adalah elemen `span` berisi teks inisial
+- **And** bukan elemen `img`
+
+#### Scenario: avatar tidak dibaca screen reader
+- **When** kedua avatar diperiksa
+- **Then** keduanya memiliki `aria-hidden="true"`
+- **And** keduanya memiliki `alt=""`
+- **And** penanda pengirim berupa teks tetap ada pada setiap bubble
+
+#### Scenario: avatar tidak menggeser tata letak
+- **When** elemen `img` avatar diperiksa
+- **Then** atribut `width` dan `height` ada
+- **And** tidak ada scroll horizontal pada dokumen
+
+#### Scenario: lingkaran avatar terlihat pada latar navy
+- **When** avatar pada header panel diperiksa
+- **Then** ada pemisah tepi yang membedakan lingkaran dari latar header
 
 #### Scenario: pesan panjang tetap rapi
 - **Given** bot mengembalikan jawaban panjang dengan beberapa poin

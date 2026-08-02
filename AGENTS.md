@@ -33,9 +33,9 @@ tapi berdasarkan requirement ber-ID yang punya sumber tertulis.
 
 Cara kerja lengkap + 5 gate verifikasi → `docs/METODOLOGI.md`.
 
-**Progres saat ini: Fase A sampai E, G, H, dan I selesai; kelima gate verifikasi LULUS.**
+**Progres saat ini: Fase A sampai E, G, H, I, dan J selesai; kelima gate verifikasi LULUS.**
 Backend `index.js` dan frontend `public/` sudah diimplementasikan dan diverifikasi di browser
-nyata — 112 dari 119 task tuntas, dan **16 dari 16 skenario uji lulus**. Antarmuka memakai
+nyata — 130 dari 137 task tuntas, dan **17 dari 17 skenario uji lulus**. Antarmuka memakai
 landing page sembilan section ditambah launcher dan panel dialog dengan palet light mode;
 riset dan sitasinya di `docs/RISET-DESAIN.md`.
 
@@ -109,7 +109,7 @@ Lima gate `docs/METODOLOGI.md` §5, semuanya wajib dengan **bukti output nyata**
 1. **Keterlacakan** — setiap requirement punya sumber tertulis.
 2. **Server hidup** — `node index.js` jalan, log muncul, tempel outputnya.
 3. **Kontrak API** — `curl` positif → `200 {result}`; `curl` negatif → `500 {error}`.
-4. **Guardrail & UI** — 16 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser
+4. **Guardrail & UI** — 17 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser
    sungguhan; **UJI-03 lulus mutlak**. Termasuk verifikasi aksesibilitas `UI-11`.
 5. **Kebersihan repo** — `.env` tidak ter-track, hanya 4 dependency, tanpa `devDependencies`,
    tidak ada file temporer.
@@ -224,7 +224,7 @@ Ini bukan inkonsistensi di dalam materi, tetapi **materi versus kondisi API aktu
 | `docs/MATERI-SESI-3.md` | Ringkasan lengkap Sesi 3 |
 | `docs/TOOLS-DAN-LINK.md` | Daftar tools, versi, dan semua URL dari PDF |
 | `docs/FINAL-PROJECT.md` | Requirement + kriteria submit final project |
-| `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 16 skenario uji |
+| `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 17 skenario uji |
 | `docs/RISET-LAPANGAN.md` | Data eksternal + sitasi URL resmi |
 | `docs/RISET-DESAIN.md` | Riset pola widget, palet warna, landing page, komposer + sitasi URL |
 | `docs/PROMPT-AVATAR.md` | Prompt pembuatan avatar bot + batasan dan cara ujinya |
