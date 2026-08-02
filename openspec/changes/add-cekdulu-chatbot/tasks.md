@@ -2,7 +2,7 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 130 dari 137 task selesai.** Fase A sampai E, G, H, I, dan J tuntas — kelima gate
+**Progres: 134 dari 141 task selesai.** Fase A sampai E, G, H, I, dan J tuntas — kelima gate
 verifikasi LULUS dan **17 dari 17 skenario uji lulus**. Fase G menambahkan pola widget setelah
 kritik bahwa desain awal terbaca sebagai formulir; Fase H menambahkan landing page sembilan
 section; Fase I mengubah komposer menjadi multi-baris dan memberi tombol tutup pada blok saran;
@@ -22,7 +22,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 | G | Redesain antarmuka pola widget | 20/20 | ✅ Selesai — 14/14 skenario lulus |
 | H | Landing page sembilan section | 19/19 | ✅ Selesai — UJI-15 lulus |
 | I | Komposer multi-baris, blok saran, nota | 21/21 | ✅ Selesai — UJI-16 lulus |
-| J | Avatar bot berupa berkas gambar | 18/18 | ✅ Selesai — UJI-17 lulus |
+| J | Avatar bot berupa berkas gambar | 22/22 | ✅ Selesai — UJI-17 lulus, varian header D-23 |
 | F | Persiapan submit | 0/7 | ⬜ Belum |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
@@ -836,6 +836,26 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
   skenario, keputusan, dan klaim "nol berkas gambar"
   → expect nol klaim basi
 
+- [x] **J19.** Tindak lanjut: glyph avatar hilang pada header navy. Periksa berkas sumber untuk
+  menemukan akar masalah sebelum mengubah apa pun
+  → expect penyebab terbukti dari data, bukan dugaan
+  · Ref: `UI-10`, `UI-11`, D-23
+
+- [x] **J20.** Buat varian `public/avatar-header.png` berisian putih dengan glyph teal; isi
+  lubang transparan glyph, kembalikan alpha tepi lingkaran agar tetap halus
+  → expect isian terhadap navy dan glyph terhadap isian keduanya minimal 3:1
+  · Ref: `UI-10`, `UI-11`, D-23
+
+- [x] **J21.** `public/index.html` dan `public/style.css`: header memakai varian baru; hapus
+  ring `box-shadow` yang tidak lagi berfungsi
+  → expect bubble bot tetap memakai varian teal
+  · Ref: `UI-10`, `UI-12`, D-23
+
+- [x] **J22.** Verifikasi terbatas atas permintaan pengguna — tanpa Playwright: pemeriksaan
+  berkas, pengukuran kontras, `node --check`, larangan `innerHTML`, warna literal, dan `curl`
+  → expect kedua berkas tersaji 200 dan `src` menunjuk berkas yang benar
+  · Ref: `docs/METODOLOGI.md` §5; penilaian visual akhir oleh pengguna
+
 ---
 
 ## Ringkasan urutan
@@ -852,8 +872,8 @@ Kalau `PG-03` gagal, memperbaikinya lebih murah saat frontend belum ada.
 
 Alasan G, H, I, dan J sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
 
-**Total: 10 fase, 137 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19,
-I: 21, J: 18, F: 7.
+**Total: 10 fase, 141 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19,
+I: 21, J: 22, F: 7.
 
 CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push: validasi sintaks,
 kebersihan repo, batasan dependency, audit `systemInstruction` terhadap `PG-09`, dan

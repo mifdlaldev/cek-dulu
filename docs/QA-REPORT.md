@@ -2771,7 +2771,7 @@ CI job `constraints` tetap lolos.
 | `alt=""` ada, `aria-hidden="true"` ada | `UI-11` | LULUS |
 | Atribut `width` dan `height` ada | `UI-10` | LULUS |
 | Penanda pengirim teks tetap ada | `UI-11` | LULUS |
-| Ring pemisah hanya pada latar navy 1,85:1 | `UI-11` | LULUS |
+| Ring pemisah hanya pada latar navy 1,85:1 | `UI-11` | LULUS — ⚠️ digantikan varian berisian putih, lihat **Tindak lanjut Fase J** |
 | Empat permintaan jaringan, `avatar.png` 200 | `UI-10` | LULUS |
 | Responsif 375px dan zoom 200% | `UI-10`, `UI-11` | LULUS |
 | Console bersih | — | LULUS |
@@ -2789,3 +2789,149 @@ adalah lambang abstrak buatan sendiri, bukan logo pihak lain.
 ### Konsumsi kuota Fase J
 
 **Nol permintaan API.**
+
+
+---
+
+## Tindak lanjut Fase J: glyph avatar hilang pada header panel
+
+| Meta | Nilai |
+|---|---|
+| Tanggal | 2 Agustus 2026 |
+| Requirement | `UI-10` diamandemen; keputusan D-23 |
+| Cakupan verifikasi | **Dibatasi atas permintaan pengguna** — tanpa Playwright; penilaian visual akhir dilakukan pengguna langsung di browser |
+| Kuota API terpakai | **0** |
+
+### Masalah yang dilaporkan
+
+Tangkapan layar dari pengguna menunjukkan glyph perisai dan kaca pembaca tidak terlihat pada
+avatar di header panel. Dugaan awal: warna latar bertabrakan.
+
+### Akar masalah — dugaan awal keliru
+
+Pemeriksaan berkas sumber `docs/assets/avatar.png`:
+
+```
+piksel RGB putih (>200 semua kanal): 0 | opak: 0
+piksel alpha<100 di dalam bbox lingkaran: 161983
+```
+
+```
+warna dengan alpha>0, 10 terbanyak — semuanya teal:
+  rgb(0, 126, 143)  #007E8F  13088
+  rgb(0, 127, 143)  #007F8F  12911
+  ...
+total warna berbeda: 2826
+```
+
+**Glyph tidak digambar putih. Glyph adalah lubang transparan.** Tidak ada satu pun piksel RGB
+putih di seluruh berkas; yang ada 161.983 piksel beralpha rendah di dalam bounding box
+lingkaran.
+
+Akibatnya:
+
+| Konteks | Yang tampil di lubang glyph | Rasio |
+|---|---|---|
+| Bubble bot, latar `#EEF2F7` | warna terang → glyph tampak putih | 4,54:1 |
+| Header panel, latar navy `#0E4A6E` | navy → glyph nyaris hilang | **1,85:1** |
+
+Konsekuensi yang menentukan arah perbaikan: **mengganti warna latar lewat CSS tidak akan
+menolong.** Lubang transparan akan tetap menampilkan apa pun yang berada di belakangnya. Yang
+harus diubah adalah isi berkasnya.
+
+### Perbaikan
+
+Mask isian lingkaran dibangun dari batas kiri-kanan piksel beralpha per baris — bentuk
+lingkaran konveks sehingga cara itu memadai. Di dalam mask, alpha sumber dipakai sebagai faktor
+interpolasi: alpha tinggi berarti badan lingkaran dan diisi putih, alpha rendah berarti lubang
+glyph dan diisi teal `#0E7C6B`. Alpha tepi dikembalikan dari mask yang di-resize LANCZOS agar
+tepi lingkaran tetap halus.
+
+```
+piksel isian putih: 361518, piksel glyph teal: 45522
+public/avatar-header.png: 1016 byte = 0.99 KB
+```
+
+Berkas hasil lebih kecil daripada varian teal (1398 byte) karena jumlah warnanya lebih sedikit.
+
+Verifikasi isi berkas:
+
+```
+mode berkas: P | size: (64, 64)
+warna opak, 6 terbanyak:
+  rgb(254, 254, 254)  #FEFEFE  1264 px
+  rgb(10, 121, 103)   #0A7967    49 px
+  rgb(177, 213, 207)  #B1D5CF    30 px
+  rgb(212, 231, 228)  #D4E7E4    29 px
+  rgb(40, 137, 122)   #28897A    26 px
+  rgb(117, 180, 170)  #75B4AA    20 px
+total warna opak berbeda: 22
+sudut kanvas: (0, 0, 0, 0) | pusat: (254, 254, 254, 254)
+```
+
+Isian putih dominan, glyph teal, sisanya antialias di antara keduanya. Sudut kanvas tetap
+transparan.
+
+### Kontras setelah perbaikan
+
+```
+AMBANG WCAG 1.4.11 objek grafis = 3:1
+  glyph teal vs isian putih      : 5.1
+  lingkaran putih vs header navy : 9.45
+```
+
+| Pasangan | Sebelum | Sesudah | Ambang | Verdict |
+|---|---|---|---|---|
+| Lingkaran vs latar header navy | 1,85 | **9,45** | 3,0 | LULUS |
+| Glyph vs isian lingkaran | 1,85 efektif | **5,10** | 3,0 | LULUS |
+
+### Ring pemisah dihapus
+
+D-22 memasang `box-shadow: 0 0 0 1px var(--warna-teks-invers)` pada `.panel__avatar` karena
+lingkaran teal melebur ke navy pada 1,85:1. Dengan isian putih yang sudah 9,45:1, ring itu
+menjadi garis putih di tepi lingkaran putih — tidak berfungsi apa pun, jadi dihapus.
+
+Baris rekapitulasi Fase J "Ring pemisah hanya pada latar navy 1,85:1" **tidak lagi berlaku**;
+digantikan dua baris kontras pada tabel di atas.
+
+### Pemeriksaan yang dijalankan
+
+```bash
+node --check public/script.js
+grep -nE '\.(inner|outer)HTML[[:space:]]*=|insertAdjacentHTML|document\.write' public/script.js
+awk '/^:root/{r=1} r&&/^}/{r=0;next} !r' public/style.css | grep -nE '#[0-9a-fA-F]{3,8}|rgba?\('
+```
+
+```
+syntax OK
+OK nol HTML mentah
+OK nol warna literal
+```
+
+```bash
+curl -s -o /dev/null -w '%{http_code} (%{size_download} byte, %{content_type})' \
+  http://localhost:3000/avatar-header.png
+```
+
+```
+GET /avatar-header.png -> 200 (1016 byte, image/png)
+GET /avatar.png        -> 200 (1398 byte)
+```
+
+HTML menunjuk `src` yang benar pada masing-masing tempat:
+
+```
+493:          class="panel__avatar"
+494:          src="avatar-header.png"
+525:            class="msg__avatar"
+526:            src="avatar.png"
+```
+
+### Batas verifikasi ini
+
+Pengguna meminta verifikasi tidak berlebihan dan tanpa Playwright, dengan penilaian visual
+dilakukan sendiri. Karena itu **tidak dijalankan**: inspeksi DOM di browser, pengukuran
+geometri, uji responsif, uji pembesaran, dan pemeriksaan console. Yang dijalankan hanya
+pemeriksaan berkas, pengukuran kontras dari nilai warna, pemeriksaan statis, dan `curl`.
+
+Pengguna mengonfirmasi hasilnya sudah sesuai setelah melihat langsung di browser.

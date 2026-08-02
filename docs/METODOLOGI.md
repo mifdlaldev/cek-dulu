@@ -74,7 +74,7 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │         openspec/changes/add-cekdulu-chatbot/{proposal,design,   │
 │                                               tasks}.md          │
 │         openspec/changes/add-cekdulu-chatbot/specs/*/spec.md    │
-│ Hasil: 35 requirement, 22 keputusan, 19 non-goals               │
+│ Hasil: 35 requirement, 23 keputusan, 19 non-goals               │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -87,7 +87,7 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │ Fase G redesain pola widget        SELESAI 20/20 task           │
 │ Fase H landing page                SELESAI 19/19 task           │
 │ Fase I komposer multi-baris        SELESAI 21/21 task           │
-│ Fase J avatar gambar               SELESAI 18/18 task           │
+│ Fase J avatar gambar               SELESAI 22/22 task           │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐

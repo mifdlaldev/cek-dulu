@@ -786,19 +786,19 @@ main {
   color: var(--warna-teks-invers);
 }
 
-/* D-19, amandemen D-22 — avatar berupa berkas PNG 64x64 dengan lingkaran teal dan glyph
+/* D-19, amandemen D-22 dan D-23 — avatar berupa berkas PNG 64x64 dengan lingkaran dan glyph
    perisai serta kaca pembaca sudah menyatu di dalam gambar. Latar dan radius CSS tidak lagi
    diperlukan, tetapi ukuran tampil tetap dikunci --ukuran-avatar agar konsisten dengan
    bubble. aria-hidden diterapkan di HTML karena peran pengirim sudah disampaikan .msg__who.
 
-   Ring pemisah dipakai hanya di header: lingkaran aksen terukur 1,85:1 terhadap latar navy
-   sehingga tepinya melebur. Di dalam bubble bot rasionya 4,54:1 dan ring tidak dibutuhkan. */
+   Header memakai varian isian putih (avatar-header.png). Glyph pada berkas sumber digambar
+   sebagai lubang transparan, sehingga di atas header navy glyph menampilkan navy dan hilang
+   pada 1,85:1. Varian putih membalikkannya: isian putih 9,45:1 terhadap navy dan glyph teal
+   5,10:1 terhadap isian. Ring pemisah tidak lagi diperlukan. Keputusan: design.md D-23. */
 .panel__avatar {
   width: var(--ukuran-avatar);
   height: var(--ukuran-avatar);
   flex: 0 0 auto;
-  border-radius: var(--radius-penuh);
-  box-shadow: 0 0 0 1px var(--warna-teks-invers);
 }
 
 .panel__identity {

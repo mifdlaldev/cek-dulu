@@ -464,8 +464,8 @@ Sumber data WAJIB dicantumkan agar bisa diaudit ulang.
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S3 p.10 & p.14 (screenshot tampilan target), S3 p.34 (`style.css` mengatur tampilan); batas lebar bubble dari `docs/RISET-DESAIN.md` §1; bentuk avatar diamandemen `design.md` D-22 |
-| Berkas | `public/style.css`, `public/index.html`, `public/script.js`, `public/avatar.png` |
+| Sumber | S3 p.10 & p.14 (screenshot tampilan target), S3 p.34 (`style.css` mengatur tampilan); batas lebar bubble dari `docs/RISET-DESAIN.md` §1; bentuk avatar diamandemen `design.md` D-22, varian header D-23 |
+| Berkas | `public/style.css`, `public/index.html`, `public/script.js`, `public/avatar.png`, `public/avatar-header.png` |
 | Uji | UJI-17 |
 
 Tampilan WAJIB memenuhi:
@@ -479,13 +479,20 @@ Tampilan WAJIB memenuhi:
 - Berkas avatar WAJIB memenuhi: ukuran sumber **64×64px** (dua kali ukuran tampil 32px agar
   tajam pada layar kerapatan ganda), ukuran berkas **di bawah 5 KB**, dan hanya memakai warna
   dari palet `UI-12`.
+- Avatar memakai **dua varian** karena latar tempatnya berbeda (`design.md` D-23):
+  `avatar.png` berisian teal untuk bubble bot yang berlatar terang, dan `avatar-header.png`
+  berisian putih untuk header panel yang berlatar navy. Isian putih di bubble terang akan
+  melebur, dan isian teal di header navy membuat glyph hilang.
 - Elemen `<img>` avatar WAJIB memuat atribut `width` dan `height` agar browser memesan ruang
   sebelum gambar termuat, sehingga tidak terjadi pergeseran tata letak.
 - Elemen `<img>` avatar WAJIB memakai `alt=""`, bukan `alt` yang dihilangkan — atribut kosong
   menandai gambar dekoratif, sedangkan atribut yang hilang membuat screen reader membacakan
   nama berkas.
-- Lingkaran avatar pada latar yang kontrasnya di bawah 3:1 WAJIB diberi pemisah tepi, karena
-  tanpanya bentuk lingkaran melebur ke latar.
+- Isian lingkaran terhadap latar tempatnya WAJIB memenuhi minimal **3:1**, dan glyph terhadap
+  isian juga minimal **3:1** — ambang WCAG 1.4.11 untuk objek grafis. Bila salah satu tidak
+  terpenuhi, yang diubah adalah **isi berkasnya**, bukan menambah pemisah tepi lewat CSS:
+  glyph pada berkas sumber berupa lubang transparan, sehingga gaya CSS tidak dapat
+  memperbaikinya.
 - Lebar bubble maksimal **320px** pada desktop dan **85%** lebar panel pada layar sempit.
   Clutch menyebut rentang 280–320px sebagai batas keterbacaan.
 - `#chat-box` memiliki tinggi terbatas dengan scroll vertikal.
@@ -521,9 +528,21 @@ dependency baru — materi menetapkan Vanilla (S3 p.34).
 - **Then** atribut `width` dan `height` ada
 - **And** tidak ada scroll horizontal pada dokumen
 
-#### Scenario: lingkaran avatar terlihat pada latar navy
+#### Scenario: avatar header memakai varian berisian putih
 - **When** avatar pada header panel diperiksa
-- **Then** ada pemisah tepi yang membedakan lingkaran dari latar header
+- **Then** `src` menunjuk `avatar-header.png`
+- **And** isian lingkaran berwarna putih
+- **And** glyph berwarna teal dari palet `UI-12`
+
+#### Scenario: avatar bubble memakai varian berisian teal
+- **When** avatar pada bubble bot diperiksa
+- **Then** `src` menunjuk `avatar.png`
+- **And** isian lingkaran berwarna teal
+
+#### Scenario: kedua varian memenuhi ambang objek grafis
+- **When** kontras diukur pada masing-masing latar tempatnya
+- **Then** isian terhadap latar minimal 3:1
+- **And** glyph terhadap isian minimal 3:1
 
 #### Scenario: pesan panjang tetap rapi
 - **Given** bot mengembalikan jawaban panjang dengan beberapa poin

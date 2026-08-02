@@ -102,7 +102,8 @@ Project-Akhir-Hacktiv8/
 │   ├── index.html        UI-01, UI-07 s.d. UI-11, UI-13, UI-14, UI-15
 │   ├── script.js         UI-01 s.d. UI-06, UI-10, UI-11, UI-13, UI-15
 │   ├── style.css         UI-01, UI-10 s.d. UI-15
-│   └── avatar.png        UI-10 — avatar bot 64x64px, 1,37 KB
+│   ├── avatar.png        UI-10 — avatar bubble bot, isian teal
+│   └── avatar-header.png UI-10 — avatar header panel, isian putih
 ├── .env                  🔒 JANGAN commit, JANGAN tulis nilainya ke output
 ├── .env.example
 ├── .gitignore

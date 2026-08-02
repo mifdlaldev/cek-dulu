@@ -76,7 +76,7 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | J | Avatar bot berupa berkas gambar (`UI-10`) | ✅ **Selesai — UJI-17 lulus** |
 | F | Screenshot UI + submit ke form | ⬜ Belum |
 
-Progres task: **130 dari 137** selesai (`tasks.md`).
+Progres task: **134 dari 141** selesai (`tasks.md`).
 
 Aplikasi berjalan utuh dan **seluruh gate verifikasi terpenuhi**: buka
 `http://localhost:3000/`, gulir landing page, lalu klik tombol **Cek Dulu** di sudut kanan
@@ -108,8 +108,8 @@ openspec/
 ├── specs/                         # Spec aktif (terisi setelah implementasi diarsipkan)
 └── changes/add-cekdulu-chatbot/
     ├── proposal.md                # WHY: masalah, scope, 19 non-goals
-    ├── design.md                  # HOW: 22 keputusan + alternatif ditolak + matriks sumber
-    ├── tasks.md                   # STEPS: 137 task dalam 10 fase
+    ├── design.md                  # HOW: 23 keputusan + alternatif ditolak + matriks sumber
+    ├── tasks.md                   # STEPS: 141 task dalam 10 fase
     └── specs/
         ├── web-server/spec.md     # WS-01 … WS-05
         ├── chat-api/spec.md       # API-01 … API-06
@@ -170,7 +170,7 @@ Jawaban siap pakai untuk kedua pertanyaan wajib: `docs/USE-CASE-CEKDULU.md` §2.
 | Frontend | Vanilla JS (HTML + CSS + JS) di folder `public/` |
 | Pola antarmuka | Launcher sudut kanan bawah + panel dialog non-modal |
 | Kolom pesan | `<textarea>` auto-grow ⚠️ menyimpang dari materi — lihat catatan di bawah |
-| Avatar bot | `public/avatar.png` 64×64px, 1,37 KB, palet `UI-12` |
+| Avatar bot | `avatar.png` (bubble, isian teal) + `avatar-header.png` (header, isian putih), 64×64px, palet `UI-12` |
 | Port | 3000 |
 | Parameter | `temperature: 0.3`, `topP: 0.8`, `topK: 30` |
 | Tipe fungsi | JSDoc — kontrak terdokumentasi tanpa TypeScript |
@@ -244,7 +244,8 @@ Project-Akhir-Hacktiv8/
 │   ├── index.html            Landing page 9 section, launcher, panel dialog
 │   ├── script.js             Buka/tutup panel, focus trap, komposer multi-baris
 │   ├── style.css             Design token light mode, launcher, panel, komposer
-│   └── avatar.png            Avatar bot 64×64px, 1,37 KB
+│   ├── avatar.png            Avatar bubble bot, isian teal, 1,37 KB
+│   └── avatar-header.png     Avatar header panel, isian putih, 0,99 KB
 ├── .env                      🔒 Tidak di-commit
 ├── .env.example
 ├── .gitignore
@@ -375,7 +376,7 @@ Role valid: `"user"` dan `"model"`.
 | [`openspec/project.md`](openspec/project.md) | Batasan stack & aturan yang selalu berlaku |
 | [`openspec/changes/add-cekdulu-chatbot/proposal.md`](openspec/changes/add-cekdulu-chatbot/proposal.md) | Scope & non-goals |
 | [`openspec/changes/add-cekdulu-chatbot/design.md`](openspec/changes/add-cekdulu-chatbot/design.md) | Keputusan teknis + alternatif ditolak + matriks sumber |
-| [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 137 task dalam 10 fase |
+| [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 141 task dalam 10 fase |
 
 **Referensi materi:**
 

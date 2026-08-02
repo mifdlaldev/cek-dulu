@@ -950,6 +950,78 @@ bawah `public/`, karena `express.static` hanya menyajikan direktori itu (`WS-03`
 
 ---
 
+### D-23 — Varian avatar berisian putih untuk header panel
+
+**Keputusan:** header panel memakai berkas terpisah `public/avatar-header.png` dengan isian
+**putih** dan glyph **teal** `#0E7C6B`. Bubble bot tetap memakai `public/avatar.png` yang
+isiannya teal. Ring pemisah `box-shadow` yang dipasang D-22 dihapus.
+
+**Masalah yang dilaporkan.** Pada header panel, glyph perisai dan kaca pembaca tidak terlihat.
+Dugaan awal adalah warna latar yang bertabrakan.
+
+**Akar masalah sebenarnya, dari pemeriksaan berkas.** Dugaan itu keliru. Pemeriksaan berkas
+sumber menunjukkan:
+
+```
+piksel RGB putih (>200 semua kanal): 0
+piksel alpha<100 di dalam bbox lingkaran: 161983
+```
+
+**Glyph tidak digambar putih — glyph adalah lubang transparan.** Di dalam bubble bot yang
+latarnya terang (`--warna-bubble-bot` `#EEF2F7`), lubang itu menampilkan warna terang sehingga
+glyph tampak putih. Di header navy, lubang yang sama menampilkan navy — dan navy terhadap teal
+terukur **1,85:1**, jauh di bawah ambang 3:1 untuk objek grafis (WCAG 1.4.11).
+
+Konsekuensinya penting: **mengganti warna latar CSS tidak akan menolong.** Lubang transparan
+akan tetap menampilkan apa pun yang berada di belakangnya. Yang perlu diubah adalah isi
+berkasnya, bukan gayanya.
+
+**Yang dikerjakan.** Mask isian lingkaran dibangun dari batas kiri-kanan per baris — bentuk
+lingkaran konveks, sehingga cara itu cukup. Di dalam mask, alpha sumber dipakai sebagai faktor
+interpolasi: alpha tinggi berarti badan lingkaran dan diisi putih, alpha rendah berarti lubang
+glyph dan diisi teal. Alpha tepi lingkaran dikembalikan dari mask yang di-resize LANCZOS agar
+tepinya tetap halus, bukan bergerigi.
+
+Hasil: 361.518 piksel isian putih, 45.522 piksel glyph teal, berkas **1016 byte (0,99 KB)** —
+lebih kecil daripada varian teal karena warnanya lebih sedikit.
+
+| Pasangan | Sebelum | Sesudah | Ambang 1.4.11 |
+|---|---|---|---|
+| Lingkaran vs latar header navy | 1,85 | **9,45** | 3:1 |
+| Glyph vs isian lingkaran | 1,85 efektif | **5,10** | 3:1 |
+
+**Ring pemisah dihapus.** D-22 memasang `box-shadow` putih 1px karena lingkaran teal melebur ke
+navy pada 1,85:1. Dengan isian putih yang sudah 9,45:1, ring itu menjadi garis putih di tepi
+lingkaran putih — tidak berfungsi apa pun.
+
+**Mengapa dua berkas, bukan satu.** Bubble bot berlatar terang; isian putih di sana akan
+melebur (putih vs `#EEF2F7` hanya 1,08:1) dan hanya menyisakan glyph mengambang tanpa bentuk
+lingkaran. Kedua konteks memang menuntut isian yang berbeda. Biaya tambahannya 1016 byte dan
+satu permintaan jaringan yang dapat di-cache.
+
+**Ditolak: memakai satu berkas berisian putih untuk keduanya.** Melebur di bubble terang,
+seperti dijelaskan di atas.
+
+**Ditolak: menambah lingkaran latar lewat CSS pada avatar bubble.** Mengembalikan latar CSS
+yang sudah dilepas D-22, dan menghasilkan dua sumber kebenaran untuk bentuk yang sama — satu di
+berkas, satu di CSS.
+
+**Ditolak: mengubah warna latar header agar cocok dengan avatar lama.** Latar navy
+`--warna-bubble-pengguna` dipakai bersama bubble pengguna dan sudah terverifikasi kontrasnya
+pada Fase G. Mengubahnya berarti membatalkan verifikasi yang tidak ada kaitannya dengan
+persoalan ini.
+
+**Ditolak: mengisi lubang glyph dengan putih pada berkas asli.** Itu menghasilkan lingkaran
+teal dengan glyph putih opak, yang memang benar untuk bubble — tetapi tidak menyelesaikan
+persoalan header, karena lingkaran teal tetap 1,85:1 terhadap navy.
+
+`UI-10` diamandemen pada bagian varian avatar. Verifikasi dilakukan terbatas atas permintaan
+pengguna: pemeriksaan berkas, pengukuran kontras, `node --check`, larangan `innerHTML`, warna
+literal, dan `curl` untuk memastikan kedua berkas tersaji. Penilaian visual akhir dilakukan
+pengguna langsung di browser.
+
+---
+
 ## 3. Matriks keterlacakan requirement → sumber
 
 | Req | Isi singkat | Sumber |
