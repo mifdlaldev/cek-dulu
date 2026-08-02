@@ -1235,6 +1235,10 @@ dokumen tetap bebas scroll horizontal.
 Perbaikan ini bersifat tata letak dan tidak menyentuh requirement mana pun; dicatat di sini
 agar riwayat verifikasi utuh.
 
+> **Diperluas setelah Fase H.** Perbaikan di atas hanya berlaku pada viewport di bawah 30rem,
+> sehingga pada desktop chip masih membungkus dua baris. Gulir horizontal kini berlaku di
+> semua ukuran layar — bukti di bagian **Tindak lanjut** pada akhir berkas ini.
+
 ### Konsumsi kuota Fase G
 
 Satu permintaan untuk uji ujung ke ujung. Seluruh verifikasi lain memakai inspeksi DOM,
@@ -1889,3 +1893,131 @@ dan simulasi media query.
 
 Seluruh gate verifikasi `docs/METODOLOGI.md` §5 sudah terpenuhi dengan bukti mentah, mencakup
 34 requirement dan 15 skenario uji.
+
+
+---
+
+## Tindak lanjut: gulir horizontal chip di semua ukuran layar
+
+| Meta | Nilai |
+|---|---|
+| Tanggal | 2 Agustus 2026 |
+| Browser uji | Chromium 151.0.7922.34 (headless, via CDP `localhost:9222`) |
+| Berkas | `public/style.css`, `public/script.js` |
+| Requirement | Tata letak; menyentuh `UI-11` pada bagian keterlihatan fokus |
+| Kuota API terpakai | **0** |
+
+### Masalah
+
+Perbaikan Fase G hanya menempatkan `flex-wrap: nowrap` di dalam `@media (max-width: 30rem)`.
+Pada desktop, aturan dasar `.samples__list` masih `flex-wrap: wrap`, sehingga tiga chip
+membungkus menjadi dua baris dan memakan tinggi panel yang seharusnya menjadi aliran
+percakapan.
+
+Pengukuran sebelum perbaikan, panel dibuka lalu tinggi tiap bagian diukur:
+
+| Viewport | Tinggi panel | Baris chip | Blok contoh pertanyaan | Area chat | Porsi chip |
+|---|---|---|---|---|---|
+| 1280×800 | 560px | **2** | **105px** | **232px** | 19% |
+| 375×667 | 667px | 1 | 88px | 358px | 13% |
+
+Desktop justru lebih buruk daripada ponsel: panel desktop lebih pendek (560px berbanding
+667px) tetapi blok chip lebih tinggi.
+
+### Perbaikan
+
+`flex-wrap: nowrap` dan `overflow-x: auto` dipindahkan dari media query ke aturan dasar
+`.samples__list`, dan `white-space: nowrap` dipindahkan ke aturan dasar `.chip`. Blok
+duplikat di dalam `@media (max-width: 30rem)` dihapus — perilakunya kini seragam.
+
+### Hasil setelah perbaikan
+
+| Viewport | Tinggi panel | Baris chip | Blok chip | Area chat | Selisih area chat |
+|---|---|---|---|---|---|
+| 1280×800 | 560px | **1** | **88px** | **249px** | **+17px** |
+| 375×667 | 667px | 1 | 88px | 358px | 0 (sudah benar sejak Fase G) |
+| 640×400 (zoom 200%) | 368px | 1 | 88px | 57px | — |
+
+```json
+[
+  { "label": "desktop 1280x800",   "barisChip": 1, "listFlexWrap": "nowrap", "listOverflowX": "auto", "listScrollHorizontal": 139, "scrollHorizontalDokumen": 0, "scrollHorizontalPanel": 0 },
+  { "label": "ponsel 375x667",     "barisChip": 1, "listFlexWrap": "nowrap", "listOverflowX": "auto", "listScrollHorizontal": 157, "scrollHorizontalDokumen": 0, "scrollHorizontalPanel": 0 },
+  { "label": "zoom 200% (640x400)","barisChip": 1, "listFlexWrap": "nowrap", "listOverflowX": "auto", "listScrollHorizontal": 139, "scrollHorizontalDokumen": 0, "scrollHorizontalPanel": 0 }
+]
+```
+
+Penggulingan horizontal terbatas pada daftar chip. Dokumen dan panel tetap
+`scrollHorizontal: 0` pada ketiga ukuran.
+
+### Temuan turunan: cincin fokus chip terpotong
+
+Uji Tab menemukan cacat yang tidak terlihat pada pengukuran tinggi. Chip kedua menerima fokus
+sementara sebagian tubuhnya berada di luar area terlihat, sehingga cincin fokusnya terpotong:
+
+```json
+{ "chip": "Memeriksa tawaran investasi", "terlihatPenuh": false, "selisihKanan": -14, "scrollList": 0 }
+```
+
+Nilai `selisihKanan: -14` berarti chip melewati tepi kanan daftar sebesar 14px. Pada ponsel
+selisihnya 32px.
+
+Penyebabnya Chrome tidak menggulir kontainer bila elemen yang menerima fokus dinilai sudah
+terlihat sebagian. Dua upaya CSS gagal memperbaikinya: `scroll-padding-inline` tidak
+berpengaruh karena browser tidak melakukan gulir apa pun, dan `scroll-snap-align` juga tidak
+terpicu dengan alasan sama. Keduanya dibatalkan agar tidak meninggalkan properti mati.
+
+Perbaikan akhir memakai satu penangan `focus` per chip yang memanggil
+`scrollIntoView({ block: 'nearest', inline: 'nearest' })`.
+
+Uji ulang dengan penekanan Tab sungguhan, bukan `element.focus()`:
+
+```json
+{
+  "desktop 1280": [
+    { "fokus": "Ciri pinjaman online",        "terlihatPenuh": true, "selisihKanan": 197, "scrollList": 0 },
+    { "fokus": "Memeriksa tawaran investasi", "terlihatPenuh": true, "selisihKanan": 0,   "scrollList": 14 },
+    { "fokus": "Sudah transfer",              "terlihatPenuh": true, "selisihKanan": 0,   "scrollList": 139 }
+  ],
+  "ponsel 375": [
+    { "fokus": "Ciri pinjaman online",        "terlihatPenuh": true, "selisihKanan": 179, "scrollList": 0 },
+    { "fokus": "Memeriksa tawaran investasi", "terlihatPenuh": true, "selisihKanan": 0,   "scrollList": 32 },
+    { "fokus": "Sudah transfer",              "terlihatPenuh": true, "selisihKanan": 0,   "scrollList": 157 }
+  ]
+}
+```
+
+Ketiga chip kini tergulir utuh saat menerima fokus, pada kedua viewport.
+
+Gulir terbatas di dalam daftar chip dan tidak menggeser halaman di belakang panel:
+`scrollYSebelum: 0` dan `scrollYSetelahFokusChip: 0` pada ketiga viewport.
+
+Dengan `prefers-reduced-motion: reduce`:
+
+```json
+{ "scrollBehaviorList": "auto", "scrollBehaviorHtml": "auto", "chipTerlihatPenuh": true, "scrollList": 157 }
+```
+
+Gulir tetap terjadi namun tanpa animasi, karena blok `prefers-reduced-motion` yang sudah ada
+memaksa `scroll-behavior: auto`. Informasi tidak hilang.
+
+### Regresi yang diperiksa
+
+| Butir | Hasil |
+|---|---|
+| Klik chip mengisi kolom pesan | `isiInput: "Bagaimana cara memeriksa apakah sebuah t…"`, `fokusSetelahKlik: "user-input"` |
+| Escape menutup panel | `panelTertutup: true`, `ariaExpanded: "false"`, fokus kembali ke `launcher` |
+| Focus trap | Tujuh elemen fokusable, siklus tetap terkurung di dalam panel |
+| Scroll horizontal dokumen | 0 pada 1280px, 375px, dan 640px |
+| Indikator fokus | Terlihat pada seluruh perhentian Tab |
+
+### Catatan metode
+
+Selama perbaikan sempat tertinggal satu kurung kurawal berlebih di `public/script.js`.
+Terdeteksi dari console browser (`Unexpected token '}'`) dan dikonfirmasi
+`node --check public/script.js` yang keluar dengan kode 1. Setelah diperbaiki:
+
+```
+syntax OK
+```
+
+Ini alasan console browser diperiksa pada setiap putaran, bukan hanya di akhir.

@@ -308,4 +308,11 @@ for (const chip of document.querySelectorAll('.chip')) {
     input.value = chip.dataset.fill ?? '';
     input.focus();
   });
+
+  // UI-11 — daftar chip digulir horizontal, sehingga chip yang menerima fokus keyboard
+  // bisa berada sebagian di luar area terlihat dan cincin fokusnya terpotong. Chrome
+  // tidak menggulir sendiri bila elemen sudah terlihat separuh, jadi digulir eksplisit.
+  chip.addEventListener('focus', () => {
+    chip.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  });
 }

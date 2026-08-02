@@ -977,12 +977,16 @@ main {
   color: var(--warna-teks-lembut);
 }
 
+/* Chip digulir horizontal dalam satu baris pada semua ukuran layar. Membungkus ke
+   baris kedua memakan tinggi yang seharusnya menjadi area percakapan — pada panel
+   560px, dua baris chip menyita 105px dan menyisakan aliran chat hanya 232px. */
 .samples__list {
   margin: 0;
-  padding: 0;
+  padding: 0 0 var(--ruang-1);
   list-style: none;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   gap: var(--ruang-2);
 }
 
@@ -995,6 +999,7 @@ main {
   font-family: inherit;
   font-size: var(--teks-mikro);
   font-weight: var(--tebal-sedang);
+  white-space: nowrap;
   cursor: pointer;
   transition: border-color var(--durasi-cepat) ease;
 }
@@ -1164,18 +1169,6 @@ main {
     max-height: none;
     border: 0;
     border-radius: 0;
-  }
-
-  /* Chip digulir horizontal di layar sempit agar tidak membungkus menjadi tiga baris
-     dan memakan area percakapan. */
-  .samples__list {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: var(--ruang-1);
-  }
-
-  .chip {
-    white-space: nowrap;
   }
 
   .msg__body {
