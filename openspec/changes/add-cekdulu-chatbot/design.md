@@ -202,7 +202,7 @@ tidak sebanding dengan risiko menyebarkan angka kedaluwarsa.
 
 ### D-10 — Verifikasi manual terdokumentasi, tanpa test framework
 
-**Keputusan:** 14 skenario uji ditulis dengan ID, input, dan ekspektasi. Dijalankan manual.
+**Keputusan:** 15 skenario uji ditulis dengan ID, input, dan ekspektasi. Dijalankan manual.
 Tidak ada Jest/Vitest/Supertest.
 
 **Alasan:** materi tidak membahas test framework, dan `package.json` di slide (S2 p.31,
@@ -617,6 +617,91 @@ spinner mengesankan pemuatan halaman, bukan lawan bicara yang sedang menyusun ja
 
 ---
 
+### D-20 — Landing page sembilan section; Social Proof diganti Data & Sumber
+
+**Keputusan:** badan halaman disusun sebagai landing page sembilan section, dari header
+sampai footer. Section "Social Proof" pada urutan konvensional **diganti** dengan section
+"Data & Sumber" berisi angka lembaga resmi yang tersitasi.
+
+**Alasan menambahkan landing page:** setelah pola widget diterapkan (D-18), badan halaman
+hanya memuat hero singkat, disclaimer, dan kanal resmi. Cukup secara fungsional, tetapi tidak
+menjelaskan apa yang Cek Dulu lakukan kepada orang yang pertama kali membukanya.
+
+Brief materi Sesi 3 p.49 meminta "use case dan konfigurasi parameter yang sesuai dengan
+kreativitas masing-masing". Materi mengunci stack, endpoint, dan kontrak API, tetapi tidak
+mengunci struktur halaman. Landing page berada di ruang kreativitas yang memang dibuka brief.
+
+**Urutan section** mengikuti pola yang konvergen dari lima sumber — involve.me, Replo,
+Landy AI, Genesys Growth, Neel Networks:
+
+```
+Hero → Value Proposition → Benefits → Social Proof → How It Works → FAQ → CTA akhir → Footer
+```
+
+Angka yang memandu: hero punya sekitar 5 detik untuk mengomunikasikan nilai; H1 berperforma
+tinggi berada di bawah 8 kata atau 44 karakter; satu CTA utama per halaman tanpa pengecualian;
+60% lebih trafik berasal dari ponsel. Sitasi lengkap: `docs/RISET-DESAIN.md` §6.
+
+**Alasan mengganti Social Proof:** Cek Dulu **belum memiliki pengguna**. Tiga sumber
+independen memperingatkan hal yang sama. WiserNotify menyebut testimoni karangan sebagai
+kesalahan paling sering dan menyatakan "one honest, detailed review beats ten polished fakes".
+ProveSource menyatakan pengunjung dapat merasakan ulasan palsu. Nudgify mengutip PowerReviews
+bahwa 95% konsumen mencurigai review palsu bila tidak ada satu pun kritik.
+
+Lebih dari itu, mengarang testimoni bertentangan dengan nilai proyek. Aplikasi yang melarang
+bot menyebut statistik dari ingatan (`PG-04`) tetapi halamannya sendiri mengarang testimoni
+tidak akan koheren bagi pembaca yang teliti — dan reviewer Hacktiv8 termasuk pembaca teliti.
+
+Sebagai gantinya dipakai **angka nyata dari lembaga resmi** yang sudah tersitasi di
+`docs/RISET-LAPANGAN.md`: kerugian Rp7,8 triliun yang dilaporkan ke IASC, 343.402 laporan
+penipuan, dan selisih 14 poin persentase antara indeks inklusi dan literasi keuangan. Angka
+tersebut **dapat diverifikasi** — setiap angka punya URL siaran pers. Itu trust signal yang
+lebih kuat daripada testimoni karangan, dan konsisten dengan pesan aplikasi sendiri:
+verifikasi ke sumber resmi.
+
+**Keputusan turunan — section Batasan ditampilkan terbuka.**
+
+Landing page umumnya hanya menjual kelebihan. Delapan larangan dari
+`docs/USE-CASE-CEKDULU.md` §3.2 justru ditampilkan sebagai section tersendiri.
+
+Dasarnya prinsip **Transparansi** dalam Etika AI (S1 p.99): "Sistem AI harus dapat
+dipahami—pengguna perlu tahu apa yang dilakukan AI dan alasannya." Pengguna yang datang dalam
+keadaan cemas perlu tahu batas alat ini **sebelum** bertanya, bukan setelah mendapat jawaban
+yang tidak sesuai harapan.
+
+**Keputusan turunan — FAQ memakai `<details>` bawaan HTML.**
+
+Elemen `<details>` dan `<summary>` sudah dapat dibuka dengan keyboard dan diumumkan screen
+reader tanpa JavaScript maupun atribut ARIA tambahan. Menulis akordeon sendiri berarti
+menambah kode dan risiko kesalahan aksesibilitas untuk hasil yang sama.
+
+**Ditolak: testimoni pengguna.** Tidak ada pengguna nyata.
+
+**Ditolak: logo "dipercaya oleh".** Tidak ada mitra; memalsukan afiliasi.
+
+**Ditolak: star rating dan jumlah ulasan.** Tidak ada ulasan.
+
+**Ditolak: logo Hacktiv8 maupun OJK.** Merek pihak lain, berpotensi terbaca sebagai klaim
+afiliasi resmi. `NOTICE.md` sudah menyatakan repositori ini tidak meredistribusi aset milik
+penyelenggara.
+
+**Ditolak: angka pengguna, unduhan, atau tingkat kepuasan.** Tidak ada datanya. Ini penerapan
+aturan yang sama seperti yang diberlakukan pada bot: tidak mengarang angka.
+
+**Ditolak: hero berupa video.** Landy AI mencatat 53% pengguna meninggalkan situs yang lambat.
+Video menambah bobot muat tanpa manfaat yang sebanding untuk halaman ini.
+
+**Ditolak: dua atau lebih CTA utama yang bersaing.** Genesys Growth menyatakan satu CTA utama
+per halaman, tanpa pengecualian. Seluruh tombol "Mulai Cek" pada halaman menunjuk aksi yang
+sama, yaitu membuka panel percakapan.
+
+**Ditolak: framework CSS atau pustaka animasi.** Non-goal proyek; materi menetapkan Vanilla.
+
+`UI-14` ditambahkan untuk requirement ini. `UI-08` dan `UI-09` diamandemen mengikuti struktur
+baru.
+
+---
+
 ## 3. Matriks keterlacakan requirement → sumber
 
 | Req | Isi singkat | Sumber |
@@ -648,18 +733,19 @@ spinner mengesankan pemuatan halaman, bukan lawan bicara yang sedang menyusun ja
 | `UI-05` | Indikator berpikir, diganti di tempat | S3 p.37, p.41, p.42; bentuk tiga titik dari D-19 |
 | `UI-06` | Fallback `Sorry, no response received.` / `Failed to get response from server.` | S3 p.37, p.42 |
 | `UI-07` | Sapaan pembuka statis | S2 p.67 (pola batch lalu) |
-| `UI-08` | Disclaimer permanen | S2 p.67; S1 p.99 (Transparansi) |
-| `UI-09` | Kanal resmi statis | `RISET-LAPANGAN.md` §7 |
+| `UI-08` | Disclaimer permanen | S2 p.67; S1 p.99 (Transparansi); penempatan diamandemen D-20 |
+| `UI-09` | Kanal resmi statis | `RISET-LAPANGAN.md` §7; penempatan diamandemen D-20 |
 | `UI-10` | Pembeda peran, scroll, responsif | S3 p.10, p.14, p.34 |
 | `UI-11` | Aksesibilitas — ARIA live, fokus, kontras, reduced-motion, pola dialog | S1 p.99 (Keadilan) + D-13; pola dialog dari D-18 ⚠️ interpretasi |
 | `UI-12` | Design token + light mode navy dan deep teal | S3 p.34 + D-12, `RISET-DESAIN.md` §3 ⚠️ interpretasi |
 | `UI-13` | Launcher dan panel dialog | `RISET-DESAIN.md` §1–2 + D-18 ⚠️ di luar materi |
+| `UI-14` | Struktur landing page sembilan section | `RISET-DESAIN.md` §6 + D-20 ⚠️ di luar materi |
 
-**33 requirement, semuanya punya sumber.** Tiga di antaranya berbasis **interpretasi atau
+**34 requirement, semuanya punya sumber.** Empat di antaranya berbasis **interpretasi atau
 riset di luar materi**, ditandai `⚠️` dengan alasan tertulis penuh: `UI-11` (D-13), `UI-12`
-(D-12), `UI-13` (D-18). Satu requirement (`WS-02`) **diamandemen dari nilai materi** karena
-model yang ditetapkan materi ditutup Google; bukti dan alasan di `docs/KENDALA-API.md` §1 dan
-keputusan D-15. Sisanya merujuk nomor halaman langsung.
+(D-12), `UI-13` (D-18), `UI-14` (D-20). Satu requirement (`WS-02`) **diamandemen dari nilai
+materi** karena model yang ditetapkan materi ditutup Google; bukti dan alasan di
+`docs/KENDALA-API.md` §1 dan keputusan D-15. Sisanya merujuk nomor halaman langsung.
 
 ---
 
@@ -681,10 +767,11 @@ keputusan D-15. Sisanya merujuk nomor halaman langsung.
 | UJI-12 | `UI-06` |
 | UJI-13 | `UI-11` |
 | UJI-14 | `UI-13`, `UI-11` |
+| UJI-15 | `UI-14`, `UI-11` |
 
-Requirement yang diverifikasi lewat gate lain (bukan 14 skenario UI):
+Requirement yang diverifikasi lewat gate lain (bukan 15 skenario UI):
 `WS-01` s.d. `WS-05` → Gate 2; `API-01`, `API-04`, `API-05` → Gate 3;
-`PG-01`, `PG-02`, `PG-09`, `UI-08`, `UI-10`, `UI-12` → inspeksi kode & halaman;
+`PG-01`, `PG-02`, `PG-09`, `UI-08`, `UI-09`, `UI-10`, `UI-12` → inspeksi kode & halaman;
 `PG-07` → uji ad-hoc saat Gate 4.
 
 Sebagian `PG-09`, `UI-12` (larangan `innerHTML`), dan kebersihan dependency juga dijaga

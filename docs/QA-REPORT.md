@@ -12,7 +12,7 @@
 | Browser uji | Chromium 151.0.7922.34 (headless, via CDP) |
 | Model dipakai | `gemini-flash-latest` (bawaan `WS-02`, lihat `KENDALA-API.md` §1) |
 | Tier akun | Free tier |
-| Status | Fase A sampai E dan G selesai. **Kelima gate verifikasi LULUS, 14 dari 14 skenario uji lulus.** Sisa: Fase F (screenshot dan submit) |
+| Status | Fase A sampai E, G, dan H selesai. **Kelima gate verifikasi LULUS, 15 dari 15 skenario uji lulus.** Sisa: Fase F (screenshot dan submit) |
 
 ---
 
@@ -918,7 +918,11 @@ bagian Fase G.
 | UJI-13 | Navigasi keyboard | `UI-11` | LULUS |
 | UJI-14 | Buka/tutup panel, focus trap, Escape | `UI-13`, `UI-11` | LULUS |
 
-**14 dari 14 skenario lulus. Kelima gate verifikasi terpenuhi.**
+**14 dari 14 skenario yang berlaku saat pengujian ini lulus.**
+
+> UJI-15 (`UI-14`, landing page) ditambahkan setelah bagian ini ditulis. Buktinya ada pada
+> bagian **Fase H** di bawah, dan hasilnya LULUS. Dengan begitu Gate 4 lengkap untuk seluruh
+> 15 skenario.
 
 ---
 
@@ -1238,10 +1242,650 @@ pengukuran geometri, atau bubble contoh yang disuntikkan langsung — sehingga *
 
 ---
 
+## Fase H — Verifikasi landing page sembilan section
+
+| Meta | Nilai |
+|---|---|
+| Tanggal | 2 Agustus 2026 |
+| Browser uji | Chromium 151.0.7922.34 (headless, via CDP `localhost:9222`) |
+| Requirement | `UI-14` baru; `UI-08` dan `UI-09` diamandemen pada penempatan |
+| Skenario | UJI-15 |
+| Kuota API terpakai | **0** — backend, `systemInstruction`, dan kontrak API tidak berubah |
+
+Fase ini hanya mengubah `public/index.html`, `public/style.css`, dan penambahan kecil di
+`public/script.js`. Guardrail `PG-*` tidak diuji ulang karena `SYSTEM_INSTRUCTION` tidak
+disentuh sama sekali.
+
+---
+
+### Struktur sembilan section · `UI-14`
+
+Perintah inspeksi DOM dan hasil apa adanya:
+
+```js
+document.querySelectorAll('body > header, main > section, body > footer')
+```
+
+```json
+{
+  "sectionCount": 9,
+  "sections": [
+    { "tag": "header",  "id": null,         "cls": "site-header" },
+    { "tag": "section", "id": null,         "cls": "hero" },
+    { "tag": "section", "id": "data",       "cls": "bagian" },
+    { "tag": "section", "id": "cara-kerja", "cls": "bagian" },
+    { "tag": "section", "id": "kemampuan",  "cls": "bagian" },
+    { "tag": "section", "id": "batasan",    "cls": "bagian bagian--batas" },
+    { "tag": "section", "id": "kanal",      "cls": "bagian" },
+    { "tag": "section", "id": "faq",        "cls": "bagian" },
+    { "tag": "footer",  "id": null,         "cls": "site-footer" }
+  ]
+}
+```
+
+Urutan cocok dengan tabel `UI-14`: Header → Hero → Data & Sumber → Cara Kerja → Yang Bisa
+Dibantu → Batasan → Kanal Resmi → FAQ → Footer.
+
+**LULUS.**
+
+---
+
+### Headline dan hierarki heading · `UI-14`
+
+```json
+{
+  "h1Count": 1,
+  "h1": "Cek dulu sebelum percaya",
+  "h1Words": 4
+}
+```
+
+Tepat satu `<h1>`, empat kata. Genesys Growth menetapkan batas di bawah 8 kata; terpenuhi
+dengan selisih besar.
+
+Hierarki heading berurutan tanpa level yang dilompati:
+
+```
+H1: Cek dulu sebelum percaya
+H2: Kenapa kewaspadaan ini penting
+H2: Tiga langkah, tanpa pendaftaran
+  H3: Buka percakapan
+  H3: Tempelkan isi pesannya
+  H3: Periksa sendiri hasilnya
+H2: Yang bisa dibantu
+  H3: Membaca ciri risiko dari teks tawaran
+  H3: Menjelaskan cara verifikasi mandiri
+  H3: Menjelaskan konsep keuangan dasar
+  H3: Mengenali pola penipuan umum
+H2: Yang tidak dilakukan Cek Dulu
+  H3: (delapan larangan)
+H2: Kanal resmi Otoritas Jasa Keuangan
+H2: Yang sering ditanyakan
+H2: Dokumentasi          (footer)
+H2: Cek Dulu             (judul panel dialog)
+  H3: Contoh pertanyaan  (di dalam panel)
+```
+
+**LULUS.**
+
+---
+
+### Hero terbaca tanpa menggulir · `UI-14`
+
+Viewport 1280×800:
+
+```json
+{
+  "viewport": { "w": 1280, "h": 800 },
+  "h1":  { "top": 165, "bottom": 290, "visible": true },
+  "lead": { "top": 306, "bottom": 421, "visible": true },
+  "ctaUtama": { "top": 445, "bottom": 501, "visible": true },
+  "scrollX": 0
+}
+```
+
+Headline, subheadline, dan CTA utama seluruhnya berakhir pada 501px — jauh di atas batas
+800px. Nol scroll horizontal.
+
+**LULUS.**
+
+---
+
+### Navigasi anchor · `UI-14`, `UI-09`
+
+Setiap tautan diklik dari posisi gulir nol, lalu posisi judul section diukur terhadap tinggi
+header yang menempel:
+
+```json
+{
+  "tinggiHeader": 64,
+  "hasil": [
+    { "href": "#cara-kerja", "judul": "Tiga langkah, tanpa pendaftaran",   "sectionTop": 80, "judulTop": 181, "tidakTertutupHeader": true, "scrollY": 1145 },
+    { "href": "#kemampuan",  "judul": "Yang bisa dibantu",                  "sectionTop": 80, "judulTop": 180, "tidakTertutupHeader": true, "scrollY": 1494 },
+    { "href": "#batasan",    "judul": "Yang tidak dilakukan Cek Dulu",      "sectionTop": 80, "judulTop": 181, "tidakTertutupHeader": true, "scrollY": 2023 },
+    { "href": "#kanal",      "judul": "Kanal resmi Otoritas Jasa Keuangan", "sectionTop": 80, "judulTop": 181, "tidakTertutupHeader": true, "scrollY": 2796 }
+  ]
+}
+```
+
+Keempat tautan menggulir ke section yang benar. `scroll-margin-top` bekerja: section berhenti
+pada 80px, di bawah header 64px, sehingga judul tidak pernah tertutup.
+
+Seluruh anchor menunjuk `id` yang benar-benar ada:
+
+```json
+[
+  { "href": "#konten",     "targetExists": true },
+  { "href": "#cara-kerja", "targetExists": true },
+  { "href": "#kemampuan",  "targetExists": true },
+  { "href": "#batasan",    "targetExists": true },
+  { "href": "#kanal",      "targetExists": true }
+]
+```
+
+**LULUS.**
+
+---
+
+### Satu aksi utama · `UI-14`, `UI-13`
+
+Dua tombol CTA, keduanya diklik berurutan lalu panel ditutup:
+
+```json
+[
+  {
+    "label": "Mulai cek",
+    "panelTerlihat": true, "ariaExpanded": "true",
+    "fokusDiDalamPanel": true, "fokusPada": "user-input",
+    "panelTertutup": true, "ariaExpandedSetelahTutup": "false",
+    "fokusKembaliKePemicu": true, "fokusSetelahTutup": "cta cta--ringkas"
+  },
+  {
+    "label": "Mulai cek sekarang",
+    "panelTerlihat": true, "ariaExpanded": "true",
+    "fokusDiDalamPanel": true, "fokusPada": "user-input",
+    "panelTertutup": true, "ariaExpandedSetelahTutup": "false",
+    "fokusKembaliKePemicu": true, "fokusSetelahTutup": "cta cta--utama"
+  }
+]
+```
+
+Kedua tombol memicu aksi yang sama. Fokus kembali ke tombol yang membuka panel, bukan selalu
+ke launcher — perbaikan yang dibutuhkan begitu pemicu tidak lagi tunggal.
+
+**LULUS.**
+
+---
+
+### Focus trap dan Escape tetap utuh · `UI-11`, `UI-13`
+
+Landing page menambah banyak elemen fokusable di badan halaman, sehingga focus trap diuji
+ulang untuk memastikan tidak bocor:
+
+```json
+{
+  "buka": { "panelTerlihat": true, "ariaExpanded": "true", "fokusPada": "user-input" },
+  "jumlahFokusable": 7,
+  "pertama": "close-button",
+  "terakhir": "send-button"
+}
+```
+
+Tab dari elemen terakhir:
+
+```json
+{ "fokusSetelahTabDariTerakhir": "close-button", "masihDiDalamPanel": true }
+```
+
+Escape:
+
+```json
+{
+  "panelTertutupSetelahEscape": true,
+  "ariaExpanded": "false",
+  "fokusSetelahEscape": "launcher",
+  "fokusKembaliKeLauncher": true
+}
+```
+
+Fokus bersiklus di dalam panel dan tidak lolos ke section landing page. **LULUS.**
+
+---
+
+### Urutan Tab di badan halaman · `UI-11`
+
+Tab ditekan berulang dari `body`, setiap perhentian dicatat beserta keterlihatan outline:
+
+```json
+[
+  { "ke": 1, "el": "a.skip-link",       "teks": "Lewati ke konten utama",     "outlineTerlihat": true },
+  { "ke": 2, "el": "a.brand",           "teks": "Cek Dulu",                   "outlineTerlihat": true },
+  { "ke": 3, "el": "a.site-nav__link",  "teks": "Cara kerja",                 "outlineTerlihat": true },
+  { "ke": 4, "el": "a.site-nav__link",  "teks": "Kemampuan",                  "outlineTerlihat": true },
+  { "ke": 5, "el": "a.site-nav__link",  "teks": "Batasan",                    "outlineTerlihat": true },
+  { "ke": 6, "el": "a.site-nav__link",  "teks": "Kanal resmi",                "outlineTerlihat": true },
+  { "ke": 7, "el": "button.cta",        "teks": "Mulai cek",                  "outlineTerlihat": true },
+  { "ke": 8, "el": "button.cta",        "teks": "Mulai cek sekarang",         "outlineTerlihat": true },
+  { "ke": 9, "el": "summary.faq__tanya","teks": "Bisakah Cek Dulu memastikan","outlineTerlihat": true }
+]
+```
+
+Urutan lengkap sampai siklus berulang:
+
+```
+a.skip-link → a.brand → 4× a.site-nav__link → 2× button.cta
+  → 5× summary.faq__tanya → button#launcher → body → a.skip-link
+```
+
+Empat belas perhentian, semuanya punya indikator fokus. Urutan DOM mengikuti urutan visual.
+
+Tautan lompat muncul saat menerima fokus:
+
+```json
+{
+  "fokusPada": "skip-link",
+  "cocokFocus": true,
+  "cocokFocusVisible": true,
+  "top": 16,
+  "terlihat": true,
+  "outline": "3px solid rgb(11, 99, 206)"
+}
+```
+
+> Catatan metode: pengukuran pertama sempat melaporkan `top: -64` dan `cocokFocus: false`.
+> Penyebabnya `element.focus()` lewat `page.evaluate` pada halaman yang belum
+> `bringToFront()` — `document.hasFocus()` bernilai `false`, sehingga `:focus` tidak
+> tercocokkan browser. Setelah Tab ditekan sebagai penekanan tombol sungguhan, hasilnya
+> seperti di atas. Ini kekeliruan alat ukur, bukan cacat halaman.
+
+**LULUS.**
+
+---
+
+### FAQ dengan keyboard · `UI-14`, `UI-11`
+
+Lima butir, semuanya `<details>` bawaan HTML, tertutup saat halaman dimuat, dan **nol atribut
+ARIA tambahan**:
+
+```json
+{
+  "faqCount": 5,
+  "faq": [
+    { "tanya": "Bisakah Cek Dulu memastikan sebuah aplikasi itu legal?", "terbukaAwal": false, "adaAria": 0 },
+    { "tanya": "Apakah percakapan saya disimpan?",                       "terbukaAwal": false, "adaAria": 0 },
+    { "tanya": "Apakah jawabannya bisa dijadikan dasar keputusan?",      "terbukaAwal": false, "adaAria": 0 },
+    { "tanya": "Apakah jawaban bot selalu benar?",                        "terbukaAwal": false, "adaAria": 0 },
+    { "tanya": "Saya sudah jadi korban. Apa langkah pertamanya?",        "terbukaAwal": false, "adaAria": 0 }
+  ]
+}
+```
+
+Fokus ke `<summary>` pertama lalu Enter:
+
+```json
+{
+  "terbukaSetelahEnter": true,
+  "jawabTerlihat": true,
+  "tinggiJawab": 83,
+  "kutipanJawab": "Tidak, dan itu memang disengaja. Daftar entitas resmi terus berubah, sementara"
+}
+```
+
+**LULUS.**
+
+---
+
+### Audit social proof karangan · `UI-14`, D-20
+
+Halaman ditelusuri dari header sampai footer dengan pola regex untuk setiap kategori yang
+dilarang D-20:
+
+```js
+[
+  ['testimoni',        /testimoni|testimonial/],
+  ['kutipan pengguna', /"[^"]{20,}"\s*[—-]\s*[A-Z]/],
+  ['rating bintang',   /bintang|★|⭐|\b\d[.,]\d\s*\/\s*5\b/],
+  ['jumlah ulasan',    /\d+\s*(ulasan|review|rating)/],
+  ['jumlah pengguna',  /\d[\d.,]*\+?\s*(pengguna|user|member|anggota)/],
+  ['jumlah unduhan',   /\d[\d.,]*\+?\s*(unduhan|download|instal)/],
+  ['tingkat kepuasan', /kepuasan|satisfaction|puas/],
+  ['dipercaya oleh',   /dipercaya oleh|trusted by|digunakan oleh \d/]
+]
+```
+
+```json
+{
+  "temuanTerlarang": [],
+  "jumlahImg": 0,
+  "svgCount": 2
+}
+```
+
+**Nol temuan.** Nol berkas gambar — hanya dua SVG inline, yaitu logo brand dan ikon launcher,
+keduanya dibuat sendiri. Tidak ada logo Hacktiv8 maupun OJK sebagai gambar; kedua lembaga
+disebut sebagai teks pada konteks sumber data dan atribusi.
+
+Tiga angka pada section Data & Sumber, semuanya bersitasi:
+
+```json
+[
+  { "nilai": "Rp7,8 triliun", "adaSumber": true, "sumber": "Satgas PASTI, OJK — periode 22 November 2024 sampai 11 November 2025." },
+  { "nilai": "343.402",       "adaSumber": true, "sumber": "Satgas PASTI, OJK — periode 22 November 2024 sampai 11 November 2025." },
+  { "nilai": "14 poin",       "adaSumber": true, "sumber": "Survei Nasional Literasi dan Inklusi Keuangan 2025 — OJK dan BPS." }
+]
+```
+
+`angkaTanpaSumber: 0`. Ketiga nilai cocok dengan `docs/RISET-LAPANGAN.md` §1 dan §2.
+
+**LULUS.**
+
+---
+
+### Delapan batasan tampil terbuka · `UI-14`, `UI-08`
+
+```json
+{ "batasCount": 8 }
+```
+
+Kedelapan larangan dari `docs/USE-CASE-CEKDULU.md` §3.2 tampil sebagai kartu, terbaca tanpa
+interaksi apa pun — bukan disembunyikan di balik akordeon.
+
+**LULUS.**
+
+---
+
+### Kanal resmi verbatim · `UI-09`
+
+```json
+{
+  "kanal": [
+    { "label": "Telepon",            "nilai": "157" },
+    { "label": "WhatsApp",           "nilai": "081 157 157 157" },
+    { "label": "Email konsumen",     "nilai": "konsumen@ojk.go.id" },
+    { "label": "Email Satgas PASTI", "nilai": "satgaspasti@ojk.go.id" }
+  ],
+  "cocokVerbatim": true
+}
+```
+
+Keempat nilai cocok karakter demi karakter dengan tabel `UI-09` dan
+`docs/RISET-LAPANGAN.md` §7.
+
+**LULUS.**
+
+---
+
+### Kontras warna · `UI-11`, `UI-12`
+
+Landing page **tidak menambah satu pun token warna baru**. Meski begitu, kombinasi
+latar-teks baru muncul karena kartu Batasan memakai `--warna-bubble-bot` sebagai latar. Tiga
+puluh dua pasangan diukur dengan formula relative luminance WCAG, latar dihitung dengan
+menelusuri leluhur sampai menemukan `background-color` yang tidak transparan:
+
+| Elemen | Teks | Latar | px | Rasio | Ambang | Verdict |
+|---|---|---|---|---|---|---|
+| Nama produk di header | `rgb(14,74,110)` | `rgb(255,255,255)` | 18 | **9,45** | 4,5 | LULUS |
+| Tautan navigasi | `rgb(74,90,109)` | `rgb(255,255,255)` | 14 | **7,06** | 4,5 | LULUS |
+| CTA header | `rgb(255,255,255)` | `rgb(14,124,107)` | 14 | **5,10** | 4,5 | LULUS |
+| CTA hero | `rgb(255,255,255)` | `rgb(14,124,107)` | 18 | **5,10** | 4,5 | LULUS |
+| Label eyebrow | `rgb(10,93,80)` | `rgb(244,246,249)` | 13 | **7,20** | 4,5 | LULUS |
+| H1 hero | `rgb(17,31,46)` | `rgb(244,246,249)` | 48 | **15,40** | 3,0 | LULUS |
+| Subheadline hero | `rgb(74,90,109)` | `rgb(244,246,249)` | 18 | **6,52** | 4,5 | LULUS |
+| Nota hero | `rgb(74,90,109)` | `rgb(244,246,249)` | 14 | **6,52** | 4,5 | LULUS |
+| Pesan masuk pada visual | `rgb(17,31,46)` | `rgb(238,242,247)` | 14 | **14,83** | 4,5 | LULUS |
+| Temuan pada visual | `rgb(17,31,46)` | `rgb(255,255,255)` | 14 | **16,68** | 4,5 | LULUS |
+| Penutup visual | `rgb(74,90,109)` | `rgb(255,255,255)` | 13 | **7,06** | 4,5 | LULUS |
+| Judul section | `rgb(17,31,46)` | `rgb(244,246,249)` | 30 | **15,40** | 3,0 | LULUS |
+| Lead section | `rgb(74,90,109)` | `rgb(244,246,249)` | 18 | **6,52** | 4,5 | LULUS |
+| Nota section | `rgb(74,90,109)` | `rgb(244,246,249)` | 13 | **6,52** | 4,5 | LULUS |
+| Angka besar | `rgb(14,74,110)` | `rgb(255,255,255)` | 36 | **9,45** | 3,0 | LULUS |
+| Label angka | `rgb(17,31,46)` | `rgb(255,255,255)` | 14 | **16,68** | 4,5 | LULUS |
+| Sumber angka | `rgb(74,90,109)` | `rgb(255,255,255)` | 13 | **7,06** | 4,5 | LULUS |
+| Nomor langkah | `rgb(255,255,255)` | `rgb(14,124,107)` | 16 | **5,10** | 4,5 | LULUS |
+| Judul langkah | `rgb(17,31,46)` | `rgb(255,255,255)` | 18 | **16,68** | 4,5 | LULUS |
+| Teks langkah | `rgb(74,90,109)` | `rgb(255,255,255)` | 14 | **7,06** | 4,5 | LULUS |
+| Judul kartu kemampuan | `rgb(17,31,46)` | `rgb(255,255,255)` | 16 | **16,68** | 4,5 | LULUS |
+| Teks kartu kemampuan | `rgb(74,90,109)` | `rgb(255,255,255)` | 14 | **7,06** | 4,5 | LULUS |
+| Judul batasan | `rgb(17,31,46)` | `rgb(238,242,247)` | 16 | **14,83** | 4,5 | LULUS |
+| Teks batasan | `rgb(74,90,109)` | `rgb(238,242,247)` | 14 | **6,28** | 4,5 | LULUS |
+| Label kanal | `rgb(74,90,109)` | `rgb(255,255,255)` | 13 | **7,06** | 4,5 | LULUS |
+| Nilai kanal | `rgb(17,31,46)` | `rgb(255,255,255)` | 18 | **16,68** | 4,5 | LULUS |
+| Pertanyaan FAQ | `rgb(17,31,46)` | `rgb(255,255,255)` | 16 | **16,68** | 4,5 | LULUS |
+| Jawaban FAQ | `rgb(74,90,109)` | `rgb(255,255,255)` | 14 | **7,06** | 4,5 | LULUS |
+| Disclaimer footer | `rgb(74,90,109)` | `rgb(255,255,255)` | 14 | **7,06** | 4,5 | LULUS |
+| Judul footer | `rgb(74,90,109)` | `rgb(255,255,255)` | 13 | **7,06** | 4,5 | LULUS |
+| Daftar footer | `rgb(74,90,109)` | `rgb(255,255,255)` | 14 | **7,06** | 4,5 | LULUS |
+| Atribusi footer | `rgb(74,90,109)` | `rgb(255,255,255)` | 13 | **7,06** | 4,5 | LULUS |
+
+```json
+{ "total": 32, "gagal": [] }
+```
+
+Rasio terendah **5,10** pada teks putih di atas aksen deep teal, masih di atas ambang 4,5
+untuk teks normal. **32 dari 32 LULUS.**
+
+---
+
+### Design token terpusat · `UI-12`
+
+```bash
+awk 'NR>=1 && /^:root/{r=1} r&&/^}/{r=0;next} !r' public/style.css   | grep -nE '#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\('
+```
+
+```
+OK: nol warna literal di luar :root
+```
+
+Token yang ditambahkan Fase H seluruhnya non-warna: `--teks-hero`, `--teks-judul-bagian`,
+`--teks-angka`, `--jarak-bagian`, `--ruang-8`, `--lebar-konten`, `--tinggi-header`.
+
+**LULUS.**
+
+---
+
+### Responsif 375px · `UI-10`, `UI-14`
+
+```json
+{
+  "viewport": { "w": 375, "h": 667 },
+  "scrollHorizontalDokumen": 0,
+  "navFlexWrap": "wrap",
+  "navScrollHorizontal": 0,
+  "tinggiHeader": 129,
+  "h1":   { "top": 219, "bottom": 297, "terlihat": true },
+  "lead": { "top": 313, "bottom": 486, "terlihat": true },
+  "cta":  { "top": 510, "bottom": 566, "terlihat": true }
+}
+```
+
+Urutan hero pada layar sempit — teks lebih dulu, visual sesudahnya:
+
+```json
+[
+  { "cls": "hero__teks",   "top": 207 },
+  { "cls": "hero__visual", "top": 692 }
+]
+```
+
+Headline, subheadline, dan CTA seluruhnya masih di dalam viewport 667px. Panel dan launcher:
+
+```json
+{
+  "launcherTargetSentuh": { "w": 145, "h": 58, "minimal44": true },
+  "panel": { "w": 360, "h": 667, "top": 0, "left": 0 },
+  "layarPenuh": true,
+  "scrollHorizontalSaatPanelBuka": 0,
+  "panelTertutup": true
+}
+```
+
+**LULUS.**
+
+---
+
+### Pembesaran 200% · `UI-11`
+
+Disimulasikan dengan viewport 640×400, setara 1280×800 pada zoom 200%:
+
+```json
+{
+  "scrollHorizontal": 0,
+  "navFlexWrap": "wrap",
+  "semuaSectionAdaLebar": true,
+  "h1Px": 32,
+  "h1Terbaca": true,
+  "kolomHero": "593px"
+}
+```
+
+Hero jatuh ke satu kolom, nol scroll horizontal, seluruh section tetap punya lebar.
+`clamp()` menurunkan H1 dari 48px ke 32px tanpa media query tambahan.
+
+**LULUS.**
+
+---
+
+### Preferensi gerak · `UI-11`
+
+`prefers-reduced-motion: reduce` disimulasikan lewat `page.emulateMedia`:
+
+```json
+{
+  "scrollBehavior": "auto",
+  "ctaTransition": "0s",
+  "navBorderTransition": "0s",
+  "dotAnimationDuration": "0s",
+  "dotOpacity": "1"
+}
+```
+
+Tanpa preferensi tersebut:
+
+```json
+{ "scrollBehavior": "smooth" }
+```
+
+Gulir mulus untuk anchor navigasi ditangani `scroll-behavior` di CSS, bukan JavaScript.
+Konsekuensinya properti itu dinonaktifkan otomatis oleh blok `prefers-reduced-motion` yang
+sudah ada — implementasi JavaScript justru harus memeriksa preferensi itu sendiri.
+
+**LULUS.**
+
+---
+
+### Console browser dan permintaan jaringan
+
+```
+Total messages: 0 (Errors: 0, Warnings: 0)
+```
+
+```
+1. [GET] http://localhost:3000/           => [200] OK
+2. [GET] http://localhost:3000/style.css  => [200] OK
+3. [GET] http://localhost:3000/script.js  => [200] OK
+```
+
+Nol error, nol warning, nol 404. Tiga permintaan saja: dokumen, CSS, dan JS. Tidak ada
+permintaan gambar, font eksternal, maupun pihak ketiga.
+
+**LULUS.**
+
+---
+
+### Pemeriksaan sintaks dan larangan HTML mentah
+
+```bash
+node --check public/script.js
+grep -nE '\.(inner|outer)HTML\s*=|insertAdjacentHTML|document\.write' public/script.js
+```
+
+```
+syntax script.js OK
+OK: nol HTML mentah
+```
+
+**LULUS.**
+
+---
+
+## Temuan Fase H: navigasi digulir horizontal di ponsel
+
+Rancangan awal memberi `.site-nav__list` properti `flex-wrap: nowrap` dan `overflow-x: auto`
+pada viewport di bawah 30rem, meniru perlakuan chip contoh pertanyaan.
+
+**Bukti masalah** — tangkapan layar 375px menampilkan scrollbar horizontal di dalam header,
+tepat di bawah baris navigasi, dengan "Kanal resmi" terpotong di tepi kanan. Tinggi header
+juga terbaca berlebih karena scrollbar menambah satu baris visual.
+
+**Analisis.** Perlakuan yang tepat untuk chip di dalam panel percakapan ternyata salah untuk
+navigasi utama. Bedanya: chip adalah saran opsional yang boleh tersembunyi sebagian, sedangkan
+navigasi adalah jalan masuk ke seluruh isi halaman. Scrollbar di dalam header terbaca sebagai
+cacat tata letak, bukan sebagai afordans.
+
+**Perbaikan.** Navigasi dibungkus alih-alih digulir. Pada viewport di bawah 48rem, brand dan
+CTA tetap pada satu baris, navigasi turun ke baris berikutnya dengan `order: 3` dan
+`flex-basis: 100%`.
+
+**Uji ulang setelah perbaikan:**
+
+```json
+{
+  "scrollHorizontalDokumen": 0,
+  "navFlexWrap": "wrap",
+  "navScrollHorizontal": 0,
+  "tinggiHeader": 129,
+  "h1": { "top": 219, "bottom": 297, "terlihat": true },
+  "cta": { "top": 510, "bottom": 566, "terlihat": true }
+}
+```
+
+`navScrollHorizontal: 0` — scrollbar hilang. Keempat tautan terbaca utuh dalam dua baris, dan
+hero tetap muat di viewport awal.
+
+Desktop 1280px tidak terpengaruh: tinggi header tetap 64px, `scrollHorizontal: 0`.
+
+---
+
+## Rekapitulasi Fase H
+
+| Butir | Requirement | Hasil |
+|---|---|---|
+| Sembilan section berurutan | `UI-14` | LULUS |
+| `<h1>` di bawah 8 kata (4 kata) | `UI-14` | LULUS |
+| Hierarki heading tanpa level dilompati | `UI-14`, `UI-11` | LULUS |
+| Hero terbaca tanpa menggulir | `UI-14` | LULUS |
+| Empat tautan anchor menuju section benar | `UI-14` | LULUS |
+| Dua CTA memicu satu aksi sama | `UI-14`, `UI-13` | LULUS |
+| Fokus kembali ke pemicu yang benar | `UI-11`, `UI-14` | LULUS |
+| Focus trap dan Escape tetap utuh | `UI-11`, `UI-13` | LULUS |
+| Empat belas perhentian Tab, semua ada indikator fokus | `UI-11` | LULUS |
+| FAQ terbuka dengan Enter, nol ARIA tambahan | `UI-14`, `UI-11` | LULUS |
+| Nol social proof karangan | `UI-14`, D-20 | LULUS |
+| Tiga angka bersitasi lembaga dan periode | `UI-14`, `PG-04` | LULUS |
+| Delapan batasan tampil terbuka | `UI-14`, `UI-08` | LULUS |
+| Kanal resmi verbatim | `UI-09` | LULUS |
+| Kontras 32 pasangan | `UI-11`, `UI-12` | LULUS |
+| Nol warna literal di luar `:root` | `UI-12` | LULUS |
+| Responsif 375px, nol scroll horizontal | `UI-10`, `UI-14` | LULUS |
+| Pembesaran 200% | `UI-11` | LULUS |
+| `prefers-reduced-motion` | `UI-11` | LULUS |
+| Console dan jaringan bersih | — | LULUS |
+
+**UJI-15 LULUS.** Dengan ini seluruh 15 skenario `docs/USE-CASE-CEKDULU.md` §5 lulus.
+
+### Konsumsi kuota Fase H
+
+**Nol permintaan API.** Backend, `SYSTEM_INSTRUCTION`, parameter model, dan kontrak API tidak
+disentuh. Seluruh verifikasi memakai inspeksi DOM, pengukuran geometri, perhitungan kontras,
+dan simulasi media query.
+
+---
+
 ## Yang belum diverifikasi
 
 | Butir | Alasan |
 |---|---|
-| Screenshot untuk submit | Fase F. Tangkapan layar dibuat di direktori sementara yang tidak di-track |
+| Screenshot untuk submit | Fase F. Tangkapan layar verifikasi dibuat sebagai berkas sementara dan sudah dihapus |
 
-Seluruh gate verifikasi `docs/METODOLOGI.md` §5 sudah terpenuhi dengan bukti mentah.
+Seluruh gate verifikasi `docs/METODOLOGI.md` §5 sudah terpenuhi dengan bukti mentah, mencakup
+34 requirement dan 15 skenario uji.

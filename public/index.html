@@ -1,18 +1,25 @@
 <!DOCTYPE html>
 <!--
-  Cek Dulu — antarmuka chat.
+  Cek Dulu — landing page dan antarmuka chat.
 
   Requirement yang diimplementasikan berkas ini:
     UI-01  struktur dasar: #chat-form, #user-input, #chat-box di dalam panel
     UI-07  sapaan pembuka statis, tanpa memanggil API
-    UI-08  disclaimer permanen di badan halaman
+    UI-08  disclaimer permanen — section Batasan, catatan komposer, footer
     UI-09  kanal resmi OJK ditulis statis, tidak digenerate model
     UI-11  atribut aksesibilitas dan pola dialog
     UI-13  launcher sudut kanan bawah dan panel dialog
+    UI-14  landing page sembilan section, header sampai footer
 
   Struktur widget dipilih setelah kritik bahwa susunan sebelumnya terbaca sebagai
   formulir. Posisi sudut kanan bawah mengikuti konvensi 89% widget chat.
   Sitasi: docs/RISET-DESAIN.md bagian 1. Keputusan: design.md D-18.
+
+  Urutan section landing page konvergen dari lima sumber, dengan satu penyimpangan
+  disengaja: "Social Proof" diganti "Data & Sumber". Aplikasi ini belum punya pengguna,
+  jadi testimoni apa pun berarti mengarang — melanggar aturan yang sama yang
+  diberlakukan pada bot (PG-04). Angka pengganti berasal dari lembaga resmi dan dapat
+  diverifikasi pembaca. Sitasi: docs/RISET-DESAIN.md bagian 6. Keputusan: design.md D-20.
 
   Spesifikasi: openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md
 -->
@@ -33,44 +40,295 @@
   </head>
 
   <body>
-    <a class="skip-link" href="#launcher">Lewati ke tombol chat</a>
+    <a class="skip-link" href="#konten">Lewati ke konten utama</a>
 
-    <main class="page">
-      <section class="hero">
-        <p class="hero__eyebrow">Edukasi kewaspadaan keuangan digital</p>
-        <h1 class="hero__title">Cek Dulu</h1>
-        <p class="hero__lead">
-          Menerima tawaran pinjaman, tawaran investasi, atau pesan yang membuat Anda ragu?
-          Tempelkan isinya, dan Cek Dulu akan menjelaskan ciri-ciri yang perlu diwaspadai
-          beserta cara memeriksanya sendiri.
+    <!-- UI-14 section 1 — header. Satu CTA, dan aksinya sama dengan seluruh CTA lain
+         di halaman: membuka panel percakapan. Genesys Growth menetapkan satu aksi
+         utama per halaman, tanpa pengecualian. -->
+    <header class="site-header">
+      <a class="brand" href="#konten">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M16 4l10 3.5v8.5c0 6.6-4.4 10.6-10 12.5-5.6-1.9-10-5.9-10-12.5V7.5L16 4z"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+            <circle cx="16" cy="15" r="4" stroke="currentColor" stroke-width="2" />
+            <path d="M19 18l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="brand__name">Cek Dulu</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Navigasi halaman">
+        <ul class="site-nav__list">
+          <li><a class="site-nav__link" href="#cara-kerja">Cara kerja</a></li>
+          <li><a class="site-nav__link" href="#kemampuan">Kemampuan</a></li>
+          <li><a class="site-nav__link" href="#batasan">Batasan</a></li>
+          <li><a class="site-nav__link" href="#kanal">Kanal resmi</a></li>
+        </ul>
+      </nav>
+
+      <button type="button" class="cta cta--ringkas" data-buka-panel>Mulai cek</button>
+    </header>
+
+    <main id="konten">
+      <!-- UI-14 section 2 — hero. Enam elemen hero menurut Landy AI: headline,
+           subheadline, satu CTA, visual, trust signal, dan whitespace. Trust signal di
+           sini berupa angka lembaga resmi pada section berikutnya, bukan testimoni. -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__teks">
+          <p class="eyebrow">Edukasi kewaspadaan keuangan digital</p>
+          <!-- H1 empat kata. Genesys Growth: H1 berperforma tinggi di bawah 8 kata. -->
+          <h1 class="hero__title" id="hero-title">Cek dulu sebelum percaya</h1>
+          <p class="hero__lead">
+            Menerima tawaran pinjaman, tawaran investasi, atau pesan yang membuat Anda ragu?
+            Tempelkan isinya. Cek Dulu menjelaskan ciri yang perlu diwaspadai dan cara
+            memeriksanya sendiri lewat kanal resmi.
+          </p>
+          <p class="hero__aksi">
+            <button type="button" class="cta cta--utama" data-buka-panel>
+              Mulai cek sekarang
+            </button>
+          </p>
+          <p class="hero__nota">
+            Gratis, tanpa pendaftaran. Percakapan tidak disimpan di server.
+          </p>
+        </div>
+
+        <!-- Visual pendukung dibangun dari CSS dan teks, tanpa berkas gambar maupun
+             video. Landy AI mencatat 53% pengguna meninggalkan situs yang lambat.
+             Disembunyikan dari screen reader karena isinya ilustrasi, bukan informasi
+             baru — penjelasan setaranya sudah ada di section Cara kerja. -->
+        <div class="hero__visual" aria-hidden="true">
+          <div class="mock">
+            <p class="mock__masuk">
+              Pinjaman cair 10 menit, tanpa BI checking. Kirim foto KTP dan izinkan akses
+              kontak HP.
+            </p>
+            <ul class="mock__temuan">
+              <li class="mock__item">Janji pencairan tanpa verifikasi</li>
+              <li class="mock__item">Minta izin akses kontak berlebihan</li>
+              <li class="mock__item">Dorongan bertindak cepat</li>
+            </ul>
+            <p class="mock__tutup">Periksa sendiri lewat kanal resmi sebelum melanjutkan.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- UI-14 section 3 — Data & Sumber, pengganti Social Proof.
+           Setiap angka menyebut lembaga dan periode data, dan dapat ditelusuri ke
+           siaran pers resmi yang dicatat di docs/RISET-LAPANGAN.md. DILARANG memuat
+           testimoni, logo mitra, rating, jumlah pengguna, atau tingkat kepuasan:
+           aplikasi ini belum punya pengguna. Keputusan D-20. -->
+      <section class="bagian" id="data" aria-labelledby="data-title">
+        <p class="eyebrow">Data &amp; sumber</p>
+        <h2 class="bagian__judul" id="data-title">Kenapa kewaspadaan ini penting</h2>
+        <p class="bagian__lead">
+          Angka di bawah berasal dari lembaga resmi, bukan dari model bahasa. Setiap angka
+          mencantumkan lembaga dan periode datanya agar Anda dapat memeriksanya sendiri.
         </p>
-        <p class="hero__hint">
-          Buka percakapan lewat tombol <strong>Cek Dulu</strong> di sudut kanan bawah halaman.
+
+        <ul class="angka">
+          <li class="angka__item">
+            <p class="angka__nilai">Rp7,8 triliun</p>
+            <p class="angka__label">
+              Total kerugian yang dilaporkan korban penipuan ke Indonesia Anti-Scam Centre.
+            </p>
+            <p class="angka__sumber">
+              Satgas PASTI, OJK — periode 22 November 2024 sampai 11 November 2025.
+            </p>
+          </li>
+          <li class="angka__item">
+            <p class="angka__nilai">343.402</p>
+            <p class="angka__label">
+              Jumlah laporan penipuan yang diterima Indonesia Anti-Scam Centre pada periode
+              yang sama.
+            </p>
+            <p class="angka__sumber">
+              Satgas PASTI, OJK — periode 22 November 2024 sampai 11 November 2025.
+            </p>
+          </li>
+          <li class="angka__item">
+            <p class="angka__nilai">14 poin</p>
+            <p class="angka__label">
+              Selisih indeks inklusi keuangan (80,51) terhadap indeks literasi keuangan
+              (66,46). Banyak orang punya akses produk keuangan digital tanpa bekal menilai
+              risikonya.
+            </p>
+            <p class="angka__sumber">
+              Survei Nasional Literasi dan Inklusi Keuangan 2025 — OJK dan BPS.
+            </p>
+          </li>
+        </ul>
+
+        <p class="bagian__nota">
+          Sitasi lengkap beserta tautan siaran pers tercatat di
+          <code>docs/RISET-LAPANGAN.md</code>. Angka ini sengaja tidak ditanam ke dalam
+          instruksi model, karena setiap angka adalah potret per tanggal siaran pers dan akan
+          kedaluwarsa.
         </p>
       </section>
 
-      <!-- UI-08 — disclaimer permanen. Ditempatkan di badan halaman, bukan di dalam
-           panel, agar terlihat sebelum percakapan dimulai dan tetap terbaca meski panel
-           ditutup. Panel bersifat non-modal justru agar bagian ini tidak tersembunyi dari
-           screen reader saat panel terbuka. -->
-      <aside class="notice" aria-labelledby="notice-title">
-        <h2 class="notice__title" id="notice-title">Batas penggunaan</h2>
-        <p class="notice__text">
-          Alat ini bersifat <strong>edukatif</strong>, bukan nasihat keuangan, hukum, atau
-          investasi profesional. Cek Dulu <strong>tidak menilai</strong> apakah sebuah
-          perusahaan atau aplikasi itu legal maupun ilegal, karena data legalitas terus
-          berubah. Keputusan dan verifikasi akhir tetap tanggung jawab Anda.
-        </p>
-      </aside>
+      <!-- UI-14 section 4 — Cara Kerja, tiga langkah. -->
+      <section class="bagian" id="cara-kerja" aria-labelledby="cara-title">
+        <p class="eyebrow">Cara kerja</p>
+        <h2 class="bagian__judul" id="cara-title">Tiga langkah, tanpa pendaftaran</h2>
 
-      <!-- UI-09 — kanal resmi ditulis statis di HTML, tidak digenerate model.
-           Nomor kontak adalah data presisi tinggi dengan risiko halusinasi besar bila
-           diserahkan ke LLM. PG-04 melarang bot menyebutkannya dari ingatan.
+        <ol class="langkah">
+          <li class="langkah__item">
+            <p class="langkah__nomor" aria-hidden="true">1</p>
+            <h3 class="langkah__judul">Buka percakapan</h3>
+            <p class="langkah__teks">
+              Klik tombol <strong>Cek Dulu</strong> di sudut kanan bawah halaman, atau tombol
+              mulai cek di halaman ini.
+            </p>
+          </li>
+          <li class="langkah__item">
+            <p class="langkah__nomor" aria-hidden="true">2</p>
+            <h3 class="langkah__judul">Tempelkan isi pesannya</h3>
+            <p class="langkah__teks">
+              Salin isi tawaran atau pesan yang Anda terima apa adanya. Semakin utuh
+              teksnya, semakin banyak ciri yang dapat dijelaskan.
+            </p>
+          </li>
+          <li class="langkah__item">
+            <p class="langkah__nomor" aria-hidden="true">3</p>
+            <h3 class="langkah__judul">Periksa sendiri hasilnya</h3>
+            <p class="langkah__teks">
+              Baca ciri risiko yang dijelaskan, lalu verifikasi ke kanal resmi Otoritas Jasa
+              Keuangan yang tercantum di halaman ini.
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- UI-14 section 5 — Yang Bisa Dibantu. Empat kemampuan diambil dari
+           docs/USE-CASE-CEKDULU.md bagian 3.1. Tidak ada kemampuan tambahan yang
+           dikarang di luar daftar itu. -->
+      <section class="bagian" id="kemampuan" aria-labelledby="kemampuan-title">
+        <p class="eyebrow">Kemampuan</p>
+        <h2 class="bagian__judul" id="kemampuan-title">Yang bisa dibantu</h2>
+
+        <ul class="kartu">
+          <li class="kartu__item">
+            <h3 class="kartu__judul">Membaca ciri risiko dari teks tawaran</h3>
+            <p class="kartu__teks">
+              Menandai ciri yang perlu diwaspadai dari isi pesan yang Anda tempelkan, beserta
+              penjelasan mengapa masing-masing berbahaya.
+            </p>
+          </li>
+          <li class="kartu__item">
+            <h3 class="kartu__judul">Menjelaskan cara verifikasi mandiri</h3>
+            <p class="kartu__teks">
+              Langkah pemeriksaan yang bisa Anda lakukan sendiri, lalu diarahkan ke kanal
+              resmi untuk memastikan.
+            </p>
+          </li>
+          <li class="kartu__item">
+            <h3 class="kartu__judul">Menjelaskan konsep keuangan dasar</h3>
+            <p class="kartu__teks">
+              Istilah seperti bunga harian atau biaya administrasi dijelaskan dengan bahasa
+              sederhana dan contoh perhitungan ilustratif.
+            </p>
+          </li>
+          <li class="kartu__item">
+            <h3 class="kartu__judul">Mengenali pola penipuan umum</h3>
+            <p class="kartu__teks">
+              Pola seperti undian berhadiah yang meminta pembayaran di muka dijelaskan
+              beserta alasan mengapa polanya khas penipuan.
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- UI-14 section 6, UI-08 — Batasan. Delapan larangan dari
+           docs/USE-CASE-CEKDULU.md bagian 3.2, ditampilkan terbuka tanpa interaksi.
+           Dasarnya prinsip Transparansi Etika AI (Sesi 1 p.99): pengguna perlu tahu batas
+           alat SEBELUM bertanya, bukan setelah menerima jawaban yang tidak diharapkan. -->
+      <section class="bagian bagian--batas" id="batasan" aria-labelledby="batasan-title">
+        <p class="eyebrow">Batasan</p>
+        <h2 class="bagian__judul" id="batasan-title">Yang tidak dilakukan Cek Dulu</h2>
+        <p class="bagian__lead">
+          Daftar ini bukan catatan kecil di bagian bawah. Alat ini bersifat
+          <strong>edukatif</strong>, bukan nasihat keuangan, hukum, atau investasi
+          profesional. Keputusan dan verifikasi akhir tetap tanggung jawab Anda.
+        </p>
+
+        <ul class="batas">
+          <li class="batas__item">
+            <h3 class="batas__judul">Tidak menyatakan sebuah entitas legal atau ilegal</h3>
+            <p class="batas__teks">
+              Data legalitas terus berubah dan model tidak punya akses daftar resmi terkini.
+              Ini risiko halusinasi tertinggi, sehingga dilarang mutlak.
+            </p>
+          </li>
+          <li class="batas__item">
+            <h3 class="batas__judul">Tidak memberi nasihat hukum</h3>
+            <p class="batas__teks">
+              Bukan kewenangan alat ini, dan jawaban yang salah bisa merugikan Anda.
+            </p>
+          </li>
+          <li class="batas__item">
+            <h3 class="batas__judul">Tidak memberi rekomendasi investasi personal</h3>
+            <p class="batas__teks">
+              Berpotensi merugikan finansial dan menyerupai layanan yang diatur regulasi.
+            </p>
+          </li>
+          <li class="batas__item">
+            <h3 class="batas__judul">
+              Tidak mengarang nomor telepon, email, URL, atau nomor peraturan
+            </h3>
+            <p class="batas__teks">
+              Data presisi tinggi. Kanal resmi ditulis langsung di halaman ini, bukan
+              dihasilkan model.
+            </p>
+          </li>
+          <li class="batas__item">
+            <h3 class="batas__judul">Tidak mengarang statistik atau persentase</h3>
+            <p class="batas__teks">
+              Angka berubah. Bila dihasilkan model, angkanya akan salah dan disampaikan
+              dengan yakin.
+            </p>
+          </li>
+          <li class="batas__item">
+            <h3 class="batas__judul">Tidak menghakimi atau menyalahkan korban</h3>
+            <p class="batas__teks">
+              Orang yang sudah dirugikan butuh langkah lanjutan, bukan penilaian.
+            </p>
+          </li>
+          <li class="batas__item">
+            <h3 class="batas__judul">Tidak menjawab di luar domain keuangan digital</h3>
+            <p class="batas__teks">
+              Fokus dijaga agar jawaban tetap dapat dipertanggungjawabkan.
+            </p>
+          </li>
+          <li class="batas__item">
+            <h3 class="batas__judul">Tidak memberi nasihat medis atau psikologis klinis</h3>
+            <p class="batas__teks">
+              Di luar kompetensi alat ini. Bila percakapan menyentuh tekanan berat, Anda akan
+              diarahkan ke bantuan profesional.
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- UI-14 section 7, UI-09 — kanal resmi ditulis statis di HTML, tidak digenerate
+           model. Nomor kontak adalah data presisi tinggi dengan risiko halusinasi besar
+           bila diserahkan ke LLM; PG-04 melarang bot menyebutkannya dari ingatan.
            Nilai disalin dari docs/RISET-LAPANGAN.md bagian 7. -->
-      <section class="channels" aria-labelledby="channels-title">
-        <h2 class="channels__title" id="channels-title">
+      <section class="bagian" id="kanal" aria-labelledby="kanal-title">
+        <p class="eyebrow">Kanal resmi</p>
+        <h2 class="bagian__judul" id="kanal-title">
           Kanal resmi Otoritas Jasa Keuangan
         </h2>
+        <p class="bagian__lead">
+          Untuk memastikan status sebuah penawaran atau melaporkan kerugian, hubungi kanal
+          berikut. Nilai di bawah ditulis langsung di halaman ini, bukan dihasilkan model.
+        </p>
+
         <dl class="channels__list">
           <div class="channels__item">
             <dt class="channels__label">Telepon</dt>
@@ -89,12 +347,104 @@
             <dd class="channels__value">satgaspasti@ojk.go.id</dd>
           </div>
         </dl>
-        <p class="channels__source">
+        <p class="bagian__nota">
           Sumber: siaran pers Satgas Pemberantasan Aktivitas Keuangan Ilegal, dicatat di
           <code>docs/RISET-LAPANGAN.md</code> bagian 7.
         </p>
       </section>
+
+      <!-- UI-14 section 8 — FAQ memakai <details> dan <summary> bawaan HTML. Keduanya
+           sudah dapat dibuka dengan keyboard dan diumumkan screen reader tanpa JavaScript
+           maupun atribut ARIA tambahan, sejalan dengan UI-11 dan batasan Vanilla. -->
+      <section class="bagian" id="faq" aria-labelledby="faq-title">
+        <p class="eyebrow">Pertanyaan umum</p>
+        <h2 class="bagian__judul" id="faq-title">Yang sering ditanyakan</h2>
+
+        <div class="faq">
+          <details class="faq__item">
+            <summary class="faq__tanya">
+              Bisakah Cek Dulu memastikan sebuah aplikasi itu legal?
+            </summary>
+            <p class="faq__jawab">
+              Tidak, dan itu memang disengaja. Daftar entitas resmi terus berubah, sementara
+              model bahasa tidak punya akses data terkini. Jawaban yang salah soal legalitas
+              justru bisa membuat Anda tertipu karena percaya. Yang dilakukan Cek Dulu adalah
+              menjelaskan ciri risiko dan mengarahkan Anda memeriksa ke kanal resmi.
+            </p>
+          </details>
+
+          <details class="faq__item">
+            <summary class="faq__tanya">Apakah percakapan saya disimpan?</summary>
+            <p class="faq__jawab">
+              Tidak ada penyimpanan di server. Riwayat percakapan hanya hidup di memori
+              browser Anda dan hilang begitu halaman dimuat ulang. Tidak ada basis data dan
+              tidak ada penyimpanan ke perangkat.
+            </p>
+          </details>
+
+          <details class="faq__item">
+            <summary class="faq__tanya">Apakah jawabannya bisa dijadikan dasar keputusan?</summary>
+            <p class="faq__jawab">
+              Jadikan bahan pertimbangan, bukan dasar tunggal. Alat ini bersifat edukatif dan
+              bukan nasihat keuangan, hukum, atau investasi profesional. Untuk keputusan yang
+              menyangkut uang Anda, verifikasi dulu ke kanal resmi.
+            </p>
+          </details>
+
+          <details class="faq__item">
+            <summary class="faq__tanya">Apakah jawaban bot selalu benar?</summary>
+            <p class="faq__jawab">
+              Tidak. Model bahasa bersifat probabilistik, sehingga keluaran yang salah tetap
+              mungkin terjadi. Itu sebabnya alat ini dirancang untuk mengarahkan Anda
+              memeriksa sendiri, dan batasannya ditulis terbuka di halaman ini.
+            </p>
+          </details>
+
+          <details class="faq__item">
+            <summary class="faq__tanya">Saya sudah jadi korban. Apa langkah pertamanya?</summary>
+            <p class="faq__jawab">
+              Kumpulkan bukti percakapan dan bukti transfer, lalu laporkan ke kanal resmi
+              Otoritas Jasa Keuangan yang tercantum di halaman ini. Hindari mengambil
+              pinjaman baru untuk menutup kerugian. Cek Dulu dapat membantu menjelaskan
+              langkah umumnya, tanpa menghakimi.
+            </p>
+          </details>
+        </div>
+      </section>
     </main>
+
+    <!-- UI-14 section 9, UI-08 — footer. Disclaimer satu paragraf sebagai penutup
+         halaman, ditambah tautan dokumen dan atribusi. Tanpa logo pihak lain: merek
+         Hacktiv8 maupun OJK berpotensi terbaca sebagai klaim afiliasi resmi (D-20). -->
+    <footer class="site-footer">
+      <div class="site-footer__utama">
+        <p class="site-footer__disclaimer">
+          <strong>Cek Dulu adalah alat edukasi.</strong> Bukan nasihat keuangan, hukum, atau
+          investasi profesional. Alat ini tidak menilai apakah sebuah perusahaan atau
+          aplikasi legal maupun ilegal, karena data legalitas terus berubah dan model tidak
+          punya akses daftar resmi terkini. Verifikasi dan keputusan akhir tetap tanggung
+          jawab Anda. Untuk memastikan status suatu penawaran keuangan, hubungi Otoritas Jasa
+          Keuangan melalui kanal resmi di atas.
+        </p>
+
+        <nav class="site-footer__nav" aria-label="Tautan dokumen">
+          <h2 class="site-footer__judul">Dokumentasi</h2>
+          <ul class="site-footer__list">
+            <li><code>docs/USE-CASE-CEKDULU.md</code> — persona, guardrail, skenario uji</li>
+            <li><code>docs/RISET-LAPANGAN.md</code> — data eksternal beserta sitasinya</li>
+            <li><code>docs/QA-REPORT.md</code> — bukti verifikasi mentah</li>
+            <li><code>openspec/</code> — requirement ber-ID beserta sumbernya</li>
+          </ul>
+        </nav>
+      </div>
+
+      <p class="site-footer__atribusi">
+        Dibuat sebagai Final Project jalur Developers pada program Maju Bareng AI oleh
+        Hacktiv8. Data yang dirujuk halaman ini milik Otoritas Jasa Keuangan dan Badan Pusat
+        Statistik. Halaman ini bukan layanan resmi dan tidak berafiliasi dengan lembaga mana
+        pun yang disebutkan.
+      </p>
+    </footer>
 
     <!-- UI-13 — launcher. Memuat ikon dan label teks karena ikon gelembung saja jarang
          cukup untuk mengomunikasikan peran. Tanpa badge notifikasi: tidak ada pesan nyata

@@ -28,18 +28,27 @@ tapi berdasarkan requirement ber-ID yang punya sumber tertulis.
 - Kode yang tidak punya requirement ID → **jangan ditulis**.
 - Spec ternyata salah/kurang di tengah implementasi → **perbaiki spec dulu**, baru koding.
   Dilarang koding menyimpang lalu memperbaiki spec agar cocok.
-- Ada 33 requirement (`WS-*`, `API-*`, `PG-*`, `UI-*`). Semua punya sumber. Matriks
+- Ada 34 requirement (`WS-*`, `API-*`, `PG-*`, `UI-*`). Semua punya sumber. Matriks
   keterlacakan di `design.md` §3.
 
 Cara kerja lengkap + 5 gate verifikasi → `docs/METODOLOGI.md`.
 
-**Progres saat ini: Fase A sampai E dan G selesai; kelima gate verifikasi LULUS.**
-Backend `index.js` dan frontend `public/` sudah diimplementasikan dan diverifikasi di
-browser nyata — 72 dari 79 task tuntas, dan **14 dari 14 skenario uji lulus**. Antarmuka
-memakai pola launcher dan panel dialog dengan palet light mode; riset dan sitasinya di
-`docs/RISET-DESAIN.md`. Sisa: Fase F berupa screenshot dan submit. Bukti mentah di
-`docs/QA-REPORT.md`. Sebelum mengerjakan apa pun, cek status per task di
+**Progres saat ini: Fase A sampai E, G, dan H selesai; kelima gate verifikasi LULUS.**
+Backend `index.js` dan frontend `public/` sudah diimplementasikan dan diverifikasi di browser
+nyata — 91 dari 98 task tuntas, dan **15 dari 15 skenario uji lulus**. Antarmuka memakai
+landing page sembilan section ditambah launcher dan panel dialog dengan palet light mode;
+riset dan sitasinya di `docs/RISET-DESAIN.md`.
+
+Sisa: Fase F berupa screenshot dan submit. Bukti mentah di `docs/QA-REPORT.md`. Sebelum
+mengerjakan apa pun, cek status per task di
 `openspec/changes/add-cekdulu-chatbot/tasks.md`.
+
+**Larangan permanen pada halaman (`UI-14`, D-20):** DILARANG memuat testimoni, logo mitra,
+star rating, jumlah ulasan, jumlah pengguna, jumlah unduhan, atau tingkat kepuasan. Aplikasi
+belum punya pengguna — mengarangnya melanggar aturan yang sama yang diberlakukan pada bot
+(`PG-04`). Setiap angka pada halaman wajib berasal dari `docs/RISET-LAPANGAN.md` beserta
+lembaga dan periode datanya. Audit larangan ini sudah dijalankan dan lulus; buktinya di
+`docs/QA-REPORT.md` bagian Fase H.
 
 **`PG-03` adalah gate mutlak:** bot dilarang menyatakan sebuah perusahaan/aplikasi legal
 atau ilegal. Uji UJI-03 sudah dijalankan pada 1 Agustus 2026 dan **lulus** — kutipan jawaban
@@ -95,7 +104,7 @@ Lima gate `docs/METODOLOGI.md` §5, semuanya wajib dengan **bukti output nyata**
 1. **Keterlacakan** — setiap requirement punya sumber tertulis.
 2. **Server hidup** — `node index.js` jalan, log muncul, tempel outputnya.
 3. **Kontrak API** — `curl` positif → `200 {result}`; `curl` negatif → `500 {error}`.
-4. **Guardrail & UI** — 14 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser
+4. **Guardrail & UI** — 15 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser
    sungguhan; **UJI-03 lulus mutlak**. Termasuk verifikasi aksesibilitas `UI-11`.
 5. **Kebersihan repo** — `.env` tidak ter-track, hanya 4 dependency, tanpa `devDependencies`,
    tidak ada file temporer.
@@ -210,7 +219,7 @@ Ini bukan inkonsistensi di dalam materi, tetapi **materi versus kondisi API aktu
 | `docs/MATERI-SESI-3.md` | Ringkasan lengkap Sesi 3 |
 | `docs/TOOLS-DAN-LINK.md` | Daftar tools, versi, dan semua URL dari PDF |
 | `docs/FINAL-PROJECT.md` | Requirement + kriteria submit final project |
-| `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 14 skenario uji |
+| `docs/USE-CASE-CEKDULU.md` | Use case terpilih, persona, guardrail, 15 skenario uji |
 | `docs/RISET-LAPANGAN.md` | Data eksternal + sitasi URL resmi |
 | `docs/RISET-DESAIN.md` | Riset pola widget & palet warna + sitasi URL |
 | `docs/KENDALA-API.md` | Model materi ditutup Google + rate limit + strategi hemat kuota |

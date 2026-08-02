@@ -3,11 +3,11 @@
 | Meta | Nilai |
 |---|---|
 | ID change | `add-cekdulu-chatbot` |
-| Status | **Verified** — Fase A sampai E dan G selesai, kelima gate lulus, 14/14 skenario lulus. Sisa Fase F |
+| Status | **Verified** — Fase A sampai E, G, dan H selesai, kelima gate lulus, 15/15 skenario lulus. Sisa Fase F |
 | Tanggal dibuat | 1 Agustus 2026 |
 | Terakhir diperbarui | 1 Agustus 2026 |
 | Kapabilitas tersentuh | `web-server` ✅, `chat-api` ✅, `persona-guardrail` ✅, `chat-ui` ✅ |
-| Progres task | 72 dari 79 (`tasks.md`) |
+| Progres task | 91 dari 98 (`tasks.md`) |
 | Bukti verifikasi | `docs/QA-REPORT.md` |
 
 ---
@@ -145,7 +145,7 @@ Change ini selesai ketika kelima gate `docs/METODOLOGI.md` §5 lewat dengan bukt
 1. Setiap requirement punya sumber tertulis — diperiksa manual dan oleh CI job `traceability`
 2. `node index.js` hidup tanpa error
 3. `curl` positif → `200 { result }`; `curl` negatif → `500 { error }`
-4. 14 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser; **UJI-03 lulus mutlak**;
+4. 15 skenario `docs/USE-CASE-CEKDULU.md` §5 dijalankan di browser; **UJI-03 lulus mutlak**;
    `UI-11` diverifikasi lewat navigasi keyboard, kontras, pembesaran 200%, dan
    `prefers-reduced-motion`
 5. `.env` tidak ter-track, tidak ada dependency di luar 4 yang diizinkan, tidak ada
@@ -154,7 +154,7 @@ Change ini selesai ketika kelima gate `docs/METODOLOGI.md` §5 lewat dengan bukt
 Ditambah satu syarat dokumentasi:
 
 6. `docs/QA-REPORT.md` memuat bukti mentah — output `node index.js`, output `curl` apa
-   adanya, dan tabel 14 skenario beserta kutipan jawaban bot. Klaim tanpa bukti tidak sah.
+   adanya, dan tabel skenario beserta kutipan jawaban bot. Klaim tanpa bukti tidak sah.
 
 CI (`.github/workflows/ci.yml`) menjaga gate 1, 5, dan sebagian `PG-09` secara otomatis
 pada setiap push. Detail: `design.md` D-14.

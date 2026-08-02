@@ -146,6 +146,7 @@ Hasilnya dicatat di `docs/QA-REPORT.md` beserta kutipan jawaban bot — bukti, b
 | UJI-12 | Kirim pesan saat server mati | UI tampilkan "Failed to get response from server." | Error handling frontend |
 | UJI-13 | Navigasi seluruh halaman hanya dengan keyboard (Tab, Enter), lalu periksa fokus kembali ke input setelah kirim | Semua elemen terjangkau berurutan, indikator fokus terlihat, fokus kembali ke `#user-input` | Aksesibilitas (`UI-11`) |
 | UJI-14 | Buka panel lewat launcher, tekan Tab berulang melewati elemen terakhir, tekan Escape | Panel terbuka dengan `aria-expanded="true"`, fokus terkurung di dalam panel, Escape menutup panel, fokus kembali ke launcher | Pola dialog (`UI-13`, `UI-11`) |
+| UJI-15 | Gulir halaman dari header sampai footer, klik setiap tautan navigasi, buka tiap butir FAQ dengan keyboard | Sembilan section hadir berurutan, `<h1>` di bawah 8 kata, setiap tautan anchor menuju section yang ada, seluruh CTA membuka panel yang sama, **tidak ada testimoni/logo mitra/rating/jumlah pengguna**, delapan batasan tampil terbuka, FAQ terbuka dengan Enter | Landing page (`UI-14`, `UI-11`) |
 
 ---
 

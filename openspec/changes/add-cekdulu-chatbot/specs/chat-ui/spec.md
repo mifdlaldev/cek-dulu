@@ -10,6 +10,14 @@ Kapabilitas: antarmuka chat Vanilla JavaScript di folder `public/`.
 > lanjut usia. Requirement yang terpengaruh: `UI-01` (penempatan), `UI-11` (pola dialog),
 > `UI-12` (palet). Requirement baru: `UI-13`. Bukti dan sitasi: `docs/RISET-DESAIN.md`.
 > Keputusan: `design.md` D-12 (amandemen), D-18, D-19.
+>
+> **Amandemen kedua — landing page.** Setelah pola widget diterapkan, badan halaman hanya
+> memuat hero singkat, disclaimer, dan kanal resmi; tidak menjelaskan apa yang Cek Dulu
+> lakukan kepada pengunjung baru. Badan halaman kini disusun sebagai landing page sembilan
+> section dengan section "Social Proof" **diganti** "Data & Sumber" berisi angka lembaga resmi
+> bersitasi — karena aplikasi belum punya pengguna dan mengarang testimoni bertentangan dengan
+> nilai proyek. Requirement yang terpengaruh: `UI-08` dan `UI-09` (penempatan). Requirement
+> baru: `UI-14`. Bukti dan sitasi: `docs/RISET-DESAIN.md` §6. Keputusan: `design.md` D-20.
 
 ---
 
@@ -267,33 +275,41 @@ membingungkan konteks model.
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S2 p.67 (contoh batch: "Informasi bersifat edukatif dan bukan nasihat finansial profesional"); S1 p.99 (prinsip Transparansi) |
+| Sumber | S2 p.67 (contoh batch: "Informasi bersifat edukatif dan bukan nasihat finansial profesional"); S1 p.99 (prinsip Transparansi); penempatan diamandemen `design.md` D-20 |
 | Berkas | `public/index.html` |
-| Terkait | `PG-03`, `UI-13` |
+| Terkait | `PG-03`, `UI-13`, `UI-14` |
 
-Halaman WAJIB memuat disclaimer yang **selalu terlihat** (tidak perlu di-scroll jauh atau
-diklik), menyatakan bahwa:
+Halaman WAJIB memuat disclaimer yang menyatakan bahwa:
 
 1. Informasi bersifat **edukatif**, bukan nasihat keuangan, hukum, atau investasi profesional
 2. Bot **tidak menilai** legalitas perusahaan atau aplikasi tertentu
 3. Keputusan akhir dan verifikasi tetap tanggung jawab pengguna
 
-Disclaimer ini WAJIB berada di **badan halaman**, bukan di dalam panel. Alasannya: disclaimer
-harus terlihat sebelum pengguna memulai percakapan, dan tetap terbaca meski panel ditutup.
-Panel bersifat non-modal (`UI-13`) justru agar disclaimer dan kanal resmi tidak tersembunyi
-dari screen reader saat panel terbuka.
+Disclaimer WAJIB muncul di **tiga tempat**, masing-masing dengan fungsi berbeda:
 
-Panel SEBAIKNYA memuat pengingat ringkas satu baris pada bagian bawah komposer, sebagai
-lapis tambahan yang terlihat saat pengguna sedang berdialog.
+| Tempat | Bentuk | Fungsi |
+|---|---|---|
+| Section Batasan (`UI-14`) | Delapan larangan lengkap | Pembaca memahami batas sebelum bertanya |
+| Bawah komposer di panel | Satu baris ringkas | Terlihat saat pengguna sedang berdialog |
+| Footer | Satu paragraf | Penutup halaman, selalu ada |
+
+Seluruhnya berada di **badan halaman atau panel**, bukan tersembunyi di balik interaksi. Panel
+bersifat non-modal (`UI-13`) justru agar disclaimer di badan halaman tidak tersembunyi dari
+screen reader saat panel terbuka.
 
 Disclaimer ini adalah **lapis pertahanan kedua** setelah `PG-03`. Karena LLM bersifat
 probabilistik, guardrail prompt saja tidak cukup — pengguna harus tahu batas alat ini dari
 antarmuka, bukan hanya dari jawaban bot.
 
-#### Scenario: disclaimer terlihat
+#### Scenario: disclaimer terlihat tanpa interaksi
 - **When** pengguna membuka halaman
-- **Then** disclaimer terlihat tanpa interaksi tambahan
-- **And** disclaimer menyebut sifat edukatif dan batas penilaian legalitas
+- **Then** disclaimer di footer dan section Batasan dapat dijangkau dengan menggulir
+- **And** keduanya menyebut sifat edukatif dan batas penilaian legalitas
+
+#### Scenario: disclaimer terlihat saat berdialog
+- **Given** panel dialog terbuka
+- **When** pengguna melihat komposer
+- **Then** ada pengingat ringkas satu baris di bawah kolom pesan
 
 #### Scenario: disclaimer tetap terjangkau saat panel terbuka
 - **Given** panel dialog terbuka
@@ -306,9 +322,9 @@ antarmuka, bukan hanya dari jawaban bot.
 
 | Meta | Nilai |
 |---|---|
-| Sumber | `docs/RISET-LAPANGAN.md` §7 (verbatim siaran pers Satgas PASTI) |
+| Sumber | `docs/RISET-LAPANGAN.md` §7 (verbatim siaran pers Satgas PASTI); penempatan diamandemen `design.md` D-20 |
 | Berkas | `public/index.html` |
-| Terkait | `PG-04` |
+| Terkait | `PG-04`, `UI-14` |
 
 Kanal resmi OJK WAJIB ditulis **statis di HTML**, tidak digenerate oleh model:
 
@@ -319,6 +335,9 @@ Kanal resmi OJK WAJIB ditulis **statis di HTML**, tidak digenerate oleh model:
 | Email konsumen | `konsumen@ojk.go.id` |
 | Email Satgas PASTI | `satgaspasti@ojk.go.id` |
 
+Keempatnya WAJIB ditempatkan sebagai **section tersendiri** pada landing page (`UI-14`), dengan
+judul yang menyebut Otoritas Jasa Keuangan.
+
 Alasan: nomor kontak adalah data presisi tinggi dengan risiko halusinasi besar bila
 diserahkan ke LLM. `PG-04` melarang bot menyebutkannya dari ingatan; requirement ini
 menyediakan tempat yang benar untuk data tersebut.
@@ -327,8 +346,13 @@ Sumber data WAJIB dicantumkan agar bisa diaudit ulang.
 
 #### Scenario: kanal resmi tersedia di halaman
 - **When** pengguna membuka halaman
-- **Then** keempat kanal resmi terlihat atau dapat diakses dari halaman
+- **Then** keempat kanal resmi terlihat pada section tersendiri
 - **And** nilainya persis seperti tabel di atas
+- **And** sumber data tercantum
+
+#### Scenario: kanal resmi dapat dijangkau dari navigasi
+- **When** pengguna mengklik tautan navigasi menuju kanal resmi
+- **Then** halaman menggulir ke section tersebut
 
 #### Scenario: bot mengarahkan ke kanal yang sudah ada di halaman
 - **When** pengguna bertanya cara melapor
@@ -639,6 +663,127 @@ Konsekuensi yang DILARANG:
 
 ---
 
+### `UI-14` — Struktur landing page
+
+| Meta | Nilai |
+|---|---|
+| Sumber | `docs/RISET-DESAIN.md` §6 (urutan konvergen involve.me, Replo, Landy AI, Genesys Growth, Neel Networks; larangan testimoni dari WiserNotify, ProveSource, Nudgify) |
+| Berkas | `public/index.html`, `public/style.css` |
+| Uji | UJI-15 |
+| Terkait | `UI-08`, `UI-09`, `UI-13` |
+
+> **Catatan keterlacakan.** Materi pelatihan **tidak membahas struktur landing page**.
+> Requirement ini lahir dari riset di luar materi. Brief S3 p.49 meminta use case dan
+> konfigurasi "sesuai dengan kreativitas masing-masing" — struktur halaman tidak dikunci
+> materi. Ditandai sebagai keputusan sadar berbasis riset, bukan klaim materi. Alasan
+> lengkap: `design.md` D-20.
+
+Badan halaman WAJIB disusun sebagai landing page dengan **sembilan section** dalam urutan
+berikut:
+
+| # | Section | Isi wajib |
+|---|---|---|
+| 1 | Header | Nama produk, navigasi anchor, satu tombol CTA |
+| 2 | Hero | `<h1>`, subheadline, satu CTA utama, visual pendukung |
+| 3 | Data & Sumber | Tiga angka lembaga resmi beserta sitasinya |
+| 4 | Cara Kerja | Tiga langkah pemakaian |
+| 5 | Yang Bisa Dibantu | Empat kemampuan dari `USE-CASE-CEKDULU.md` §3.1 |
+| 6 | Batasan | Delapan larangan dari `USE-CASE-CEKDULU.md` §3.2 |
+| 7 | Kanal Resmi | Empat kanal OJK (`UI-09`) |
+| 8 | FAQ | Lima pertanyaan |
+| 9 | Footer | Disclaimer (`UI-08`), tautan dokumen, atribusi |
+
+**Hero**
+
+- `<h1>` WAJIB **di bawah 8 kata**. Genesys Growth mencatat H1 berperforma tinggi berada di
+  bawah 8 kata atau 44 karakter.
+- WAJIB memuat subheadline yang memperluas janji headline.
+- Hero WAJIB terbaca tanpa menggulir pada viewport desktop biasa. Neel Networks memberi hero
+  sekitar 5 detik untuk mengomunikasikan nilai.
+- Pada ponsel, urutan WAJIB: headline, subheadline, CTA, lalu visual — 60% lebih trafik
+  berasal dari ponsel (Landy AI).
+
+**CTA**
+
+- Halaman WAJIB memiliki **satu aksi utama saja**: membuka panel percakapan (`UI-13`).
+  Genesys Growth menyatakan satu CTA utama per halaman, tanpa pengecualian.
+- Seluruh tombol CTA di halaman WAJIB menunjuk aksi yang sama. Jumlah tombol boleh lebih dari
+  satu, tetapi aksinya tunggal.
+
+**Data & Sumber — pengganti Social Proof**
+
+- Section ini WAJIB memuat angka dari `docs/RISET-LAPANGAN.md` beserta nama lembaga dan
+  periode datanya.
+- Setiap angka WAJIB dapat ditelusuri ke sumber resmi. Tanpa sitasi, angka DILARANG tampil.
+- DILARANG memuat testimoni pengguna, logo mitra, star rating, jumlah ulasan, jumlah pengguna,
+  jumlah unduhan, atau tingkat kepuasan. Aplikasi ini belum memiliki pengguna; angka apa pun
+  di kategori tersebut berarti mengarang. Ini aturan yang sama seperti `PG-04` bagi bot,
+  diberlakukan pada halaman.
+
+**Batasan**
+
+- Delapan larangan WAJIB tampil terbuka, tidak disembunyikan di balik interaksi.
+- Dasarnya prinsip Transparansi (S1 p.99): pengguna perlu tahu batas alat **sebelum** bertanya.
+
+**FAQ**
+
+- WAJIB memakai elemen `<details>` dan `<summary>` bawaan HTML. Keduanya sudah dapat dioperasikan
+  keyboard dan diumumkan screen reader tanpa JavaScript maupun ARIA tambahan (`UI-11`).
+
+**Navigasi**
+
+- Setiap tautan anchor di header WAJIB menuju section yang ada pada halaman.
+- Section yang dirujuk WAJIB memiliki `id` yang cocok.
+
+#### Scenario: sembilan section hadir dalam urutan yang ditetapkan
+- **When** pengguna membuka `http://localhost:3000/`
+- **Then** kesembilan section ada di DOM
+- **And** urutannya sesuai tabel di atas
+
+#### Scenario: headline memenuhi batas panjang
+- **When** `<h1>` diperiksa
+- **Then** jumlah katanya di bawah 8
+
+#### Scenario: hero terbaca tanpa menggulir
+- **When** halaman dibuka pada viewport desktop biasa
+- **Then** headline, subheadline, dan CTA utama terlihat tanpa menggulir
+
+#### Scenario: seluruh CTA menunjuk aksi yang sama
+- **When** setiap tombol CTA diklik
+- **Then** panel percakapan terbuka
+- **And** tidak ada aksi utama lain yang bersaing
+
+#### Scenario: angka pada Data & Sumber punya sitasi
+- **When** section Data & Sumber diperiksa
+- **Then** setiap angka disertai nama lembaga dan periode data
+- **And** sumbernya dapat ditelusuri
+
+#### Scenario: tidak ada social proof yang dikarang
+- **When** halaman diperiksa dari header sampai footer
+- **Then** tidak ada testimoni, logo mitra, star rating, jumlah ulasan, jumlah pengguna,
+  jumlah unduhan, maupun tingkat kepuasan
+
+#### Scenario: delapan batasan tampil terbuka
+- **When** section Batasan diperiksa
+- **Then** kedelapan larangan terbaca tanpa interaksi tambahan
+
+#### Scenario: FAQ dapat dioperasikan keyboard
+- **When** pengguna memberi fokus pada `<summary>` lalu menekan Enter
+- **Then** jawaban terbuka
+- **And** tidak ada atribut ARIA tambahan yang dibutuhkan
+
+#### Scenario: tautan navigasi menuju section yang ada
+- **When** setiap tautan anchor di header diklik
+- **Then** halaman menggulir ke section dengan `id` yang cocok
+
+#### Scenario: landing page tidak mengganggu panel
+- **Given** panel percakapan terbuka
+- **When** pengguna menggulir halaman
+- **Then** panel tetap pada posisinya
+- **And** tidak ada scroll horizontal pada dokumen
+
+---
+
 ## Yang TIDAK dibuat di frontend
 
 | Tidak dibuat | Alasan |
@@ -654,3 +799,11 @@ Konsekuensi yang DILARANG:
 | Badge notifikasi pada launcher | messengerbot.app melarang badge sebagai urgensi buatan ketika tidak ada pesan nyata (D-18) |
 | Sapaan proaktif yang membuka panel otomatis | Clutch mencatat 55% konsumen meninggalkan alat AI yang mengganggu penjelajahan (D-18) |
 | Avatar berupa berkas gambar atau emoji robot | Berkas gambar menambah permintaan jaringan; emoji robot menggeser nada menjadi ceria, tidak sesuai konteks pengguna yang cemas (D-19) |
+| Testimoni pengguna | Aplikasi belum memiliki pengguna. WiserNotify: "one honest, detailed review beats ten polished fakes". Mengarang testimoni melanggar nilai proyek yang melarang bot mengarang (`PG-04`) — D-20 |
+| Logo "dipercaya oleh" atau logo mitra | Tidak ada mitra; memalsukan afiliasi (D-20) |
+| Star rating dan jumlah ulasan | Tidak ada ulasan (D-20) |
+| Logo Hacktiv8 maupun OJK di halaman | Merek pihak lain, berpotensi terbaca sebagai klaim afiliasi resmi. `NOTICE.md` menyatakan repositori tidak meredistribusi aset penyelenggara (D-20) |
+| Angka pengguna, unduhan, atau tingkat kepuasan | Tidak ada datanya. Aturan yang sama seperti yang diberlakukan pada bot: tidak mengarang angka (D-20) |
+| Hero berupa video | Landy AI mencatat 53% pengguna meninggalkan situs lambat; video menambah bobot muat tanpa manfaat sebanding (D-20) |
+| Dua atau lebih CTA utama yang bersaing | Genesys Growth: satu CTA utama per halaman, tanpa pengecualian (D-20) |
+| Akordeon FAQ tulisan sendiri | `<details>`/`<summary>` bawaan HTML sudah aksesibel keyboard dan screen reader tanpa JavaScript; menulis sendiri menambah risiko kesalahan aksesibilitas untuk hasil sama (D-20) |

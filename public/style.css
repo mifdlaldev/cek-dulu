@@ -8,12 +8,17 @@
  *          dukungan prefers-reduced-motion
  *   UI-12  seluruh nilai visual sebagai design token dalam satu blok :root
  *   UI-13  launcher sudut kanan bawah dan panel dialog
+ *   UI-14  gaya landing page sembilan section
  *
  * Light mode dipilih karena target pengguna mencakup orang lanjut usia dan
  * berliterasi rendah; literatur keterbacaan mengarah ke light mode untuk kelompok
  * tersebut. Palet navy dan deep teal dipilih atas dasar riset psikologi warna
  * layanan keuangan. Sitasi: docs/RISET-DESAIN.md bagian 3 dan 4.
  * Keputusan: design.md D-12 (amandemen), D-18, D-19.
+ *
+ * Landing page tidak menambah satu pun token warna baru. Seluruh section memakai
+ * sebelas token palet yang sudah diukur memenuhi WCAG 2.1 AA pada Fase G, sehingga
+ * tidak ada pasangan kontras baru yang perlu divalidasi. Keputusan: design.md D-20.
  *
  * Spesifikasi: openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md
  */
@@ -67,9 +72,21 @@
   --bayang-lembut: 0 1px 2px rgba(17, 31, 46, 0.06), 0 2px 8px rgba(17, 31, 46, 0.06);
   --bayang-kuat: 0 4px 12px rgba(17, 31, 46, 0.12), 0 12px 32px rgba(17, 31, 46, 0.14);
 
+  /* UI-14 — skala tipografi landing page. clamp() dipakai agar ukuran menyesuaikan
+     viewport tanpa media query tambahan; 60% lebih trafik berasal dari ponsel. */
+  --teks-hero: clamp(1.875rem, 5vw, 3rem);
+  --teks-judul-bagian: clamp(1.375rem, 3vw, 1.875rem);
+  --teks-angka: clamp(1.625rem, 4vw, 2.25rem);
+
+  /* UI-14 — jarak antar section landing page, satu token agar ritme halaman seragam. */
+  --jarak-bagian: clamp(2.5rem, 6vw, 4.5rem);
+  --ruang-8: 3rem;
+
   /* Ukuran struktural. Lebar bubble 20rem setara 320px, mengikuti batas keterbacaan
      280–320px dari survei Clutch. Ukuran panel 380x560px dari praktik widget umum. */
   --lebar-halaman: 46rem;
+  --lebar-konten: 68rem;
+  --tinggi-header: 4rem;
   --lebar-panel: 23.75rem;
   --tinggi-panel: 35rem;
   --lebar-bubble-maks: 20rem;
@@ -87,9 +104,15 @@
   box-sizing: border-box;
 }
 
+/* UI-14 — anchor navigasi. scroll-margin-top mencegah judul section tertutup header
+   yang menempel; blok prefers-reduced-motion di bawah menonaktifkan gulir mulus. */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  padding: var(--ruang-6) var(--ruang-4) var(--ruang-7);
+  padding: 0;
   background-color: var(--warna-latar);
   color: var(--warna-teks);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
@@ -130,17 +153,153 @@ body {
   border-width: 0;
 }
 
-/* ==== Badan halaman ==== */
+/* ==== UI-14 — header ==== */
 
-.page {
-  max-width: var(--lebar-halaman);
-  margin: 0 auto;
+/* Header menempel agar CTA tunggal tetap terjangkau selama menggulir. Nilai
+   scroll-margin-top pada section memakai token tinggi header yang sama, sehingga judul
+   tidak tertutup saat anchor navigasi diklik. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-launcher);
   display: flex;
-  flex-direction: column;
-  gap: var(--ruang-6);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ruang-4);
+  min-height: var(--tinggi-header);
+  padding: var(--ruang-3) var(--ruang-5);
+  background-color: var(--warna-permukaan);
+  border-bottom: 1px solid var(--warna-garis);
 }
 
-.hero__eyebrow {
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ruang-2);
+  color: var(--warna-bubble-pengguna);
+  font-weight: var(--tebal-tegas);
+  text-decoration: none;
+}
+
+.brand__mark {
+  display: inline-flex;
+  width: var(--ukuran-avatar);
+  height: var(--ukuran-avatar);
+  flex: 0 0 auto;
+}
+
+.brand__mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.brand__name {
+  font-size: var(--teks-sedang);
+}
+
+.site-nav {
+  flex: 1 1 auto;
+}
+
+.site-nav__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ruang-4);
+}
+
+.site-nav__link {
+  padding: var(--ruang-1) 0;
+  color: var(--warna-teks-lembut);
+  font-size: var(--teks-kecil);
+  font-weight: var(--tebal-sedang);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.site-nav__link:hover {
+  color: var(--warna-aksen-pekat);
+  border-bottom-color: var(--warna-aksen);
+}
+
+/* ==== UI-14 — CTA. Satu aksi utama untuk seluruh halaman: membuka panel. ==== */
+
+.cta {
+  background-color: var(--warna-aksen);
+  color: var(--warna-teks-invers);
+  border: 1px solid var(--warna-aksen-pekat);
+  border-radius: var(--radius-sedang);
+  font-family: inherit;
+  font-weight: var(--tebal-tegas);
+  cursor: pointer;
+  transition: background-color var(--durasi-cepat) ease;
+}
+
+.cta:hover {
+  background-color: var(--warna-aksen-pekat);
+}
+
+.cta--ringkas {
+  padding: var(--ruang-2) var(--ruang-4);
+  font-size: var(--teks-kecil);
+}
+
+.cta--utama {
+  min-height: var(--ukuran-launcher);
+  padding: var(--ruang-3) var(--ruang-6);
+  font-size: var(--teks-sedang);
+  border-radius: var(--radius-penuh);
+  box-shadow: var(--bayang-lembut);
+}
+
+/* ==== UI-14 — kerangka section ==== */
+
+main {
+  max-width: var(--lebar-konten);
+  margin: 0 auto;
+  padding: 0 var(--ruang-5);
+}
+
+.bagian {
+  padding-top: var(--jarak-bagian);
+  scroll-margin-top: calc(var(--tinggi-header) + var(--ruang-4));
+}
+
+.bagian__judul {
+  margin: 0 0 var(--ruang-4);
+  font-size: var(--teks-judul-bagian);
+  font-weight: var(--tebal-tegas);
+  line-height: var(--tinggi-baris-rapat);
+  letter-spacing: -0.01em;
+}
+
+.bagian__lead {
+  margin: 0 0 var(--ruang-5);
+  max-width: 44rem;
+  font-size: var(--teks-sedang);
+  color: var(--warna-teks-lembut);
+}
+
+.bagian__lead strong {
+  color: var(--warna-teks);
+  font-weight: var(--tebal-tegas);
+}
+
+.bagian__nota {
+  margin: var(--ruang-5) 0 0;
+  max-width: 44rem;
+  font-size: var(--teks-mikro);
+  color: var(--warna-teks-lembut);
+}
+
+.bagian__nota code {
+  font-size: inherit;
+  overflow-wrap: anywhere;
+}
+
+.eyebrow {
   margin: 0 0 var(--ruang-2);
   font-size: var(--teks-mikro);
   font-weight: var(--tebal-tegas);
@@ -149,60 +308,162 @@ body {
   color: var(--warna-aksen-pekat);
 }
 
+/* ==== UI-14 — hero ==== */
+
+/* Dua kolom pada layar lebar. Pada layar sempit blok media query di bawah mengurutkan
+   teks lebih dulu lalu visual, mengikuti urutan hero ponsel: headline, subheadline,
+   CTA, baru visual. */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: var(--ruang-8);
+  padding: var(--jarak-bagian) 0;
+}
+
 .hero__title {
-  margin: 0 0 var(--ruang-3);
-  font-size: var(--teks-judul);
+  margin: 0 0 var(--ruang-4);
+  font-size: var(--teks-hero);
   font-weight: var(--tebal-tegas);
   line-height: var(--tinggi-baris-rapat);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
 }
 
 .hero__lead {
   margin: 0;
-  max-width: 36rem;
+  max-width: 34rem;
   font-size: var(--teks-sedang);
   color: var(--warna-teks-lembut);
 }
 
-.hero__hint {
-  margin: var(--ruang-4) 0 0;
+.hero__aksi {
+  margin: var(--ruang-5) 0 0;
+}
+
+.hero__nota {
+  margin: var(--ruang-3) 0 0;
   font-size: var(--teks-kecil);
   color: var(--warna-teks-lembut);
 }
 
-/* UI-08 — disclaimer permanen di badan halaman. Dibedakan garis aksen di sisi kiri,
-   bukan hanya lewat warna, sesuai UI-11. */
-.notice {
-  padding: var(--ruang-4) var(--ruang-5);
+/* Visual pendukung dibangun dari CSS dan teks, tanpa berkas gambar maupun video. */
+.mock {
+  padding: var(--ruang-5);
   background-color: var(--warna-permukaan);
   border: 1px solid var(--warna-garis);
-  border-left: var(--tebal-fokus) solid var(--warna-aksen);
+  border-radius: var(--radius-besar);
+  box-shadow: var(--bayang-lembut);
+}
+
+.mock__masuk {
+  margin: 0 0 var(--ruang-4);
+  padding: var(--ruang-3);
+  background-color: var(--warna-bubble-bot);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-sedang);
+  font-size: var(--teks-kecil);
+}
+
+.mock__temuan {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-2);
+}
+
+/* Penanda temuan berupa karakter teks, bukan warna semata, agar tetap terbaca tanpa
+   persepsi warna. */
+.mock__item {
+  position: relative;
+  padding-left: var(--ruang-5);
+  font-size: var(--teks-kecil);
+  color: var(--warna-teks);
+}
+
+.mock__item::before {
+  content: "!";
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ruang-4);
+  height: var(--ruang-4);
+  background-color: var(--warna-bubble-pengguna);
+  color: var(--warna-teks-invers);
+  border-radius: var(--radius-penuh);
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-tegas);
+  line-height: 1;
+}
+
+.mock__tutup {
+  margin: var(--ruang-4) 0 0;
+  padding-top: var(--ruang-3);
+  border-top: 1px solid var(--warna-garis);
+  font-size: var(--teks-mikro);
+  color: var(--warna-teks-lembut);
+}
+
+/* ==== UI-14 — Data & Sumber, pengganti Social Proof ==== */
+
+/* Setiap angka wajib menyebut lembaga dan periode data. DILARANG memuat testimoni,
+   logo mitra, rating, jumlah pengguna, atau tingkat kepuasan: aplikasi belum punya
+   pengguna, sehingga angka semacam itu berarti mengarang (D-20). */
+.angka {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--ruang-4);
+}
+
+.angka__item {
+  padding: var(--ruang-5);
+  background-color: var(--warna-permukaan);
+  border: 1px solid var(--warna-garis);
+  border-top: var(--tebal-fokus) solid var(--warna-aksen);
   border-radius: var(--radius-sedang);
   box-shadow: var(--bayang-lembut);
 }
 
-.notice__title {
+.angka__nilai {
   margin: 0 0 var(--ruang-2);
-  font-size: var(--teks-mikro);
+  font-size: var(--teks-angka);
   font-weight: var(--tebal-tegas);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--warna-teks-lembut);
+  line-height: var(--tinggi-baris-rapat);
+  letter-spacing: -0.02em;
+  color: var(--warna-bubble-pengguna);
 }
 
-.notice__text {
-  margin: 0;
+.angka__label {
+  margin: 0 0 var(--ruang-3);
   font-size: var(--teks-kecil);
+}
+
+.angka__sumber {
+  margin: 0;
+  padding-top: var(--ruang-3);
+  border-top: 1px solid var(--warna-garis);
+  font-size: var(--teks-mikro);
   color: var(--warna-teks-lembut);
 }
 
-.notice__text strong {
-  color: var(--warna-teks);
-  font-weight: var(--tebal-tegas);
+/* ==== UI-14 — Cara Kerja ==== */
+
+.langkah {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--ruang-5);
 }
 
-/* UI-09 — kanal resmi statis di badan halaman. */
-.channels {
+.langkah__item {
   padding: var(--ruang-5);
   background-color: var(--warna-permukaan);
   border: 1px solid var(--warna-garis);
@@ -210,19 +471,114 @@ body {
   box-shadow: var(--bayang-lembut);
 }
 
-.channels__title {
-  margin: 0 0 var(--ruang-4);
-  font-size: var(--teks-mikro);
+.langkah__nomor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ukuran-avatar);
+  height: var(--ukuran-avatar);
+  margin: 0 0 var(--ruang-3);
+  background-color: var(--warna-aksen);
+  color: var(--warna-teks-invers);
+  border-radius: var(--radius-penuh);
   font-weight: var(--tebal-tegas);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+}
+
+.langkah__judul {
+  margin: 0 0 var(--ruang-2);
+  font-size: var(--teks-sedang);
+  font-weight: var(--tebal-tegas);
+  line-height: var(--tinggi-baris-rapat);
+}
+
+.langkah__teks {
+  margin: 0;
+  font-size: var(--teks-kecil);
   color: var(--warna-teks-lembut);
 }
+
+.langkah__teks strong {
+  color: var(--warna-teks);
+  font-weight: var(--tebal-tegas);
+}
+
+/* ==== UI-14 — Yang Bisa Dibantu ==== */
+
+.kartu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--ruang-4);
+}
+
+.kartu__item {
+  padding: var(--ruang-5);
+  background-color: var(--warna-permukaan);
+  border: 1px solid var(--warna-garis);
+  border-left: var(--tebal-fokus) solid var(--warna-aksen);
+  border-radius: var(--radius-sedang);
+  box-shadow: var(--bayang-lembut);
+}
+
+.kartu__judul {
+  margin: 0 0 var(--ruang-2);
+  font-size: var(--teks-dasar);
+  font-weight: var(--tebal-tegas);
+  line-height: var(--tinggi-baris-rapat);
+}
+
+.kartu__teks {
+  margin: 0;
+  font-size: var(--teks-kecil);
+  color: var(--warna-teks-lembut);
+}
+
+/* ==== UI-14, UI-08 — Batasan ==== */
+
+/* Ditampilkan terbuka, bukan disembunyikan di balik interaksi. Dasarnya prinsip
+   Transparansi Etika AI (Sesi 1 p.99): pengguna perlu tahu batas alat sebelum
+   bertanya, bukan setelah menerima jawaban yang tidak diharapkan. */
+.bagian--batas {
+  scroll-margin-top: calc(var(--tinggi-header) + var(--ruang-4));
+}
+
+.batas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: var(--ruang-4);
+}
+
+.batas__item {
+  padding: var(--ruang-4) var(--ruang-5);
+  background-color: var(--warna-bubble-bot);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-sedang);
+}
+
+.batas__judul {
+  margin: 0 0 var(--ruang-2);
+  font-size: var(--teks-dasar);
+  font-weight: var(--tebal-tegas);
+  line-height: var(--tinggi-baris-rapat);
+}
+
+.batas__teks {
+  margin: 0;
+  font-size: var(--teks-kecil);
+  color: var(--warna-teks-lembut);
+}
+
+/* ==== UI-09 — kanal resmi ==== */
 
 .channels__list {
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   gap: var(--ruang-4);
 }
 
@@ -230,6 +586,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--ruang-1);
+  padding: var(--ruang-4);
+  background-color: var(--warna-permukaan);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-sedang);
+  box-shadow: var(--bayang-lembut);
 }
 
 .channels__label {
@@ -244,15 +605,98 @@ body {
   overflow-wrap: anywhere;
 }
 
-.channels__source {
-  margin: var(--ruang-4) 0 0;
-  font-size: var(--teks-mikro);
+/* ==== UI-14, UI-11 — FAQ ==== */
+
+/* Memakai <details> dan <summary> bawaan HTML: sudah dapat dibuka dengan keyboard dan
+   diumumkan screen reader tanpa JavaScript maupun atribut ARIA tambahan. */
+.faq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-3);
+  max-width: 48rem;
+}
+
+.faq__item {
+  background-color: var(--warna-permukaan);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-sedang);
+}
+
+.faq__tanya {
+  padding: var(--ruang-4) var(--ruang-5);
+  font-weight: var(--tebal-tegas);
+  cursor: pointer;
+}
+
+.faq__jawab {
+  margin: 0;
+  padding: 0 var(--ruang-5) var(--ruang-4);
+  font-size: var(--teks-kecil);
   color: var(--warna-teks-lembut);
 }
 
-.channels__source code {
-  font-size: inherit;
+/* ==== UI-14, UI-08 — footer ==== */
+
+.site-footer {
+  margin-top: var(--jarak-bagian);
+  padding: var(--jarak-bagian) var(--ruang-5) var(--ruang-8);
+  background-color: var(--warna-permukaan);
+  border-top: 1px solid var(--warna-garis);
+}
+
+.site-footer__utama {
+  max-width: var(--lebar-konten);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--ruang-6);
+}
+
+.site-footer__disclaimer {
+  margin: 0;
+  padding-left: var(--ruang-4);
+  border-left: var(--tebal-fokus) solid var(--warna-aksen);
+  font-size: var(--teks-kecil);
+  color: var(--warna-teks-lembut);
+}
+
+.site-footer__disclaimer strong {
+  color: var(--warna-teks);
+  font-weight: var(--tebal-tegas);
+}
+
+.site-footer__judul {
+  margin: 0 0 var(--ruang-3);
+  font-size: var(--teks-mikro);
+  font-weight: var(--tebal-tegas);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warna-teks-lembut);
+}
+
+.site-footer__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ruang-2);
+  font-size: var(--teks-kecil);
+  color: var(--warna-teks-lembut);
+}
+
+.site-footer__list code {
+  color: var(--warna-teks);
   overflow-wrap: anywhere;
+}
+
+.site-footer__atribusi {
+  max-width: var(--lebar-konten);
+  margin: var(--ruang-6) auto 0;
+  padding-top: var(--ruang-4);
+  border-top: 1px solid var(--warna-garis);
+  font-size: var(--teks-mikro);
+  color: var(--warna-teks-lembut);
 }
 
 /* ==== UI-13 — launcher ==== */
@@ -644,7 +1088,11 @@ body {
 .composer__button:focus-visible,
 .chip:focus-visible,
 .chat:focus-visible,
-.skip-link:focus-visible {
+.skip-link:focus-visible,
+.cta:focus-visible,
+.brand:focus-visible,
+.site-nav__link:focus-visible,
+.faq__tanya:focus-visible {
   outline: var(--tebal-fokus) solid var(--warna-fokus);
   outline-offset: 2px;
 }
@@ -656,15 +1104,49 @@ body {
   outline-offset: 2px;
 }
 
-/* ==== UI-13, UI-10 — layar sempit: panel menempati layar penuh ==== */
+/* ==== UI-13, UI-10, UI-14 — layar sempit ==== */
+
+@media (max-width: 48rem) {
+  /* Urutan hero pada ponsel: headline, subheadline, CTA, baru visual. 60% lebih trafik
+     berasal dari ponsel, sehingga urutan ini yang dilihat mayoritas pengguna. */
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ruang-6);
+  }
+
+  /* Brand dan CTA tetap satu baris, navigasi membungkus di baris berikutnya. Nav
+     dibungkus alih-alih digulir horizontal: scrollbar di dalam header terbaca sebagai
+     cacat tata letak, bukan sebagai afordans. */
+  .site-header {
+    padding: var(--ruang-3) var(--ruang-4);
+    gap: var(--ruang-2) var(--ruang-3);
+  }
+
+  .site-nav {
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .site-nav__list {
+    gap: var(--ruang-2) var(--ruang-4);
+  }
+
+  .cta--ringkas {
+    margin-left: auto;
+  }
+
+  main {
+    padding: 0 var(--ruang-4);
+  }
+
+  .site-footer {
+    padding: var(--jarak-bagian) var(--ruang-4) var(--ruang-8);
+  }
+}
 
 @media (max-width: 30rem) {
   :root {
     --teks-judul: 1.625rem;
-  }
-
-  body {
-    padding: var(--ruang-5) var(--ruang-3) var(--ruang-7);
   }
 
   .launcher {
@@ -698,6 +1180,12 @@ body {
 
   .msg__body {
     max-width: 85%;
+  }
+
+  /* Launcher menempati sudut kanan bawah, sehingga footer diberi ruang bawah agar
+     atribusi tidak tertutup tombol. */
+  .site-footer {
+    padding-bottom: var(--ruang-8);
   }
 }
 

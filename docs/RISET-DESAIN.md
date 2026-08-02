@@ -1,11 +1,13 @@
 # RISET-DESAIN.md — Dasar Data Keputusan Desain Antarmuka
 
 > **Status file ini:** data di luar materi PDF Hacktiv8. Setiap angka **wajib punya URL
-> sumber**. Dipakai untuk menjustifikasi dua keputusan: pola antarmuka widget (`UI-13`,
-> keputusan D-18) dan palet warna light mode (`UI-12`, amandemen keputusan D-12).
+> sumber**. Dipakai untuk menjustifikasi keputusan desain antarmuka.
 >
 > **Aturan pemakaian:** sama seperti `docs/RISET-LAPANGAN.md` — angka di sini tidak boleh
 > masuk `systemInstruction`. Riset ini menyangkut antarmuka, bukan isi jawaban bot.
+>
+> Tiga keputusan yang bersumber dari berkas ini: pola antarmuka widget (`UI-13`, D-18), palet
+> warna light mode (`UI-12`, amandemen D-12), dan struktur landing page (`UI-14`, D-20).
 >
 > Tanggal akses riset: **1 Agustus 2026** (via You.com Search).
 
@@ -371,3 +373,178 @@ melainkan pada **kesesuaian dengan literatur keterbacaan untuk pengguna lanjut u
   rujukan sekunder.
 - Riset ini **tidak** mengubah batasan teknis materi. Stack, dependency, endpoint, dan kontrak
   API tetap seperti `docs/SPEC-API.md`. Yang berubah hanya HTML, CSS, dan logika antarmuka.
+
+---
+
+## 6. Struktur landing page
+
+### Alasan menambahkan landing page
+
+Setelah pola widget diterapkan, badan halaman hanya memuat hero singkat, disclaimer, dan
+kanal resmi. Cukup secara fungsional, tetapi tidak menjelaskan apa yang Cek Dulu lakukan
+kepada orang yang pertama kali membukanya.
+
+Brief materi Sesi 3 p.49 meminta "use case dan konfigurasi parameter yang sesuai dengan
+**kreativitas masing-masing**". Materi mengunci stack, endpoint, dan kontrak API, tetapi
+tidak mengunci struktur halaman. Landing page berada di ruang kreativitas yang memang dibuka
+brief, sama seperti isi `systemInstruction` dan palet warna.
+
+### Urutan section yang konvergen dari lima sumber
+
+**Sumber:**
+- involve.me, "Landing Page Structure: Anatomy & Best Practices", 10 Mei 2026.
+  `https://www.involve.me/blog/landing-page-structure`
+- Replo, "Anatomy Of A Landing Page". `https://www.replo.app/blog/anatomy-of-a-landing-page`
+- Landy AI, "Hero Section Design: 20+ Examples & Best Practices for 2026", 18 Maret 2026.
+  `https://www.landy-ai.com/blog/hero-section-design`
+- Genesys Growth, "Best Practices for Designing B2B SaaS Landing Pages – 2026", 12 Maret 2026.
+  `https://genesysgrowth.com/blog/designing-b2b-saas-landing-pages`
+- Neel Networks, "High-Converting Landing Page Design: 2026 Complete Guide", 15 Mei 2026.
+  `https://www.neelnetworks.com/blog/high-converting-landing-page-design-2026/`
+
+Kutipan involve.me:
+
+> The ideal landing page structure is a focused sequence that takes visitors from promise to
+> proof to action. This means starting with a strong Hero section (main headline, subhead,
+> visual, CTA) that matches your ad's promise, followed by your Unique Value Proposition,
+> Benefits, Social Proof, and another primary CTA.
+
+Kutipan Replo:
+
+> Usually, they all consist of these sections in the following order from top to bottom: the
+> hero section with it's headline, the product section or product buy box, the product
+> benefits, social proof, and the FAQ or upsell section at the very bottom.
+
+Urutan yang disepakati kelima sumber:
+
+```
+Hero → Value Proposition → Benefits → Social Proof → How It Works → FAQ → CTA akhir → Footer
+```
+
+### Angka yang memandu keputusan
+
+| Temuan | Angka | Sumber |
+|---|---|---|
+| Waktu hero untuk mengomunikasikan nilai | ±5 detik | Neel Networks |
+| Panjang H1 berperforma tinggi | < 8 kata, maksimal 44 karakter | Genesys Growth |
+| Jumlah CTA utama per halaman | **1**, "no exceptions" | Genesys Growth |
+| Proporsi trafik dari ponsel | 60%+ | Landy AI |
+| Urutan hero pada ponsel | headline, subheadline, CTA, visual | Landy AI |
+| Pengguna meninggalkan situs lambat | 53% | Landy AI |
+| Target LCP | di bawah 2,5 detik | Landy AI |
+
+Kutipan Genesys Growth:
+
+> The average high-performing H1 headline contains under 8 words (44 characters maximum). This
+> constraint forces clarity and eliminates unnecessary jargon that confuses visitors.
+
+> One primary CTA per page. No exceptions.
+
+Kutipan Neel Networks:
+
+> The headline, subheadline, hero image, and primary CTA that appear above the fold — the
+> portion of the page visible without scrolling. This section has approximately 5 seconds to
+> communicate enough value and relevance to keep the visitor on the page.
+
+Kutipan Landy AI mengenai enam elemen hero:
+
+> Every high-converting hero section includes these six essential elements: (1) compelling
+> headline (primary value proposition), (2) supporting subheadline (expands on promise),
+> (3) clear call-to-action (single, focused action), (4) hero visual (reinforces message),
+> (5) trust signals (social proof, logos, ratings), and (6) strategic whitespace.
+
+### Larangan tegas: testimoni yang dikarang
+
+Tiga sumber independen memperingatkan hal yang sama.
+
+**Sumber:**
+- WiserNotify, "I Tested 10 Social Proof Landing Page Tactics (2026)", 24 Maret 2026.
+  `https://wisernotify.com/blog/landing-page-social-proof/`
+- ProveSource, "Social Proof on Landing Pages: 7 Types and Best Practices", 7 Juni 2026.
+  `https://provesrc.com/blog/social-proof-landing-pages-best-practices/`
+- Nudgify, "12 Best Ways to Use Landing Page Social Proof".
+  `https://www.nudgify.com/social-proof-landing-pages/`
+
+Kutipan WiserNotify:
+
+> Using fake or obviously manufactured testimonials. If every testimonial reads as if it were
+> written by the same copywriter, visitors will notice.
+
+> One honest, detailed review beats ten polished fakes.
+
+Kutipan ProveSource:
+
+> Real, imperfect testimonials outperform polished marketing copy. Visitors can sense fake or
+> overly edited reviews.
+
+> Fake-looking testimonials, excessive popups, or irrelevant reviews can damage trust and
+> annoy visitors.
+
+Kutipan Nudgify mengutip PowerReviews:
+
+> Research by PowerReviews reveals that 95% of consumers suspect censorship or fake reviews
+> when there are no negative reviews present.
+
+**Implikasi bagi Cek Dulu:** aplikasi ini **belum memiliki pengguna**. Menuliskan testimoni
+apa pun berarti mengarang. Selain melanggar larangan di atas, itu bertentangan langsung dengan
+nilai proyek: aplikasi yang melarang bot mengarang statistik (`PG-04`) tetapi halamannya
+sendiri mengarang testimoni tidak akan koheren bagi pembaca yang teliti.
+
+WiserNotify menyediakan jalan keluar untuk situasi tanpa testimoni:
+
+> In that case, pair logos with the total number of customers (like "Trusted by 10,000+
+> businesses") to create a quantity signal instead.
+
+Pola itu tetap tidak bisa dipakai karena Cek Dulu juga tidak punya mitra maupun jumlah
+pengguna. **Yang dipakai sebagai gantinya adalah angka nyata dari lembaga resmi** yang sudah
+tersitasi di `docs/RISET-LAPANGAN.md`: kerugian Rp7,8 triliun yang dilaporkan ke IASC, 343.402
+laporan penipuan, dan selisih 14 poin persentase antara indeks inklusi dan literasi keuangan.
+
+Angka tersebut lebih kuat daripada testimoni karangan karena **dapat diverifikasi** — setiap
+angka punya URL siaran pers, dan pembaca dapat memeriksanya sendiri. Konsisten pula dengan
+pesan aplikasi: verifikasi ke sumber resmi.
+
+### Section Batasan sebagai pembeda
+
+Landing page umumnya hanya menjual kelebihan. Untuk domain ini, menampilkan batasan secara
+terbuka justru memperkuat kredibilitas.
+
+Delapan larangan yang sudah tercatat di `docs/USE-CASE-CEKDULU.md` §3.2 ditampilkan sebagai
+section tersendiri. Alasannya bertumpu pada prinsip **Transparansi** dalam Etika AI
+(Sesi 1 p.99): "Sistem AI harus dapat dipahami—pengguna perlu tahu apa yang dilakukan AI dan
+alasannya."
+
+Pengguna yang datang dalam keadaan cemas perlu tahu batas alat ini **sebelum** bertanya, bukan
+setelah mendapat jawaban yang tidak sesuai harapan.
+
+### Struktur final yang ditetapkan
+
+| # | Section | Isi | Dasar |
+|---|---|---|---|
+| 1 | Header | Logo, nav anchor, satu CTA | Konvensi; satu CTA dari Genesys Growth |
+| 2 | Hero | H1 lima kata, subheadline, CTA, visual, whitespace | Enam elemen Landy AI |
+| 3 | Data & Sumber | Tiga angka OJK bersitasi | Pengganti Social Proof, `RISET-LAPANGAN.md` |
+| 4 | Cara Kerja | Tiga langkah | "How It Works" pada urutan konvergen |
+| 5 | Yang Bisa Dibantu | Empat kemampuan | "Benefits" pada urutan konvergen; isi dari `USE-CASE-CEKDULU.md` §3.1 |
+| 6 | Batasan | Delapan larangan | Transparansi S1 p.99; isi dari §3.2 |
+| 7 | Kanal Resmi | Empat kanal OJK | `UI-09`, `RISET-LAPANGAN.md` §7 |
+| 8 | FAQ | Lima pertanyaan | "FAQ" pada urutan konvergen Replo |
+| 9 | Footer | Disclaimer, tautan, atribusi | Konvensi |
+
+FAQ memakai elemen `<details>` dan `<summary>` bawaan HTML. Elemen ini sudah dapat dibuka
+dengan keyboard dan diumumkan screen reader tanpa JavaScript maupun ARIA tambahan — sejalan
+dengan batasan Vanilla dan prinsip aksesibilitas `UI-11`.
+
+### Yang ditolak untuk landing page
+
+| Ditolak | Alasan |
+|---|---|
+| Testimoni pengguna | Tidak ada pengguna nyata; mengarang bertentangan dengan nilai proyek |
+| Logo "dipercaya oleh" | Tidak ada mitra; memalsukan afiliasi |
+| Star rating atau jumlah ulasan | Tidak ada ulasan |
+| Logo Hacktiv8 atau OJK | Merek pihak lain; berpotensi terbaca sebagai klaim afiliasi resmi |
+| Hero berupa video | 53% pengguna meninggalkan situs lambat; video menambah bobot muat |
+| Dua atau lebih CTA utama yang bersaing | Genesys Growth: satu CTA utama, tanpa pengecualian |
+| Framework CSS atau pustaka animasi | Non-goal proyek; materi menetapkan Vanilla |
+| Angka pengguna, unduhan, atau kepuasan | Tidak ada datanya |
+

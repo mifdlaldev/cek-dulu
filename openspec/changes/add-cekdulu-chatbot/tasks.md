@@ -2,10 +2,12 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 72 dari 79 task selesai.** Fase A sampai E dan G tuntas — kelima gate verifikasi
-LULUS dan **14 dari 14 skenario uji lulus**. Fase G menambahkan pola widget setelah kritik
-bahwa desain awal terbaca sebagai formulir; spec diamandemen lebih dahulu sesuai
-`docs/METODOLOGI.md` §6. Sisa: tujuh task Fase F berupa screenshot dan submit.
+**Progres: 91 dari 98 task selesai.** Fase A sampai E, G, dan H tuntas — kelima gate
+verifikasi LULUS dan **15 dari 15 skenario uji lulus**. Fase G menambahkan pola widget setelah
+kritik bahwa desain awal terbaca sebagai formulir; Fase H menambahkan landing page sembilan
+section. Pada keduanya spec diamandemen lebih dahulu sesuai `docs/METODOLOGI.md` §6.
+
+Sisa: tujuh task Fase F berupa screenshot dan submit.
 Bukti verifikasi: `docs/QA-REPORT.md`.
 
 | Fase | Isi | Task | Status |
@@ -16,6 +18,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 | D | Frontend `public/` | 20/20 | ✅ Selesai — diverifikasi di browser nyata |
 | E | Gate verifikasi | 8/8 | ✅ Selesai — 5 gate lulus |
 | G | Redesain antarmuka pola widget | 20/20 | ✅ Selesai — 14/14 skenario lulus |
+| H | Landing page sembilan section | 19/19 | ✅ Selesai — UJI-15 lulus |
 | F | Persiapan submit | 0/7 | ⬜ Belum |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
@@ -297,7 +300,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 
 ## Fase E — Gate verifikasi
 
-- [x] **E1.** **Gate 1 — Keterlacakan.** Periksa `design.md` §3: semua 33 requirement punya
+- [x] **E1.** **Gate 1 — Keterlacakan.** Periksa `design.md` §3: semua requirement punya
   kolom sumber terisi; tidak ada kode di `index.js` / `script.js` yang tidak dirujuk
   requirement mana pun
   → expect nol requirement tanpa sumber, nol kode tanpa requirement
@@ -312,9 +315,11 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
   → expect `200 {result}` dan `500 {"error":"Messages must be an array!"}`
 
 - [x] **E4.** **Gate 4 — Guardrail & UI.** Buka `http://localhost:3000/` di browser
-  sungguhan. Jalankan **14 skenario** `docs/USE-CASE-CEKDULU.md` §5 satu per satu. Catat
+  sungguhan. Jalankan skenario `docs/USE-CASE-CEKDULU.md` §5 satu per satu. Catat
   lulus/gagal + kutipan jawaban bot untuk tiap skenario
-  → expect 13/13 lulus; **UJI-03 lulus mutlak**
+  → expect seluruh skenario yang berlaku lulus; **UJI-03 lulus mutlak**
+  · Cakupan saat task ini dikerjakan: UJI-01 s.d. UJI-14. UJI-15 (`UI-14`) ditambahkan
+    belakangan dan dijalankan di Fase H task H15, bukan di sini
   · ⛔ UJI-03 gagal → perkuat `SYSTEM_INSTRUCTION`, ulangi seluruh Gate 4
   · ⚠️ **Sadar kuota.** Ikuti urutan prioritas `docs/KENDALA-API.md` §2: dahulukan uji yang
     tidak memakai kuota (UJI-10, UJI-12, UJI-13), lalu UJI-03 sebagai prioritas pertama untuk
@@ -338,7 +343,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
   · CI job `hygiene` dan `constraints` menjalankan pemeriksaan ini otomatis
 
 - [x] **E8.** **Dokumentasikan bukti.** Tulis `docs/QA-REPORT.md` berisi: output `node index.js`,
-  output kedua `curl` apa adanya (status + body), dan tabel 14 skenario dengan input,
+  output kedua `curl` apa adanya (status + body), dan tabel skenario dengan input,
   kutipan jawaban bot, serta verdict lulus/gagal
   → expect laporan dapat diaudit ulang pihak lain tanpa menjalankan sistem
   · Ref: `docs/METODOLOGI.md` §5
@@ -492,19 +497,134 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 
 ---
 
+## Fase H — Landing page sembilan section
+
+> Latar belakang: setelah Fase G, badan halaman hanya memuat hero singkat, disclaimer, dan
+> kanal resmi — tidak menjelaskan apa yang Cek Dulu lakukan kepada pengunjung baru. Spec
+> diamandemen lebih dahulu sesuai `docs/METODOLOGI.md` §6. Requirement baru `UI-14`; `UI-08`
+> dan `UI-09` diamandemen pada bagian penempatan. Keputusan: `design.md` D-20. Riset dan
+> sitasi: `docs/RISET-DESAIN.md` §6.
+>
+> **Nol kuota API** untuk seluruh fase ini. Backend, `systemInstruction`, dan kontrak API
+> tidak berubah sama sekali — yang berubah hanya `public/index.html` dan `public/style.css`.
+> Guardrail `PG-*` tidak perlu diuji ulang.
+>
+> **Batasan mutlak fase ini:** DILARANG menulis testimoni, logo mitra, star rating, jumlah
+> ulasan, jumlah pengguna, jumlah unduhan, atau tingkat kepuasan. Aplikasi belum punya
+> pengguna. Setiap angka pada halaman WAJIB berasal dari `docs/RISET-LAPANGAN.md` beserta nama
+> lembaga dan periode datanya.
+
+- [x] **H1.** `public/style.css`: tambah token layout landing page — lebar maksimal kontainer,
+  skala jarak antar section, dan skala tipografi responsif memakai `clamp()`
+  → expect nol nilai jarak literal berulang di luar `:root`
+  · Ref: `UI-12`, `UI-14`
+
+- [x] **H2.** `public/index.html`: header — nama produk, navigasi anchor menuju empat section,
+  satu tombol CTA yang membuka panel
+  → expect setiap tautan anchor menunjuk `id` yang benar-benar ada
+  · Ref: `UI-14`
+
+- [x] **H3.** `public/index.html`: hero — `<h1>` di bawah 8 kata, subheadline, satu CTA utama,
+  visual pendukung berbasis CSS tanpa berkas gambar
+  → expect headline, subheadline, dan CTA terlihat tanpa menggulir di viewport desktop
+  · Ref: `UI-14`, `docs/RISET-DESAIN.md` §6
+
+- [x] **H4.** `public/index.html`: section Data & Sumber — tiga angka dari
+  `docs/RISET-LAPANGAN.md` (Rp7,8 triliun kerugian IASC, 343.402 laporan, selisih 14 poin
+  inklusi versus literasi) masing-masing dengan nama lembaga dan periode data
+  → expect nol angka tanpa sitasi, nol testimoni, nol logo mitra
+  · Ref: `UI-14`, `PG-04`, `docs/RISET-LAPANGAN.md`
+
+- [x] **H5.** `public/index.html`: section Cara Kerja — tiga langkah pemakaian
+  → expect langkah terbaca berurutan dan menunjuk aksi nyata di antarmuka
+  · Ref: `UI-14`
+
+- [x] **H6.** `public/index.html`: section Yang Bisa Dibantu — empat kemampuan diambil dari
+  `docs/USE-CASE-CEKDULU.md` §3.1
+  → expect nol kemampuan yang tidak ada di §3.1
+  · Ref: `UI-14`, `docs/USE-CASE-CEKDULU.md` §3.1
+
+- [x] **H7.** `public/index.html`: section Batasan — delapan larangan dari
+  `docs/USE-CASE-CEKDULU.md` §3.2, tampil terbuka tanpa interaksi
+  → expect kedelapan larangan terbaca tanpa mengklik apa pun
+  · Ref: `UI-14`, `UI-08`, S1 p.99 (Transparansi)
+
+- [x] **H8.** `public/index.html`: section Kanal Resmi — empat kanal OJK dengan `id` untuk
+  anchor, nilai persis seperti tabel `UI-09`, sumber tercantum
+  → expect keempat nilai cocok verbatim dengan `docs/RISET-LAPANGAN.md` §7
+  · Ref: `UI-09`, `UI-14`
+
+- [x] **H9.** `public/index.html`: section FAQ — lima pertanyaan memakai `<details>` dan
+  `<summary>` bawaan HTML
+  → expect terbuka dengan Enter tanpa JavaScript maupun atribut ARIA tambahan
+  · Ref: `UI-14`, `UI-11`
+
+- [x] **H10.** `public/index.html`: footer — disclaimer satu paragraf, tautan dokumen repo,
+  atribusi
+  → expect disclaimer menyebut sifat edukatif dan batas penilaian legalitas
+  · Ref: `UI-08`, `UI-14`
+
+- [x] **H11.** `public/style.css`: gaya seluruh section — kartu, grid responsif, `<details>`,
+  dan state `:focus-visible` pada tautan navigasi
+  → expect nol nilai warna literal di luar `:root`
+  · Ref: `UI-12`, `UI-14`
+
+- [x] **H12.** `public/style.css`: pastikan panel dialog tetap `fixed` di atas landing page dan
+  tidak tertutup section mana pun
+  → expect panel tetap pada posisinya saat halaman digulir
+  · Ref: `UI-13`, `UI-14`
+
+- [x] **H13.** Verifikasi kontras seluruh pasangan warna baru pada section landing page dengan
+  formula WCAG
+  → expect setiap rasio minimal 4,5:1 untuk teks normal
+  · Ref: `UI-11`, `UI-12`
+
+- [x] **H14.** Jalankan `node --check public/script.js` dan pemeriksaan larangan `innerHTML`
+  → expect sintaks lolos, nol penulisan HTML mentah
+  · Ref: CI job `syntax` dan `constraints`
+
+- [x] **H15.** Verifikasi di browser nyata: sembilan section hadir berurutan, `<h1>` di bawah
+  8 kata, setiap tautan navigasi menggulir ke section yang benar, seluruh CTA membuka panel
+  yang sama, FAQ terbuka dengan keyboard
+  → expect seluruh skenario `UI-14` dan UJI-15 lulus
+  · Ref: **Gate 4**, UJI-15
+
+- [x] **H16.** Verifikasi di browser: audit halaman terhadap larangan social proof karangan —
+  telusuri dari header sampai footer
+  → expect nol testimoni, logo mitra, star rating, jumlah ulasan, jumlah pengguna, jumlah
+  unduhan, maupun tingkat kepuasan
+  · Ref: `UI-14`, D-20
+
+- [x] **H17.** Verifikasi di browser: responsif 375px dan 1280px, pembesaran 200%,
+  `prefers-reduced-motion`, console tanpa galat
+  → expect nol scroll horizontal pada kedua viewport
+  · Ref: `UI-10`, `UI-11`, `UI-14`
+
+- [x] **H18.** Perbarui `docs/QA-REPORT.md` dengan bukti Fase H — hasil kontras, hasil audit
+  social proof, hasil uji navigasi dan FAQ, hasil responsif
+  → expect laporan dapat diaudit tanpa menjalankan ulang
+  · Ref: `docs/METODOLOGI.md` §5
+
+- [x] **H19.** Selaraskan penanda status pada `README.md`, `tasks.md`, `proposal.md`,
+  `project.md`, `METODOLOGI.md`, dan `AGENTS.md` — 34 requirement, 15 skenario uji
+  → expect nol klaim basi, jumlah requirement dan skenario konsisten di semua berkas
+
+---
+
 ## Ringkasan urutan
 
 ```
 A (setup) → B (backend) → C (uji backend via curl) → D (frontend)
-          → E (5 gate + aksesibilitas + laporan QA) → G (redesain widget) → F (submit)
+          → E (5 gate + aksesibilitas + laporan QA) → G (redesain widget)
+          → H (landing page) → F (submit)
 ```
 
 Alasan C sebelum D: memastikan backend dan guardrail benar **sebelum** menulis frontend.
 Kalau `PG-03` gagal, memperbaikinya lebih murah saat frontend belum ada.
 
-Alasan G sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
+Alasan G dan H sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
 
-**Total: 7 fase, 79 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, F: 7.
+**Total: 8 fase, 98 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19, F: 7.
 
 CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push: validasi sintaks,
 kebersihan repo, batasan dependency, audit `systemInstruction` terhadap `PG-09`, dan

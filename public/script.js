@@ -8,10 +8,15 @@
 //   UI-06  penanganan respons dan teks fallback
 //   UI-11  aria-busy, aria-expanded, focus trap, Escape, pengembalian fokus
 //   UI-13  buka dan tutup panel dialog
+//   UI-14  seluruh CTA landing page menunjuk satu aksi: membuka panel
 //
 // Pola dialog mengikuti W3C ARIA Authoring Practices: fokus masuk saat dibuka, fokus
 // terkurung selama terbuka, Escape menutup, fokus kembali ke pemicu saat ditutup.
 // Sitasi: docs/RISET-DESAIN.md bagian 2. Keputusan: design.md D-18.
+//
+// Gulir mulus untuk anchor navigasi ditangani `scroll-behavior` di CSS, bukan di sini.
+// Properti itu sudah dinonaktifkan otomatis oleh blok prefers-reduced-motion, sedangkan
+// implementasi JavaScript harus memeriksa preferensi itu sendiri.
 //
 // Spesifikasi: openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md
 
@@ -35,6 +40,11 @@ const TEKS_GAGAL = 'Failed to get response from server.';
 
 // Selector elemen yang dapat menerima fokus di dalam panel, dipakai oleh focus trap.
 const SELECTOR_FOKUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+// UI-14, UI-11 — tombol yang terakhir membuka panel. Fokus dikembalikan ke elemen ini
+// saat panel ditutup, bukan selalu ke launcher, agar pengguna keyboard yang membuka
+// panel dari CTA di tengah halaman tidak terlempar ke sudut layar.
+let pemicuTerakhir = launcher;
 
 /**
  * Menggulir area percakapan ke pesan terbaru. (UI-06)
@@ -130,11 +140,17 @@ function setSibuk(sibuk) {
 }
 
 /**
- * Membuka panel dialog. (UI-13, UI-11)
+ * Membuka panel dialog. (UI-13, UI-11, UI-14)
  *
+ * Pemicu dicatat agar fokus dapat dikembalikan ke tombol yang benar saat panel
+ * ditutup. Tanpa ini, pengguna keyboard yang membuka panel dari CTA di tengah halaman
+ * akan terlempar ke launcher di sudut layar.
+ *
+ * @param {HTMLElement} [pemicu] Tombol yang membuka panel. Default launcher.
  * @returns {void}
  */
-function bukaPanel() {
+function bukaPanel(pemicu) {
+  pemicuTerakhir = pemicu instanceof HTMLElement ? pemicu : launcher;
   panel.hidden = false;
   launcher.setAttribute('aria-expanded', 'true');
   input.focus();
@@ -142,7 +158,7 @@ function bukaPanel() {
 }
 
 /**
- * Menutup panel dialog dan mengembalikan fokus ke launcher. (UI-13, UI-11)
+ * Menutup panel dialog dan mengembalikan fokus ke pemicu yang membukanya. (UI-13, UI-11)
  *
  * Pengembalian fokus ke pemicu adalah salah satu dari empat kegagalan tersering pada
  * implementasi dialog, sehingga ditangani eksplisit.
@@ -152,7 +168,7 @@ function bukaPanel() {
 function tutupPanel() {
   panel.hidden = true;
   launcher.setAttribute('aria-expanded', 'false');
-  launcher.focus();
+  pemicuTerakhir.focus();
 }
 
 /**
@@ -278,6 +294,12 @@ launcher.addEventListener('click', bukaPanel);
 closeButton.addEventListener('click', tutupPanel);
 document.addEventListener('keydown', handleKeydown);
 form.addEventListener('submit', handleSubmit);
+
+// UI-14 — seluruh tombol CTA di halaman menunjuk satu aksi yang sama: membuka panel.
+// Genesys Growth menetapkan satu aksi utama per halaman, tanpa pengecualian.
+for (const pemicu of document.querySelectorAll('[data-buka-panel]')) {
+  pemicu.addEventListener('click', () => bukaPanel(pemicu));
+}
 
 // Contoh pertanyaan mengisi kolom pesan saat diklik. Berupa <button> sehingga
 // terjangkau keyboard sesuai UI-11.
