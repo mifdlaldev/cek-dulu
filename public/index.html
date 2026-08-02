@@ -605,6 +605,12 @@ Saya tidak menilai legalitas perusahaan atau aplikasi tertentu. Kanal resmi OJK 
            pengguna berharap Enter menyisipkan baris, perilaku itu diumumkan lewat
            aria-describedby dan tombol Kirim tetap tersedia (teknik WCAG H32). -->
       <form id="chat-form" class="composer">
+        <!-- UI-16, D-25c — pratinjau berada DI ATAS baris komposer. Bila di bawah label,
+             munculnya lampiran mendorong kolom pesan ke bawah dan menggeser tata letak saat
+             pengguna sedang mengetik. Diisi script.js dengan createElement, bukan innerHTML
+             (D-07); nama berkas dirender textContent karena berasal dari luar aplikasi. -->
+        <div class="lampiran__pratinjau" id="lampiran-pratinjau" hidden></div>
+
         <div class="composer__head">
           <label class="composer__label" for="user-input">Tulis pesan Anda</label>
           <p class="composer__hint" id="composer-hint">
@@ -612,12 +618,16 @@ Saya tidak menilai legalitas perusahaan atau aplikasi tertentu. Kanal resmi OJK 
           </p>
         </div>
 
-        <!-- UI-16 — pemilih berkas. Memakai input type="file" dengan label terkait, bukan div
-             dengan penangan klik: kontrol bawaan sudah dapat dioperasikan keyboard dan
-             diumumkan screen reader. Atribut accept selaras allowlist API-08. Tanpa multiple —
-             materi memakai upload.single() (S2 p.43, p.47). Keputusan: design.md D-24. -->
-        <div class="lampiran">
-          <label class="lampiran__pilih" for="file-input">
+        <!-- UI-16, D-25 — ikon lampiran, kolom pesan, dan tombol kirim sejajar satu baris,
+             mengikuti komposer WhatsApp dan Telegram. Kedua tombol menampilkan ikon saja;
+             teksnya berada di .sr-only sehingga tetap dibacakan screen reader tanpa memakan
+             ruang horizontal yang dibutuhkan kolom pesan (UI-11, D-25a).
+
+             Pemilih berkas tetap input type="file" dengan label terkait — kontrol bawaan sudah
+             dapat dioperasikan keyboard tanpa JavaScript. Yang berubah hanya bentuk visualnya
+             menjadi tombol bundar seukuran ikon. -->
+        <div class="composer__row">
+          <label class="lampiran__pilih" for="file-input" title="Lampirkan berkas">
             <span class="lampiran__ikon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -629,7 +639,7 @@ Saya tidak menilai legalitas perusahaan atau aplikasi tertentu. Kanal resmi OJK 
                 />
               </svg>
             </span>
-            <span class="lampiran__teks">Lampirkan berkas</span>
+            <span class="sr-only">Lampirkan berkas</span>
           </label>
           <input
             type="file"
@@ -639,15 +649,6 @@ Saya tidak menilai legalitas perusahaan atau aplikasi tertentu. Kanal resmi OJK 
             accept="image/png,image/jpeg,image/webp,application/pdf,text/plain"
           />
 
-          <!-- Pratinjau diisi script.js dengan createElement, bukan innerHTML (D-07).
-               Nama berkas dirender textContent karena berasal dari luar aplikasi. -->
-          <div class="lampiran__pratinjau" id="lampiran-pratinjau" hidden></div>
-
-          <!-- UI-11 — nama berkas terpilih diumumkan ke screen reader. -->
-          <p class="sr-only" id="lampiran-status" role="status" aria-live="polite"></p>
-        </div>
-
-        <div class="composer__row">
           <textarea
             id="user-input"
             class="composer__input"
@@ -658,8 +659,25 @@ Saya tidak menilai legalitas perusahaan atau aplikasi tertentu. Kanal resmi OJK 
             aria-describedby="composer-hint"
             required
           ></textarea>
-          <button type="submit" id="send-button" class="composer__button">Kirim</button>
+
+          <button type="submit" id="send-button" class="composer__button" title="Kirim">
+            <span class="composer__ikon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M4 12l16-8-6 8 6 8-16-8z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="sr-only">Kirim</span>
+          </button>
         </div>
+
+        <!-- UI-11 — nama berkas terpilih diumumkan ke screen reader. -->
+        <p class="sr-only" id="lampiran-status" role="status" aria-live="polite"></p>
 
         <!-- UI-17 — nota privasi lampiran. Statis di HTML, tidak digenerate model, alasan
              sama dengan UI-09. Ini lapis perlindungan yang TIDAK bergantung pada model:

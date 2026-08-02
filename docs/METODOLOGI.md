@@ -74,7 +74,7 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │         openspec/changes/add-cekdulu-chatbot/{proposal,design,   │
 │                                               tasks}.md          │
 │         openspec/changes/add-cekdulu-chatbot/specs/*/spec.md    │
-│ Hasil: 40 requirement, 24 keputusan, 22 non-goals               │
+│ Hasil: 40 requirement, 25 keputusan, 22 non-goals               │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐

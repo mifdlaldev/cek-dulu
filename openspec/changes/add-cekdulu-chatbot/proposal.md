@@ -3,11 +3,11 @@
 | Meta | Nilai |
 |---|---|
 | ID change | `add-cekdulu-chatbot` |
-| Status | **Verified** — Fase A sampai E, G, H, I, J, dan K selesai, kelima gate lulus, 21/21 skenario lulus. Sisa Fase F |
+| Status | **Verified** — Fase A sampai E, G, H, I, J, K, dan L selesai, kelima gate lulus, 21/21 skenario lulus. Sisa Fase F |
 | Tanggal dibuat | 1 Agustus 2026 |
 | Terakhir diperbarui | 1 Agustus 2026 |
 | Kapabilitas tersentuh | `web-server` ✅, `chat-api` ✅, `persona-guardrail` ✅, `chat-ui` ✅ |
-| Progres task | 162 dari 169 (`tasks.md`) |
+| Progres task | 172 dari 179 (`tasks.md`) |
 | Bukti verifikasi | `docs/QA-REPORT.md` |
 
 ---

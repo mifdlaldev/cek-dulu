@@ -11,6 +11,13 @@ Kapabilitas: antarmuka chat Vanilla JavaScript di folder `public/`.
 > `UI-12` (palet). Requirement baru: `UI-13`. Bukti dan sitasi: `docs/RISET-DESAIN.md`.
 > Keputusan: `design.md` D-12 (amandemen), D-18, D-19.
 >
+> **Amandemen kelima — komposer satu baris.** Atas permintaan pengguna, ikon lampiran, kolom
+> pesan, dan tombol kirim disejajarkan dalam satu baris seperti komposer Telegram, dan kedua
+> tombol menjadi ikon saja untuk menghemat ruang kolom pesan. Pratinjau lampiran dipindah ke
+> atas. Requirement yang diamandemen: `UI-01` (bentuk tombol kirim), `UI-11` (tombol submit
+> cukup punya nama yang dapat diakses, tidak wajib menampilkan teks), `UI-16` (tata letak).
+> Keputusan: `design.md` D-25. Verifikasi dibatasi atas permintaan pengguna — tanpa uji browser.
+>
 > **Amandemen keempat — lampiran berkas.** Atas permintaan pengguna, komposer mendapat tombol
 > lampiran untuk gambar dan dokumen. Requirement baru: `UI-16`, `UI-17`. Requirement yang
 > diamandemen: `UI-03` (jalur multipart), `UI-04` (base64 tidak masuk riwayat), `UI-11`
@@ -57,13 +64,20 @@ mewajibkannya; yang diamandemen hanya jenis elemen kolom pesan dan penempatannya
 ```html
 <form id="chat-form">
   <textarea id="user-input" rows="1" required></textarea>
-  <button type="submit" id="send-button">Kirim</button>
+  <button type="submit" id="send-button">
+    <span aria-hidden="true"><!-- ikon --></span>
+    <span class="sr-only">Kirim</span>
+  </button>
 </form>
 <div id="chat-box"></div>
 ```
 
 Ketiga elemen WAJIB berada **di dalam panel dialog** (`UI-13`), bukan langsung di badan
 halaman.
+
+Tombol kirim menampilkan **ikon saja**; teks "Kirim" berada di dalam `.sr-only` sehingga tetap
+dibacakan screen reader tanpa memakan ruang horizontal yang dibutuhkan kolom pesan. Alasan dan
+amandemen `UI-11` yang menyertainya: `design.md` D-25a.
 
 Halaman WAJIB memuat `style.css` dan `script.js` dari folder yang sama.
 
@@ -158,6 +172,11 @@ mengirim pesan setengah selesai:
 - **Given** kolom pesan berisi teks
 - **When** pengguna memberi fokus pada tombol kirim lalu menekan `Enter`
 - **Then** pesan terkirim
+
+#### Scenario: tombol kirim punya nama yang dapat diakses
+- **When** screen reader membacakan tombol kirim
+- **Then** yang dibacakan adalah teks "Kirim"
+- **And** teks itu tidak terlihat secara visual
 
 #### Scenario: perilaku papan tuts diumumkan
 - **When** screen reader membacakan kolom pesan
@@ -623,9 +642,15 @@ Antarmuka WAJIB memenuhi:
 **Label dan peran**
 - `#user-input` memiliki `<label>` terkait, atau `aria-label` bila label visual tidak
   dikehendaki
-- Tombol submit memiliki teks yang jelas, bukan hanya ikon
-- Setiap tombol yang hanya berisi simbol (tutup panel, tutup blok saran) memiliki nama yang
-  dapat diakses berupa teks
+- Tombol submit memiliki **nama yang dapat diakses berupa teks**. Teks itu boleh disembunyikan
+  secara visual dengan `.sr-only` bila ruang menuntutnya — yang wajib adalah keterbacaan bagi
+  screen reader, bukan keterlihatan bagi mata. Teknik WCAG H32 yang dirujuk `UI-01` menuntut
+  tombol submit **ada dan dapat difokuskan**, bukan menuntut teksnya terlihat. Diamandemen
+  `design.md` D-25a
+- Setiap tombol yang hanya berisi ikon atau simbol (tutup panel, tutup blok saran, hapus
+  lampiran, lampirkan berkas, kirim) memiliki nama yang dapat diakses berupa teks
+- Tombol yang hanya berisi ikon SEBAIKNYA memiliki atribut `title` agar tooltip muncul saat
+  kursor menyentuhnya — membantu pengguna yang ragu tanpa menambah ruang
 - Setiap bubble pesan memiliki penanda pengirim yang terbaca screen reader (bukan hanya
   dibedakan warna atau posisi)
 
@@ -729,6 +754,11 @@ kembali ke pemicu, dan dialog tanpa nama yang dapat diakses. Sitasi: `docs/RISET
 #### Scenario: tombol simbol punya nama yang dapat diakses
 - **When** screen reader membacakan tombol tutup panel dan tombol tutup blok saran
 - **Then** keduanya membacakan teks yang menjelaskan aksinya, bukan simbol
+
+#### Scenario: tombol ikon pada komposer punya nama yang dapat diakses
+- **When** screen reader membacakan tombol lampirkan berkas dan tombol kirim
+- **Then** keduanya membacakan teks yang menjelaskan aksinya
+- **And** teks itu boleh tidak terlihat secara visual
 
 #### Scenario: pemilih berkas diumumkan screen reader
 - **When** screen reader membacakan pemilih berkas
@@ -1107,7 +1137,7 @@ Blok "Contoh pertanyaan" WAJIB dapat ditutup pengguna.
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S2 p.45 dan p.49 (jenis berkas yang diuji materi); `design.md` D-24 |
+| Sumber | S2 p.45 dan p.49 (jenis berkas yang diuji materi); `design.md` D-24; tata letak diamandemen D-25 |
 | Berkas | `public/index.html`, `public/style.css`, `public/script.js` |
 | Uji | UJI-18, UJI-19, UJI-20, UJI-21 |
 | Terkait | `UI-01`, `UI-03`, `UI-04`, `UI-11`, `UI-17`, `API-07` |
@@ -1118,12 +1148,37 @@ Blok "Contoh pertanyaan" WAJIB dapat ditutup pengguna.
 
 Komposer WAJIB menyediakan cara melampirkan satu berkas.
 
+**Tata letak komposer** (diamandemen `design.md` D-25)
+
+Komposer WAJIB menyusun elemennya dalam urutan berikut, dari atas ke bawah:
+
+```
+[ pratinjau lampiran — muncul hanya bila ada berkas ]
+[ label "Tulis pesan Anda"   ·   petunjuk papan tuts ]
+[ ikon lampiran | kolom pesan | ikon kirim ]
+[ nota privasi lampiran ]
+[ nota disclaimer ]
+```
+
+- Pemilih berkas, kolom pesan, dan tombol kirim WAJIB **sejajar dalam satu baris**. Pola ini
+  mengikuti komposer WhatsApp dan Telegram, rujukan yang sama dipakai `UI-01` untuk konvensi
+  Enter dan Shift+Enter.
+- Penyejajaran WAJIB memakai `align-items: flex-end`. Kolom pesan tumbuh ke bawah sampai enam
+  baris (`UI-01`), sehingga kedua tombol harus menempel tepi bawah agar tidak melayang di
+  tengah saat kolom memanjang.
+- Pratinjau lampiran WAJIB berada **di atas** baris komposer. Bila di bawah label, munculnya
+  lampiran akan mendorong kolom pesan dan menggeser tata letak saat pengguna mengetik.
+
 **Pemilih berkas**
 
 - WAJIB berupa `<input type="file">` dengan `<label>` terkait, bukan `<div>` dengan penangan
-  klik. Kontrol bawaan sudah dapat dioperasikan keyboard dan diumumkan screen reader.
+  klik. Kontrol bawaan sudah dapat dioperasikan keyboard dan diumumkan screen reader. Bentuk
+  visualnya boleh berupa tombol bundar seukuran ikon; **jenis elemennya tidak boleh berubah**.
 - WAJIB memakai atribut `accept` yang selaras dengan allowlist `API-08`.
 - Hanya **satu** berkas per pesan. Atribut `multiple` DILARANG.
+- Label menampilkan **ikon saja**. Teks "Lampirkan berkas" WAJIB tetap ada di dalam `.sr-only`
+  sehingga dibacakan screen reader (`UI-11`, `design.md` D-25a).
+- Label SEBAIKNYA memiliki atribut `title` agar tooltip muncul saat kursor menyentuhnya.
 
 **Pratinjau lampiran**
 
@@ -1193,6 +1248,21 @@ Komposer WAJIB menyediakan cara melampirkan satu berkas.
 - **Then** pemilih berkas menerima fokus
 - **And** tombol hapus juga menerima fokus ketika lampiran ada
 - **And** fokus tetap terkurung di dalam panel
+
+#### Scenario: komposer sejajar satu baris
+- **When** komposer diperiksa
+- **Then** pemilih berkas, kolom pesan, dan tombol kirim berada pada satu baris yang sama
+- **And** pratinjau lampiran berada di atas baris itu
+
+#### Scenario: label lampiran punya nama yang dapat diakses
+- **When** screen reader membacakan pemilih berkas
+- **Then** yang dibacakan menyebut fungsi melampirkan berkas
+- **And** teks itu tidak terlihat secara visual
+
+#### Scenario: tombol menempel tepi bawah saat kolom memanjang
+- **Given** kolom pesan sudah tumbuh beberapa baris
+- **When** baris komposer diperiksa
+- **Then** ikon lampiran dan ikon kirim tetap sejajar dengan tepi bawah kolom pesan
 
 ---
 

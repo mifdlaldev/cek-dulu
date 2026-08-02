@@ -1087,7 +1087,11 @@ img.msg__avatar {
   color: var(--warna-teks-lembut);
 }
 
+/* D-25 — ikon lampiran, kolom pesan, dan tombol kirim sejajar satu baris. flex-end wajib:
+   kolom pesan tumbuh ke bawah sampai enam baris (UI-01), sehingga kedua tombol harus menempel
+   tepi bawah agar tidak melayang di tengah saat kolom memanjang. */
 .composer__row {
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: var(--ruang-2);
@@ -1132,16 +1136,22 @@ img.msg__avatar {
   cursor: not-allowed;
 }
 
+/* D-25a — tombol kirim menampilkan ikon saja. Teks "Kirim" berada di .sr-only di dalam
+   tombol sehingga tetap dibacakan screen reader; UI-11 menuntut nama yang dapat diakses,
+   bukan teks yang terlihat. Ukuran dikunci --ukuran-avatar agar bujur sangkar dan bundar. */
 .composer__button {
   flex: 0 0 auto;
-  padding: var(--ruang-3) var(--ruang-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ukuran-avatar);
+  height: var(--ukuran-avatar);
+  padding: 0;
   background-color: var(--warna-aksen);
   color: var(--warna-teks-invers);
   border: 1px solid var(--warna-aksen-pekat);
-  border-radius: var(--radius-sedang);
+  border-radius: var(--radius-penuh);
   font-family: inherit;
-  font-size: var(--teks-kecil);
-  font-weight: var(--tebal-tegas);
   cursor: pointer;
   transition: background-color var(--durasi-cepat) ease;
 }
@@ -1153,6 +1163,17 @@ img.msg__avatar {
 .composer__button:disabled {
   opacity: 0.55;
   cursor: progress;
+}
+
+.composer__ikon {
+  display: inline-flex;
+  width: var(--ruang-5);
+  height: var(--ruang-5);
+}
+
+.composer__ikon svg {
+  width: 100%;
+  height: 100%;
 }
 
 .composer__hint {
@@ -1176,15 +1197,13 @@ img.msg__avatar {
 
 /* ==== UI-16 — lampiran berkas ==== */
 
-.lampiran {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ruang-2);
-}
-
 /* Input file bawaan disembunyikan secara visual namun TETAP dapat menerima fokus keyboard —
    karena itu memakai opacity dan ukuran satu piksel, bukan display: none yang akan
-   mengeluarkannya dari urutan Tab. Labelnya yang tampil sebagai tombol. */
+   mengeluarkannya dari urutan Tab. Labelnya yang tampil sebagai tombol.
+
+   D-25 — wadah .lampiran dibubarkan: pemilih berkas kini berada langsung di dalam
+   .composer__row bersama kolom pesan dan tombol kirim. Posisi absolute diberi acuan oleh
+   .composer__row yang sudah relative, agar input tidak melayang ke sudut panel. */
 .lampiran__input {
   position: absolute;
   width: 1px;
@@ -1192,24 +1211,26 @@ img.msg__avatar {
   opacity: 0;
 }
 
+/* D-25a — label menampilkan ikon saja; teks "Lampirkan berkas" berada di .sr-only di
+   dalamnya. Ukuran dikunci --ukuran-avatar agar sejajar dengan tombol kirim. */
 .lampiran__pilih {
-  align-self: flex-start;
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: var(--ruang-2);
-  padding: var(--ruang-1) var(--ruang-3);
+  justify-content: center;
+  width: var(--ukuran-avatar);
+  height: var(--ukuran-avatar);
   background-color: var(--warna-permukaan);
   color: var(--warna-aksen-pekat);
   border: 1px solid var(--warna-garis);
   border-radius: var(--radius-penuh);
-  font-size: var(--teks-mikro);
-  font-weight: var(--tebal-sedang);
   cursor: pointer;
   transition: border-color var(--durasi-cepat) ease;
 }
 
 .lampiran__pilih:hover {
   border-color: var(--warna-aksen);
+  color: var(--warna-aksen);
 }
 
 /* Cincin fokus dipasang pada label ketika input di belakangnya menerima fokus, karena
@@ -1222,8 +1243,8 @@ img.msg__avatar {
 
 .lampiran__ikon {
   display: inline-flex;
-  width: var(--ruang-4);
-  height: var(--ruang-4);
+  width: var(--ruang-5);
+  height: var(--ruang-5);
   flex: 0 0 auto;
 }
 
@@ -1232,7 +1253,12 @@ img.msg__avatar {
   height: 100%;
 }
 
+/* D-25c — pratinjau berada di atas baris komposer, sehingga pertumbuhannya menjauhi kolom
+   pesan alih-alih mendorongnya. align-self flex-start agar lebarnya mengikuti isi, bukan
+   memanjang penuh selebar komposer. */
 .lampiran__pratinjau {
+  align-self: flex-start;
+  max-width: 100%;
   display: flex;
   align-items: center;
   gap: var(--ruang-2);

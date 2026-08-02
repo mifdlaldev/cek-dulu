@@ -2,10 +2,11 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 162 dari 169 task selesai.** Fase A sampai E, G, H, I, J, dan K tuntas — kelima
+**Progres: 172 dari 179 task selesai.** Fase A sampai E, G, H, I, J, K, dan L tuntas — kelima
 gate verifikasi LULUS dan **21 dari 21 skenario uji lulus**. Fase K menambahkan lampiran gambar
 dan dokumen; **UJI-18 sebagai gate mutlak `PG-03` pada input gambar LULUS** — bot tidak menyebut
-nama entitas dari logo maupun menilai legalitasnya. Fase G menambahkan pola widget setelah
+nama entitas dari logo maupun menilai legalitasnya. Fase L menata komposer menjadi satu baris
+dengan tombol ikon; verifikasinya dibatasi atas permintaan pengguna, tanpa uji browser. Fase G menambahkan pola widget setelah
 kritik bahwa desain awal terbaca sebagai formulir; Fase H menambahkan landing page sembilan
 section; Fase I mengubah komposer menjadi multi-baris dan memberi tombol tutup pada blok saran;
 Fase J mengganti inisial `CD` dengan avatar gambar. Pada keempatnya spec diamandemen lebih
@@ -26,6 +27,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 | I | Komposer multi-baris, blok saran, nota | 21/21 | ✅ Selesai — UJI-16 lulus |
 | J | Avatar bot berupa berkas gambar | 22/22 | ✅ Selesai — UJI-17 lulus, varian header D-23 |
 | K | Lampiran gambar dan dokumen | 28/28 | ✅ Selesai — UJI-18 s.d. UJI-21 lulus |
+| L | Komposer satu baris, tombol ikon | 10/10 | ✅ Selesai — verifikasi statis, visual oleh pengguna |
 | F | Persiapan submit | 0/7 | ⬜ Belum |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
@@ -1026,22 +1028,93 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 
 ---
 
+## Fase L — Komposer satu baris dengan tombol ikon
+
+> Latar belakang: pengguna meminta ikon lampiran, kolom pesan, dan tombol kirim disejajarkan
+> dalam satu baris seperti komposer Telegram, dengan kedua tombol menjadi ikon saja untuk
+> menghemat ruang kolom pesan. Pratinjau lampiran dipindah ke atas baris itu.
+>
+> Requirement yang diamandemen: `UI-01` (bentuk tombol kirim), `UI-11` (tombol submit cukup
+> punya nama yang dapat diakses, tidak wajib menampilkan teks), `UI-16` (tata letak). Nol
+> requirement baru. Keputusan: `design.md` D-25a, D-25b, D-25c.
+>
+> ⚠️ **`UI-11` diamandemen, bukan dilanggar.** Bunyi lama "Tombol submit memiliki teks yang
+> jelas, bukan hanya ikon" bertabrakan langsung dengan permintaan. Requirement diperbaiki lebih
+> dahulu sesuai `AGENTS.md` §0 — bukan koding menyimpang lalu menyesuaikan spec.
+>
+> ⚠️ **Verifikasi dibatasi atas permintaan pengguna.** Tanpa Playwright, tanpa uji browser.
+> Yang dijalankan hanya pemeriksaan statis yang dijaga CI. Penilaian visual dilakukan pengguna
+> langsung di browser.
+>
+> **Nol kuota API.** Backend dan `SYSTEM_INSTRUCTION` tidak disentuh.
+
+- [x] **L1.** `design.md`: tulis D-25 beserta tiga sub-keputusan dan alternatif yang ditolak,
+  termasuk alasan mengapa larangan messengerbot.app terhadap ikon-tanpa-label pada launcher
+  (D-18) tidak berlaku untuk tombol di dalam komposer
+  → expect setiap penolakan punya alasan, bukan daftar kosong
+  · Ref: D-25a, D-25b, D-25c
+
+- [x] **L2.** `specs/chat-ui/spec.md`: amandemen `UI-11` — tombol submit WAJIB punya nama yang
+  dapat diakses berupa teks; teks boleh disembunyikan `.sr-only`
+  → expect tuntutan keterbacaan screen reader tetap utuh
+  · Ref: `UI-11`, D-25a
+
+- [x] **L3.** `specs/chat-ui/spec.md`: amandemen `UI-01` — blok HTML tombol kirim memuat ikon
+  ber-`aria-hidden` dan teks `.sr-only`
+  → expect `id="send-button"` tidak berubah
+  · Ref: `UI-01`, D-25a
+
+- [x] **L4.** `specs/chat-ui/spec.md`: amandemen `UI-16` — tata letak satu baris, pratinjau di
+  atas, `align-items: flex-end`, label lampiran menampilkan ikon saja
+  → expect jenis elemen `<input type="file">` dengan `<label>` tidak berubah
+  · Ref: `UI-16`, D-25c
+
+- [x] **L5.** `public/index.html`: pindahkan pratinjau ke atas baris komposer; pindahkan
+  pemilih berkas ke dalam `.composer__row`; ganti teks kedua tombol menjadi `.sr-only`;
+  tambahkan `title` pada keduanya
+  → expect nol teks tombol yang terlihat, nama yang dapat diakses tetap ada
+  · Ref: `UI-01`, `UI-11`, `UI-16`
+
+- [x] **L6.** `public/style.css`: `.composer__row` diberi `position: relative` sebagai acuan
+  `.lampiran__input` yang absolute, dan `align-items: flex-end`
+  → expect input file tidak melayang ke sudut panel
+  · Ref: `UI-16`, D-25c
+
+- [x] **L7.** `public/style.css`: `.composer__button` dan `.lampiran__pilih` menjadi tombol
+  ikon bundar seukuran `--ukuran-avatar`; bubarkan wadah `.lampiran` yang tidak lagi dipakai
+  → expect nol token warna baru, nol aturan CSS yatim
+  · Ref: `UI-12`, `UI-16`
+
+- [x] **L8.** Pemeriksaan statis: `node --check` pada kedua berkas JS, larangan `innerHTML`,
+  warna literal di luar `:root`, keterlacakan requirement
+  → expect keempatnya lolos tanpa uji browser
+  · Ref: CI job `syntax`, `constraints`, `traceability`
+
+- [x] **L9.** Audit kelas CSS yatim dan kelas HTML tanpa aturan setelah penataan ulang
+  → expect nol kandidat orphan nyata
+  · Ref: `UI-12`
+
+- [x] **L10.** Selaraskan penanda status pada berkas yang menyebut jumlah keputusan dan fase
+  → expect nol klaim basi
+
+---
+
 ## Ringkasan urutan
 
 ```
 A (setup) → B (backend) → C (uji backend via curl) → D (frontend)
           → E (5 gate + aksesibilitas + laporan QA) → G (redesain widget)
           → H (landing page) → I (komposer multi-baris) → J (avatar gambar)
-          → K (lampiran berkas) → F (submit)
+          → K (lampiran berkas) → L (komposer satu baris) → F (submit)
 ```
 
 Alasan C sebelum D: memastikan backend dan guardrail benar **sebelum** menulis frontend.
 Kalau `PG-03` gagal, memperbaikinya lebih murah saat frontend belum ada.
 
-Alasan G sampai K sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
+Alasan G sampai L sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
 
-**Total: 11 fase, 169 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19,
-I: 21, J: 22, K: 28, F: 7.
+**Total: 12 fase, 179 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19,
+I: 21, J: 22, K: 28, L: 10, F: 7.
 
 CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push: validasi sintaks,
 kebersihan repo, batasan dependency, audit `systemInstruction` terhadap `PG-09`, dan

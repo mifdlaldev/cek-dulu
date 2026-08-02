@@ -1022,6 +1022,127 @@ pengguna langsung di browser.
 
 ---
 
+### D-25 — Komposer satu baris dengan tombol ikon
+
+**Keputusan:** ikon lampiran, kolom pesan, dan tombol kirim disusun **sejajar dalam satu
+baris**. Kedua tombol menjadi **ikon saja**; teksnya dipindahkan ke `.sr-only` sehingga tetap
+dibacakan screen reader tanpa memakan ruang. Pratinjau lampiran dipindahkan **ke atas** baris
+itu.
+
+Pola ini mengikuti komposer WhatsApp dan Telegram, yang menjadi rujukan pengguna sasaran —
+alasan yang sama dipakai D-21a ketika menetapkan Enter mengirim dan Shift+Enter menyisipkan
+baris.
+
+**Alasan.** Susunan sebelumnya menumpuk tiga baris: label dan petunjuk papan tuts, baris
+lampiran, lalu baris kolom pesan. Bersama nota privasi dan nota disclaimer, komposer menyita
+tinggi yang seharusnya menjadi aliran percakapan. Menyejajarkan ketiganya menghapus satu baris
+penuh, dan mengubah tombol menjadi ikon mengembalikan lebar horizontal ke kolom pesan — bagian
+yang justru paling dibutuhkan karena use case meminta pengguna menempelkan pesan utuh
+(`design.md` D-21a).
+
+---
+
+#### D-25a — `UI-11` diamandemen, bukan dilanggar
+
+`UI-11` sebelumnya berbunyi: *"Tombol submit memiliki teks yang jelas, bukan hanya ikon."*
+Permintaan pengguna bertabrakan langsung dengan kalimat itu, sehingga requirement diamandemen
+lebih dahulu — bukan dilanggar diam-diam (`AGENTS.md` §0).
+
+Bunyi baru: tombol submit WAJIB memiliki **nama yang dapat diakses berupa teks**. Yang berubah
+adalah tuntutan menampilkan teks **secara visual**, bukan tuntutan keterbacaan bagi screen
+reader.
+
+**Mengapa amandemen ini tidak melemahkan aksesibilitas.** Pola ikon disertai `.sr-only` sudah
+dipakai **tiga kali** di repositori ini dan ketiganya sudah lulus verifikasi:
+
+| Tombol | Isi | Diverifikasi |
+|---|---|---|
+| Tutup panel | `×` + `.sr-only` "Tutup percakapan" | Fase G, UJI-14 |
+| Tutup blok saran | `×` + `.sr-only` "Sembunyikan contoh pertanyaan" | Fase I, UJI-16 |
+| Hapus lampiran | `×` + `.sr-only` "Hapus lampiran" | Fase K, UJI-18 s.d. UJI-21 |
+
+Amandemen ini **memperluas pola yang sudah konsisten**, bukan menciptakan pengecualian baru.
+
+Teknik WCAG H32 yang dirujuk `UI-01` menuntut tombol submit **ada dan dapat difokuskan** agar
+pengguna tidak bergantung pada Enter — bukan menuntut teksnya terlihat mata. Tuntutan itu tetap
+terpenuhi.
+
+---
+
+#### D-25b — Risiko yang diakui dan mitigasinya
+
+Ikon tanpa teks lebih ambigu bagi sebagian pengguna. Ini bukan risiko yang bisa diabaikan pada
+proyek ini: target pengguna mencakup orang lanjut usia dan berliterasi rendah
+(`docs/USE-CASE-CEKDULU.md` §2), dan itulah alasan `docs/RISET-DESAIN.md` §3 memilih light mode.
+
+Riset yang sama juga memuat larangan yang perlu dijawab. messengerbot.app menyatakan "the
+default speech-bubble icon is rarely enough on its own", dan D-18 memakai kutipan itu untuk
+**menolak** launcher berupa ikon tanpa label.
+
+**Mengapa larangan itu tidak berlaku di sini.** Kutipan tersebut berbicara tentang **launcher** —
+titik masuk pertama, ketika pengguna belum tahu alat ini apa dan perannya harus terbaca sekali
+pandang. Tombol di dalam komposer berada pada konteks yang sudah jelas: panel percakapan sudah
+terbuka, ada label "Tulis pesan Anda", dan petunjuk papan tuts terpampang di atasnya.
+
+Launcher Cek Dulu **tetap memakai ikon dan teks**. D-18 tidak dibatalkan.
+
+Tiga mitigasi yang diterapkan:
+
+1. `aria-label` pada kedua tombol sehingga screen reader membacakan fungsinya.
+2. Atribut `title` sehingga tooltip muncul saat kursor menyentuh tombol — membantu pengguna
+   yang ragu tanpa menambah ruang.
+3. Ikon panah kirim dan ikon penjepit kertas adalah konvensi yang sudah dikenal dari WhatsApp
+   dan Telegram, aplikasi yang sudah dipakai pengguna sasaran setiap hari.
+
+---
+
+#### D-25c — Pratinjau dipindah ke atas baris komposer
+
+**Alasan.** Bila pratinjau tetap berada di antara label dan baris komposer, munculnya lampiran
+mendorong kolom pesan ke bawah dan menggeser tata letak saat pengguna sedang mengetik.
+Menempatkannya di atas membuat pertumbuhan terjadi menjauhi kolom pesan, bukan mendorongnya.
+
+Susunan final komposer, dari atas ke bawah:
+
+```
+[ pratinjau lampiran — muncul hanya bila ada berkas ]
+[ label "Tulis pesan Anda"   ·   petunjuk papan tuts ]
+[ ikon lampiran | kolom pesan | ikon kirim ]
+[ nota privasi lampiran ]
+[ nota disclaimer ]
+```
+
+**Penyejajaran memakai `align-items: flex-end`.** Kolom pesan tumbuh ke bawah sampai enam baris
+(`UI-01`), sehingga kedua tombol harus menempel ke tepi bawah agar tidak melayang di tengah
+ketika kolom memanjang.
+
+---
+
+**Ditolak: mengubah label lampiran menjadi `<button>` dengan penangan klik.** `UI-16`
+mewajibkan `<input type="file">` dengan `<label>` terkait, karena kontrol bawaan sudah dapat
+dioperasikan keyboard tanpa JavaScript tambahan. Bentuknya boleh berubah menjadi bundar seukuran
+ikon; jenis elemennya tidak.
+
+**Ditolak: menghapus label "Tulis pesan Anda" agar hemat satu baris lagi.** Label itu dituntut
+`UI-11`, dan baris yang sama sudah dipakai bersama petunjuk papan tuts — menghapusnya menghemat
+nol piksel.
+
+**Ditolak: menggabungkan nota privasi dan nota disclaimer menjadi satu baris.** Keduanya
+melayani requirement berbeda (`UI-17` dan `UI-08`) dengan isi yang tidak boleh saling
+menggantikan. Pengukuran Fase I dan K sudah menetapkan panjang masing-masing.
+
+**Ditolak: memindahkan ikon lampiran ke dalam kolom pesan sebagai ikon melayang.** Menuntut
+`position: absolute` beserta `padding` kompensasi pada `<textarea>`, dan itu bertabrakan dengan
+`field-sizing: content` yang mengatur tinggi kolom (`UI-01`).
+
+`UI-01`, `UI-11`, dan `UI-16` diamandemen pada bagian tata letak dan nama tombol. Verifikasi
+dibatasi atas permintaan pengguna: hanya `node --check`, larangan `innerHTML`, dan pemeriksaan
+warna literal. Penilaian visual dilakukan pengguna langsung di browser.
+
+---
+
+---
+
 ### D-24 — Lampiran gambar dan dokumen lewat endpoint terpisah
 
 **Keputusan:** menambah `POST /api/chat-with-file` yang menerima `multipart/form-data` dengan

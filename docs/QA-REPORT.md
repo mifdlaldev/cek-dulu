@@ -12,7 +12,7 @@
 | Browser uji | Chromium 151.0.7922.34 (headless, via CDP) |
 | Model dipakai | `gemini-flash-latest` (bawaan `WS-02`, lihat `KENDALA-API.md` §1) |
 | Tier akun | Free tier |
-| Status | Fase A sampai E, G, H, I, J, dan K selesai. **Kelima gate verifikasi LULUS, 21 dari 21 skenario uji lulus.** Sisa: Fase F (screenshot dan submit) |
+| Status | Fase A sampai E, G, H, I, J, K, dan L selesai. **Kelima gate verifikasi LULUS, 21 dari 21 skenario uji lulus.** Sisa: Fase F (screenshot dan submit) |
 
 ---
 
@@ -3575,3 +3575,145 @@ DOM.
 | Analisis dokumen PDF dan TXT lewat model | Jalur kodenya identik dengan gambar — perbedaannya hanya nilai `mimeType` yang diteruskan ke `inlineData`. Allowlist keduanya sudah terverifikasi lewat UJI-21. Menguji dengan model akan memakai kuota tambahan tanpa menguji cabang kode baru |
 | Perilaku pada berkas dengan MIME dipalsukan | Allowlist memeriksa header yang dikirim klien, dan keterbatasan ini dicatat apa adanya di `SECURITY.md`. Validasi magic byte menuntut dependency di luar materi (D-24e) |
 | Pertanyaan lanjutan yang menuntut model melihat ulang gambar | Konsekuensi yang diterima dari D-24c: model hanya memiliki jawabannya sendiri di riwayat, bukan gambarnya |
+
+
+---
+
+## Fase L — Komposer satu baris dengan tombol ikon
+
+| Meta | Nilai |
+|---|---|
+| Tanggal | 2 Agustus 2026 |
+| Requirement | `UI-01`, `UI-11`, `UI-16` diamandemen; nol requirement baru |
+| Keputusan | `design.md` D-25a, D-25b, D-25c |
+| Cakupan verifikasi | **Dibatasi atas permintaan pengguna** — tanpa Playwright, tanpa uji browser. Penilaian visual dilakukan pengguna langsung |
+| Kuota API terpakai | **0** |
+
+### Yang diminta
+
+Ikon lampiran, kolom pesan, dan tombol kirim disejajarkan dalam satu baris seperti komposer
+Telegram. Kedua tombol menjadi ikon saja untuk menghemat ruang kolom pesan. Pratinjau lampiran
+dan nama berkas dipindah ke atas baris itu.
+
+### Requirement yang bertabrakan, dan cara menanganinya
+
+`UI-11` sebelumnya berbunyi: *"Tombol submit memiliki teks yang jelas, bukan hanya ikon."*
+Permintaan ini bertabrakan langsung dengan kalimat tersebut.
+
+Yang dilakukan: **requirement diamandemen lebih dahulu**, bukan dilanggar diam-diam. Bunyi baru
+menuntut **nama yang dapat diakses berupa teks** — teks boleh disembunyikan `.sr-only`. Yang
+dilepas adalah tuntutan menampilkan teks secara visual; tuntutan keterbacaan bagi screen reader
+tetap utuh.
+
+Pola ikon disertai `.sr-only` sudah dipakai tiga kali di repositori ini dan ketiganya sudah
+lulus verifikasi pada fase sebelumnya: tombol tutup panel (Fase G), tombol tutup blok saran
+(Fase I), dan tombol hapus lampiran (Fase K). Amandemen ini memperluas pola yang sudah
+konsisten, bukan menciptakan pengecualian.
+
+Teknik WCAG H32 yang dirujuk `UI-01` menuntut tombol submit **ada dan dapat difokuskan** agar
+pengguna tidak bergantung pada Enter — bukan menuntut teksnya terlihat mata. Tuntutan itu tetap
+terpenuhi.
+
+### Struktur komposer setelah penataan
+
+Dibaca dari `public/index.html`:
+
+```
+<form id="chat-form" class="composer">
+  <div class="lampiran__pratinjau" id="lampiran-pratinjau" hidden>
+  <div class="composer__head">
+    <label class="composer__label" for="user-input">Tulis pesan Anda
+    <p class="composer__hint" id="composer-hint">
+  <div class="composer__row">
+    <label class="lampiran__pilih" for="file-input" title="Lampirkan berkas">
+      <span class="lampiran__ikon" aria-hidden="true"> <svg>
+      <span class="sr-only">Lampirkan berkas
+    <input id="file-input" class="lampiran__input">
+    <textarea id="user-input" class="composer__input">
+    <button type="submit" id="send-button" class="composer__button" title="Kirim">
+      <span class="composer__ikon" aria-hidden="true"> <svg>
+      <span class="sr-only">Kirim
+  <p class="sr-only" id="lampiran-status" role="status" aria-live="polite">
+  <p class="composer__note" id="lampiran-nota">
+  <p class="composer__note">
+```
+
+Tiga elemen berada dalam satu `.composer__row`. Pratinjau berada di atasnya. Kedua tombol
+memuat ikon ber-`aria-hidden` dan teks `.sr-only`.
+
+### Keputusan CSS yang perlu dicatat
+
+`.composer__row` diberi `position: relative`. Alasannya: `.lampiran__input` memakai
+`position: absolute` agar tetap dapat menerima fokus keyboard tanpa terlihat. Setelah pemilih
+berkas dipindahkan ke dalam baris komposer, wadah `.lampiran` yang sebelumnya menjadi acuan
+posisi ikut dibubarkan — tanpa `relative` pada baris komposer, input akan melayang ke sudut
+panel.
+
+`align-items: flex-end` pada baris komposer bersifat wajib, bukan pilihan estetis. Kolom pesan
+tumbuh ke bawah sampai enam baris (`UI-01`), sehingga kedua tombol harus menempel tepi bawah
+agar tidak melayang di tengah saat kolom memanjang.
+
+Kedua tombol memakai `--ukuran-avatar` sebagai lebar dan tinggi, sehingga ukurannya identik
+tanpa nilai literal baru.
+
+### Pemeriksaan yang dijalankan
+
+```bash
+node --check public/script.js
+node --check index.js
+grep -nE '\.(inner|outer)HTML[[:space:]]*=|insertAdjacentHTML|document\.write' public/script.js
+awk '/^:root/{r=1} r&&/^}/{r=0;next} !r' public/style.css | grep -nE '#[0-9a-fA-F]{3,8}|rgba?\('
+```
+
+```
+1 syntax script.js OK
+2 OK nol HTML mentah
+3 OK nol warna literal
+4 syntax index.js OK
+5 traceability OK: 40 requirement tertelusur
+```
+
+Audit kelas CSS setelah penataan ulang:
+
+```
+KELAS DIPAKAI TAPI TANPA ATURAN CSS:
+   hero__teks, hero__visual, launcher__label, site-footer__nav, user
+
+ATURAN CSS TANPA PEMAKAI (kandidat orphan):
+   (kosong)
+```
+
+Nol aturan CSS yatim — kelas `.lampiran` dan `.lampiran__teks` yang tidak lagi dipakai sudah
+dihapus bersamaan. Lima kelas HTML tanpa aturan CSS seluruhnya sudah dijelaskan pada audit Fase
+I: empat pembungkus semantik yang digayakan lewat induknya, dan `user` berasal dari argumen
+`classList.add('msg', pengirim === 'user' ? ...)` yang terbaca alat audit sebagai nama kelas.
+
+### Batas verifikasi ini
+
+Pengguna meminta perubahan UI dan posisi saja, tanpa Playwright. Karena itu **tidak
+dijalankan**: inspeksi DOM di browser, pengukuran geometri baris komposer, pengukuran kontras
+pada tombol ikon, uji responsif, uji pembesaran, uji urutan Tab, dan pemeriksaan console.
+
+Yang dijalankan hanya pemeriksaan statis yang dijaga CI. Konsekuensinya: klaim bahwa ketiga
+elemen benar-benar sejajar secara visual, bahwa tombol ikon tetap memenuhi kontras, dan bahwa
+urutan Tab tidak berubah **belum diverifikasi dengan bukti terukur**.
+
+Penilaian visual dilakukan pengguna langsung di browser.
+
+### Rekapitulasi Fase L
+
+| Butir | Requirement | Hasil |
+|---|---|---|
+| `UI-11` diamandemen sebelum kode ditulis | `AGENTS.md` §0 | LULUS |
+| Tiga elemen berada dalam satu `.composer__row` | `UI-16` | LULUS (inspeksi berkas) |
+| Pratinjau berada di atas baris komposer | `UI-16`, D-25c | LULUS (inspeksi berkas) |
+| Kedua tombol memuat teks `.sr-only` | `UI-11`, D-25a | LULUS (inspeksi berkas) |
+| Kedua tombol memuat `title` | `UI-11` | LULUS (inspeksi berkas) |
+| `id="user-input"`, `id="send-button"`, `id="file-input"` tidak berubah | `UI-01`, `UI-16` | LULUS |
+| Jenis elemen `<input type="file">` dengan `<label>` tidak berubah | `UI-16` | LULUS |
+| Nol token warna baru | `UI-12` | LULUS |
+| Nol aturan CSS yatim | `UI-12` | LULUS |
+| Nol `innerHTML` | D-07 | LULUS |
+| Sintaks kedua berkas JS | CI `syntax` | LULUS |
+| Keterlacakan 40 requirement | Gate 1 | LULUS |
+| Kesejajaran visual, kontras tombol ikon, urutan Tab | — | **BELUM DIVERIFIKASI** — di luar cakupan atas permintaan pengguna |
