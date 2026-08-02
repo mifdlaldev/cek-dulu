@@ -2,10 +2,11 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 91 dari 98 task selesai.** Fase A sampai E, G, dan H tuntas — kelima gate
-verifikasi LULUS dan **15 dari 15 skenario uji lulus**. Fase G menambahkan pola widget setelah
+**Progres: 112 dari 119 task selesai.** Fase A sampai E, G, H, dan I tuntas — kelima gate
+verifikasi LULUS dan **16 dari 16 skenario uji lulus**. Fase G menambahkan pola widget setelah
 kritik bahwa desain awal terbaca sebagai formulir; Fase H menambahkan landing page sembilan
-section. Pada keduanya spec diamandemen lebih dahulu sesuai `docs/METODOLOGI.md` §6.
+section; Fase I mengubah komposer menjadi multi-baris dan memberi tombol tutup pada blok saran.
+Pada ketiganya spec diamandemen lebih dahulu sesuai `docs/METODOLOGI.md` §6.
 
 Sisa: tujuh task Fase F berupa screenshot dan submit.
 Bukti verifikasi: `docs/QA-REPORT.md`.
@@ -19,6 +20,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 | E | Gate verifikasi | 8/8 | ✅ Selesai — 5 gate lulus |
 | G | Redesain antarmuka pola widget | 20/20 | ✅ Selesai — 14/14 skenario lulus |
 | H | Landing page sembilan section | 19/19 | ✅ Selesai — UJI-15 lulus |
+| I | Komposer multi-baris, blok saran, nota | 21/21 | ✅ Selesai — UJI-16 lulus |
 | F | Persiapan submit | 0/7 | ⬜ Belum |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
@@ -606,7 +608,133 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
   · Ref: `docs/METODOLOGI.md` §5
 
 - [x] **H19.** Selaraskan penanda status pada `README.md`, `tasks.md`, `proposal.md`,
-  `project.md`, `METODOLOGI.md`, dan `AGENTS.md` — 34 requirement, 15 skenario uji
+  `project.md`, `METODOLOGI.md`, dan `AGENTS.md` — jumlah requirement dan skenario konsisten
+  → expect nol klaim basi, jumlah requirement dan skenario konsisten di semua berkas
+
+---
+
+## Fase I — Komposer multi-baris, blok saran dapat ditutup, nota satu baris
+
+> Latar belakang: tiga permintaan pengguna atas panel percakapan. Pertama, kolom pesan satu
+> baris menggulir horizontal sehingga pengguna tidak dapat memeriksa pesan yang sudah ia tempel
+> — padahal use case justru meminta menempelkan pesan penipuan secara utuh. Kedua, blok contoh
+> pertanyaan menempati 16% tinggi panel tanpa bisa ditutup. Ketiga, nota disclaimer membungkus
+> dua baris.
+>
+> Spec diamandemen lebih dahulu sesuai `docs/METODOLOGI.md` §6. Requirement baru `UI-15`;
+> `UI-01`, `UI-08`, `UI-11`, `UI-12` diamandemen. Keputusan: `design.md` D-21a, D-21b, D-21c.
+> Riset dan sitasi: `docs/RISET-DESAIN.md` §7 dan §8.
+>
+> **Nol kuota API** untuk seluruh fase ini. Backend, `SYSTEM_INSTRUCTION`, parameter model, dan
+> kontrak API tidak berubah sama sekali. Guardrail `PG-*` tidak perlu diuji ulang.
+>
+> ⚠️ **Fase ini memuat penyimpangan kedua dari kode materi.** S3 p.37 menuliskan
+> `<input type="text" id="user-input" />`; repo memakai `<textarea id="user-input">`. Nama ID
+> **tidak boleh** diubah. Alasan penyimpangan wajib tetap terbaca di `design.md` D-21a.
+
+- [x] **I1.** `public/style.css`: tambah token `--teks-nano: 0.75rem` pada blok `:root` sebagai
+  ukuran terkecil skala tipografi, ditambah token tinggi maksimum komposer
+  → expect nol nilai ukuran literal baru di luar `:root`
+  · Ref: `UI-12`, D-21c
+
+- [x] **I2.** `public/index.html`: ganti `<input type="text" id="user-input">` menjadi
+  `<textarea id="user-input" rows="1" required>`; pertahankan `id`, `name`, `placeholder`, dan
+  `autocomplete`
+  → expect `#chat-form`, `#user-input`, `#chat-box` tetap ada dan `#user-input` bertipe textarea
+  · Ref: `UI-01`, D-21a
+
+- [x] **I3.** `public/index.html`: tambah teks petunjuk papan tuts dan hubungkan ke kolom pesan
+  lewat `aria-describedby`
+  → expect screen reader membacakan perilaku `Enter` dan `Shift`+`Enter`
+  · Ref: `UI-01`, `UI-11`, D-21a
+
+- [x] **I4.** `public/index.html`: tambah tombol tutup pada baris judul blok contoh pertanyaan,
+  dengan `aria-expanded`, `aria-controls`, dan nama yang dapat diakses berupa teks
+  → expect tombol terbaca screen reader, bukan hanya simbol
+  · Ref: `UI-15`, `UI-11`, D-21b
+
+- [x] **I5.** `public/style.css`: gaya kolom pesan multi-baris — `field-sizing: content`,
+  tinggi awal satu baris, maksimum enam baris, `overflow-y: auto`, `resize: none`
+  → expect kolom tumbuh ke bawah tanpa pegangan ubah ukuran yang menutupi tombol kirim
+  · Ref: `UI-01`, `UI-12`, D-21a
+
+- [x] **I6.** `public/style.css`: gaya baris judul blok saran agar judul dan tombol tutup
+  sebaris, target sentuh tombol minimal 24×24px
+  → expect tombol tutup tidak menggeser tata letak chip
+  · Ref: `UI-15`, `UI-11`
+
+- [x] **I7.** `public/style.css`: terapkan `--teks-nano` pada `.composer__note`
+  → expect nota muat satu baris pada lebar panel 380px
+  · Ref: `UI-08`, `UI-12`, D-21c
+
+- [x] **I8.** `public/script.js`: fungsi penyesuaian tinggi kolom pesan dengan urutan
+  `height = 'auto'` lalu `height = scrollHeight + 'px'`, dipasang **hanya** bila
+  `CSS.supports('field-sizing', 'content')` bernilai `false`
+  → expect tinggi bertambah saat isi bertambah dan menyusut saat isi dihapus
+  · Ref: `UI-01`, D-21a, `docs/RISET-DESAIN.md` §7
+
+- [x] **I9.** `public/script.js`: penangan `keydown` pada kolom pesan — `Enter` tanpa `Shift`
+  mengirim, `Shift`+`Enter` menyisipkan baris baru
+  → expect nol pengiriman dari peristiwa `input`
+  · Ref: `UI-01`, `UI-11`, D-21a
+
+- [x] **I10.** `public/script.js`: reset tinggi kolom pesan setelah pesan terkirim
+  → expect kolom kembali satu baris setelah dikosongkan
+  · Ref: `UI-01`, `UI-02`
+
+- [x] **I11.** `public/script.js`: fungsi tutup blok saran — set `hidden`, ubah `aria-expanded`,
+  pindahkan fokus ke kolom pesan; blok TIDAK dihapus dari DOM
+  → expect fokus tidak melompat ke `body`
+  · Ref: `UI-15`, `UI-11`, D-21b
+
+- [x] **I12.** `public/script.js`: JSDoc pada fungsi baru dengan rujukan requirement ID
+  → expect kontrak fungsi jelas tanpa TypeScript
+  · Ref: D-14
+
+- [x] **I13.** Jalankan `node --check public/script.js` dan pemeriksaan larangan `innerHTML`
+  → expect sintaks lolos, nol penulisan HTML mentah
+  · Ref: CI job `syntax` dan `constraints`
+
+- [x] **I14.** Verifikasi di browser: kolom pesan tumbuh ke bawah, berhenti di enam baris lalu
+  menggulir, menyusut saat isi dihapus, dan kembali satu baris setelah kirim
+  → expect nol scroll horizontal di dalam kolom pesan
+  · Ref: **Gate 4**, UJI-16, `UI-01`
+
+- [x] **I15.** Verifikasi di browser: `Shift`+`Enter` menyisipkan baris tanpa mengirim, `Enter`
+  mengirim, tombol Kirim tetap berfungsi
+  → expect seluruh skenario papan tuts `UI-01` lulus
+  · Ref: **Gate 4**, UJI-16, `UI-11`
+
+- [x] **I16.** Verifikasi di browser: tombol tutup menyembunyikan blok saran, `#chat-box`
+  bertambah tinggi, fokus pindah ke kolom pesan, chip keluar dari urutan Tab, focus trap tetap
+  utuh
+  → expect seluruh skenario `UI-15` lulus
+  · Ref: **Gate 4**, UJI-16, `UI-15`
+
+- [x] **I17.** Verifikasi kontras dan keterbacaan nota setelah ukuran diturunkan, ditambah
+  pengukuran jumlah baris nota pada 380px
+  → expect rasio tetap minimal 4,5:1 dan nota muat satu baris
+  · Ref: `UI-11`, `UI-12`, D-21c
+
+- [x] **I18.** Verifikasi di browser: responsif 375px dan pembesaran 200%,
+  `prefers-reduced-motion`, console tanpa galat
+  → expect nol scroll horizontal pada kedua viewport
+  · Ref: `UI-10`, `UI-11`
+
+- [x] **I19.** `docs/PROMPT-AVATAR.md`: tulis prompt lengkap untuk avatar bot pengganti inisial
+  "CD", memuat batasan yang sudah ditetapkan proyek — palet `UI-12`, larangan logo lembaga
+  (D-20), dan kebutuhan keterbacaan pada 32px
+  → expect prompt siap tempel ke generator gambar tanpa penyuntingan tambahan
+  · Ref: `UI-10`, `UI-12`, D-19, D-20
+
+- [x] **I20.** Perbarui `docs/QA-REPORT.md` dengan bukti Fase I — pengukuran tinggi kolom,
+  hasil uji papan tuts, hasil tutup blok saran, kontras, dan responsif
+  → expect laporan dapat diaudit tanpa menjalankan ulang
+  · Ref: `docs/METODOLOGI.md` §5
+
+- [x] **I21.** Selaraskan penanda status pada `README.md`, `tasks.md`, `proposal.md`,
+  `project.md`, `METODOLOGI.md`, `CONTRIBUTING.md`, dan `AGENTS.md` — 35 requirement,
+  16 skenario uji, dua penyimpangan dari materi
   → expect nol klaim basi, jumlah requirement dan skenario konsisten di semua berkas
 
 ---
@@ -616,15 +744,16 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 ```
 A (setup) → B (backend) → C (uji backend via curl) → D (frontend)
           → E (5 gate + aksesibilitas + laporan QA) → G (redesain widget)
-          → H (landing page) → F (submit)
+          → H (landing page) → I (komposer multi-baris) → F (submit)
 ```
 
 Alasan C sebelum D: memastikan backend dan guardrail benar **sebelum** menulis frontend.
 Kalau `PG-03` gagal, memperbaikinya lebih murah saat frontend belum ada.
 
-Alasan G dan H sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
+Alasan G, H, dan I sebelum F: antarmuka yang di-screenshot untuk submit harus versi final.
 
-**Total: 8 fase, 98 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19, F: 7.
+**Total: 9 fase, 119 task** (1 opsional) — A: 4, B: 14, C: 6, D: 20, E: 8, G: 20, H: 19,
+I: 21, F: 7.
 
 CI (`.github/workflows/ci.yml`) menjalankan lima job pada setiap push: validasi sintaks,
 kebersihan repo, batasan dependency, audit `systemInstruction` terhadap `PG-09`, dan

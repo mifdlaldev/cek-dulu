@@ -12,7 +12,7 @@
 | Browser uji | Chromium 151.0.7922.34 (headless, via CDP) |
 | Model dipakai | `gemini-flash-latest` (bawaan `WS-02`, lihat `KENDALA-API.md` §1) |
 | Tier akun | Free tier |
-| Status | Fase A sampai E, G, dan H selesai. **Kelima gate verifikasi LULUS, 15 dari 15 skenario uji lulus.** Sisa: Fase F (screenshot dan submit) |
+| Status | Fase A sampai E, G, H, dan I selesai. **Kelima gate verifikasi LULUS, 16 dari 16 skenario uji lulus.** Sisa: Fase F (screenshot dan submit) |
 
 ---
 
@@ -920,9 +920,9 @@ bagian Fase G.
 
 **14 dari 14 skenario yang berlaku saat pengujian ini lulus.**
 
-> UJI-15 (`UI-14`, landing page) ditambahkan setelah bagian ini ditulis. Buktinya ada pada
-> bagian **Fase H** di bawah, dan hasilnya LULUS. Dengan begitu Gate 4 lengkap untuk seluruh
-> 15 skenario.
+> UJI-15 (`UI-14`, landing page) dan UJI-16 (`UI-01`, `UI-15`, komposer) ditambahkan setelah
+> bagian ini ditulis. Buktinya ada pada bagian **Fase H** dan **Fase I** di bawah, keduanya
+> LULUS. Dengan begitu Gate 4 lengkap untuk seluruh 16 skenario.
 
 ---
 
@@ -1875,7 +1875,8 @@ Desktop 1280px tidak terpengaruh: tinggi header tetap 64px, `scrollHorizontal: 0
 | `prefers-reduced-motion` | `UI-11` | LULUS |
 | Console dan jaringan bersih | — | LULUS |
 
-**UJI-15 LULUS.** Dengan ini seluruh 15 skenario `docs/USE-CASE-CEKDULU.md` §5 lulus.
+**UJI-15 LULUS.** Lima belas skenario yang berlaku saat pengujian Fase H lulus. UJI-16
+ditambahkan setelahnya dan diverifikasi pada bagian **Fase I**.
 
 ### Konsumsi kuota Fase H
 
@@ -1892,7 +1893,8 @@ dan simulasi media query.
 | Screenshot untuk submit | Fase F. Tangkapan layar verifikasi dibuat sebagai berkas sementara dan sudah dihapus |
 
 Seluruh gate verifikasi `docs/METODOLOGI.md` §5 sudah terpenuhi dengan bukti mentah, mencakup
-34 requirement dan 15 skenario uji.
+35 requirement dan 16 skenario uji. Butir yang belum diverifikasi khusus untuk Fase I tercatat
+pada akhir bagian Fase I.
 
 
 ---
@@ -2021,3 +2023,469 @@ syntax OK
 ```
 
 Ini alasan console browser diperiksa pada setiap putaran, bukan hanya di akhir.
+
+
+---
+
+## Fase I — Verifikasi komposer multi-baris
+
+| Meta | Nilai |
+|---|---|
+| Tanggal | 2 Agustus 2026 |
+| Browser uji | Chromium 151.0.7922.34 (headless, via CDP `localhost:9222`) |
+| Requirement | `UI-15` baru; `UI-01` **menyimpang dari kode materi**; `UI-08`, `UI-11`, `UI-12` diamandemen |
+| Skenario | UJI-16 |
+| Kuota API terpakai | **0** — backend, `SYSTEM_INSTRUCTION`, dan kontrak API tidak berubah |
+
+Fase ini mengubah `public/index.html`, `public/style.css`, dan `public/script.js`. Guardrail
+`PG-*` tidak diuji ulang karena `SYSTEM_INSTRUCTION` tidak disentuh.
+
+---
+
+### Kolom pesan menjadi `<textarea>` · `UI-01`
+
+Inspeksi atribut dan gaya terhitung:
+
+```json
+{
+  "tagName": "TEXTAREA",
+  "rows": "1",
+  "required": true,
+  "ariaDescribedby": "composer-hint",
+  "hintAda": true,
+  "fieldSizing": "content",
+  "resize": "none",
+  "overflowY": "auto",
+  "minHeight": "25.5938px",
+  "maxHeight": "153.562px",
+  "dukungFieldSizing": true,
+  "labelFor": "Tulis pesan Anda"
+}
+```
+
+`id="user-input"` dipertahankan sesuai materi S3 p.37; yang berubah hanya jenis elemen.
+`required` tetap ada sehingga validasi bawaan browser (`UI-01`, screenshot S3 p.14) tidak
+hilang. `field-sizing: content` aktif, sehingga fallback JavaScript tidak dipasang pada browser
+ini.
+
+`maxHeight` terhitung 153,56px sesuai `calc(6 * 1lh)` dengan `line-height` 25,6px.
+
+**LULUS.**
+
+---
+
+### Tinggi kolom tumbuh, berhenti, dan menyusut · `UI-01`
+
+Nilai `value` disetel langsung lalu tinggi diukur:
+
+| Isi | Tinggi kolom | Catatan |
+|---|---|---|
+| kosong | 52px | satu baris |
+| 1 baris | 52px | tidak bertambah |
+| 2 baris | 77px | +25px, sesuai satu `line-height` |
+| 6 baris | **154px** | batas atas tercapai |
+| 10 baris | **154px** | berhenti bertambah |
+| kosong lagi | **52px** | menyusut kembali |
+
+Pada isi 10 baris, `scrollHeight` 280px sementara `clientHeight` 152px — kolom itu sendiri
+yang menggulir, bukan panel.
+
+Uji dengan penekanan tombol sungguhan, delapan baris diketik lewat Shift+Enter:
+
+```json
+{
+  "setelah8Baris": { "tinggiKolom": 154, "tinggiChat": 97, "barisTerlihat": 8 },
+  "scrollDalamKolom": { "scrollHeight": 229, "clientHeight": 152, "bisaGulirVertikal": true, "scrollHorizontal": 0 }
+}
+```
+
+`scrollHorizontal: 0` — teks panjang turun ke bawah, tidak menggulir ke samping. Ini inti
+permintaan yang memicu Fase I.
+
+**LULUS.**
+
+---
+
+### Enter mengirim, Shift+Enter menyisipkan baris · `UI-01`, `UI-11`
+
+Shift+Enter:
+
+```json
+{
+  "nilaiSetelahShiftEnter": "baris satu\nbaris dua",
+  "jumlahBubbleSetelahShiftEnter": 1,
+  "tinggiKolom": 77
+}
+```
+
+Baris baru tersisip, dan jumlah bubble tetap 1 — yaitu sapaan pembuka `UI-07`. **Tidak ada
+pesan terkirim.**
+
+Enter, diuji dengan server sengaja dimatikan agar tidak memakai kuota API:
+
+```json
+{
+  "sebelum": { "nilai": "baris satu\nbaris dua\nbaris 3\nb", "bubble": 1, "tinggiKolom": 154 },
+  "sesudah": {
+    "nilaiKolom": "",
+    "tinggiKolom": 52,
+    "jumlahBubble": 3,
+    "teksBubbleTerakhir": "Failed to get response from server.",
+    "peranBubbleTerakhir": "msg msg--bot",
+    "fokus": "user-input"
+  }
+}
+```
+
+Empat hal terbukti dari satu uji ini: pesan terkirim, kolom dikosongkan, tinggi kembali ke
+52px, dan fokus kembali ke kolom pesan (`UI-11`). Teks
+`Failed to get response from server.` adalah fallback `UI-06` yang benar untuk server mati —
+bukan cacat.
+
+**LULUS.**
+
+---
+
+### Tombol tutup blok contoh pertanyaan · `UI-15`
+
+Sebelum ditutup:
+
+```json
+{
+  "samplesHidden": false,
+  "ariaExpanded": "true",
+  "tinggiChat": 199,
+  "tinggiSamples": 91,
+  "targetSentuhTutup": { "w": 24, "h": 24 },
+  "namaTerakses": "×\n            Sembunyikan contoh pertanyaan"
+}
+```
+
+Setelah tombol tutup diaktifkan dengan Enter:
+
+```json
+{
+  "samplesHidden": true,
+  "masihDiDOM": true,
+  "ariaExpanded": "false",
+  "tinggiChat": 290,
+  "fokus": "user-input",
+  "fokusBukanBody": true,
+  "chipTerlihat": 0
+}
+```
+
+**Area percakapan bertambah 91px**, dari 199px menjadi 290px — tepat sebesar tinggi blok yang
+disembunyikan. Blok tetap ada di DOM (`masihDiDOM: true`) sesuai larangan `UI-15`, dan fokus
+berpindah ke kolom pesan alih-alih melompat ke `body`.
+
+Target sentuh 24×24px memenuhi ambang minimal `UI-15`. Nama yang dapat diakses berupa teks
+`Sembunyikan contoh pertanyaan`, bukan simbol.
+
+Urutan Tab setelah blok ditutup:
+
+```json
+{
+  "urutTabSaatBlokTertutup": ["chat-box", "user-input", "send-button", "close-button", "chat-box", "user-input"],
+  "adaChipDiTab": false,
+  "semuaDiDalamPanel": true,
+  "escape": { "panelTertutup": true, "fokus": "launcher" }
+}
+```
+
+Chip keluar dari urutan Tab, focus trap tetap terkurung di dalam panel, dan Escape tetap
+menutup panel dengan fokus kembali ke launcher.
+
+**LULUS.**
+
+---
+
+### Nota disclaimer muat satu baris · `UI-08`, `UI-12`
+
+**Temuan yang mengubah keputusan.** Versi pertama D-21c hanya menurunkan ukuran ke 12px dan
+menolak pemendekan teks. Pengukuran membuktikan itu tidak cukup:
+
+```json
+{
+  "notaFontSize": "12px",
+  "notaBaris": 2,
+  "notaTinggi": 38,
+  "hintBaris": 2,
+  "tinggiKomposer": 202
+}
+```
+
+Masih dua baris. Lebar teks diukur langsung dengan span tersembunyi:
+
+| Ukuran | Lebar teks asli | Ruang desktop 346px |
+|---|---|---|
+| 12px | 381px | tidak muat |
+| 11px | 349px | tidak muat |
+| 10,5px | 334px | muat |
+| 10px | 318px | muat |
+
+Teks asli baru muat pada 10,5px — ukuran yang justru merugikan pengguna lanjut usia yang
+menjadi target (`docs/RISET-DESAIN.md` §3). Keputusan diperbaiki: teks diperpendek, bukan
+ukuran diturunkan lebih jauh.
+
+| Teks | Karakter | Lebar 12px | Desktop 346px | Ponsel 328px |
+|---|---|---|---|---|
+| `Bersifat edukatif. Cek Dulu tidak menilai legalitas entitas mana pun.` | 69 | 381px | tidak | tidak |
+| `Edukatif. Cek Dulu tidak menilai legalitas entitas mana pun.` | 60 | 334px | muat | **tidak** |
+| `Edukatif. Tidak menilai legalitas entitas mana pun.` | 51 | **283px** | muat | muat |
+
+Yang dibuang hanya kata pengisi: `Bersifat`, dan `Cek Dulu` yang redundan karena nama bot
+sudah tertera pada judul panel di atasnya. Kedua unsur wajib `UI-08` tetap ada — sifat
+**edukatif** dan larangan **menilai legalitas**.
+
+Hasil setelah perbaikan pada tiga viewport:
+
+```json
+[
+  { "label": "desktop 1280", "notaBaris": 1, "hintBaris": 1, "headSebaris": true, "tinggiKomposer": 137, "tinggiChat": 265 },
+  { "label": "ponsel 375",   "notaBaris": 1, "hintBaris": 1, "headSebaris": true, "tinggiKomposer": 162, "tinggiChat": 348 },
+  { "label": "zoom 200%",    "notaBaris": 1, "hintBaris": 1, "headSebaris": true, "tinggiKomposer": 137, "tinggiChat": 73 }
+]
+```
+
+Tinggi komposer turun dari 202px ke **137px** di desktop, dan area percakapan naik ke 265px.
+
+Petunjuk papan tuts yang dituntut D-21a tidak menambah baris: label `Tulis pesan Anda` (103px)
+dan petunjuk `Enter kirim, Shift+Enter baris baru` (192px) berjumlah 303px, muat sebaris pada
+ruang 328px di ponsel. Keduanya ditempatkan pada satu baris flex.
+
+**LULUS.**
+
+---
+
+### Kontras setelah ukuran diturunkan · `UI-11`, `UI-12`
+
+Tujuh pasangan diukur, termasuk seluruh elemen baru Fase I:
+
+| Elemen | Teks | Latar | px | Rasio | Ambang | Verdict |
+|---|---|---|---|---|---|---|
+| Nota disclaimer | `rgb(74,90,109)` | `rgb(255,255,255)` | 12 | **7,06** | 4,5 | LULUS |
+| Petunjuk papan tuts | `rgb(74,90,109)` | `rgb(255,255,255)` | 12 | **7,06** | 4,5 | LULUS |
+| Label kolom pesan | `rgb(74,90,109)` | `rgb(255,255,255)` | 13 | **7,06** | 4,5 | LULUS |
+| Teks kolom pesan | `rgb(17,31,46)` | `rgb(255,255,255)` | 16 | **16,68** | 4,5 | LULUS |
+| Judul blok saran | `rgb(74,90,109)` | `rgb(244,246,249)` | 13 | **6,52** | 4,5 | LULUS |
+| Tombol tutup blok saran | `rgb(74,90,109)` | `rgb(244,246,249)` | 16 | **6,52** | 4,5 | LULUS |
+| Teks chip | `rgb(10,93,80)` | `rgb(255,255,255)` | 13 | **7,79** | 4,5 | LULUS |
+
+```json
+{ "total": 7, "gagal": [] }
+```
+
+Warna tidak diubah pada Fase I, sehingga rasio tetap seperti yang sudah terukur. Penurunan
+ukuran ke 12px tidak menyentuh kontras. **7 dari 7 LULUS.**
+
+---
+
+### Design token terpusat · `UI-12`
+
+```bash
+awk '/^:root/{r=1} r&&/^}/{r=0;next} !r' public/style.css \
+  | grep -nE '#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\('
+```
+
+```
+OK nol warna literal
+```
+
+Token baru Fase I seluruhnya non-warna: `--teks-nano` dan `--baris-komposer-maks`.
+
+**LULUS.**
+
+---
+
+### Responsif 375px · `UI-10`, `UI-01`
+
+Teks panjang satu paragraf diketik pada viewport ponsel:
+
+```json
+{
+  "tinggiKolom": 154,
+  "scrollHorizontalKolom": 0,
+  "scrollHorizontalDokumen": 0,
+  "tinggiChat": 272,
+  "tombolKirimTerlihat": true,
+  "tombolKirimTidakTertutup": true
+}
+```
+
+Kolom berhenti di batas 154px, nol scroll horizontal pada kolom maupun dokumen, dan tombol
+Kirim tetap terlihat serta tidak tertutup kolom yang tumbuh — inilah alasan `resize: none`
+diwajibkan `UI-01`.
+
+**LULUS.**
+
+---
+
+### Pembesaran 200% · `UI-11`
+
+Viewport 640×400, setara 1280×800 pada zoom 200%:
+
+```json
+{ "notaBaris": 1, "hintBaris": 1, "headSebaris": true, "tinggiKomposer": 137, "scrollHorizontalDokumen": 0 }
+```
+
+Nota tetap satu baris dan tetap terbaca meski memakai `--teks-nano`. Nol scroll horizontal.
+
+**LULUS.**
+
+---
+
+### Preferensi gerak · `UI-11`
+
+```json
+{
+  "transisiKolom": "0s",
+  "transisiTombolTutup": "0s",
+  "tinggiKolom3Baris": 103,
+  "kolomTetapTumbuh": true
+}
+```
+
+Seluruh transisi nol detik, namun kolom tetap tumbuh — fungsi tidak hilang, hanya animasinya.
+
+**LULUS.**
+
+---
+
+### Jalur fallback `scrollHeight` · `UI-01`
+
+Browser uji mendukung `field-sizing`, sehingga fallback tidak aktif secara alami. Agar jalur
+itu tetap terverifikasi, `field-sizing` dimatikan lewat gaya inline dan pola fallback
+dijalankan manual:
+
+```json
+{
+  "dukungFieldSizingAsli": true,
+  "denganReset":  { "kosong": 50, "empatBaris": 126, "setelahHapus": 75,  "menyusut": true },
+  "tanpaReset":   { "limaBaris": 152, "setelahHapus": 150, "menyusut": true }
+}
+```
+
+Perbandingan ini membuktikan mengapa reset ke `auto` wajib. **Dengan reset**, tinggi turun dari
+126px ke 75px saat isi dihapus — menyusut nyata. **Tanpa reset**, tinggi hanya turun dari 152px
+ke 150px, yaitu 2px; kolom praktis terkunci tinggi meski isinya sudah tinggal satu karakter.
+
+Ini persis perilaku yang diperingatkan sumber di `docs/RISET-DESAIN.md` §7, dan alasan urutan
+`auto` lalu `scrollHeight` ditulis sebagai kewajiban di `UI-01`.
+
+**LULUS.**
+
+---
+
+### Console browser
+
+Setelah pemuatan bersih tanpa memanggil API:
+
+```
+Total messages: 0 (Errors: 0, Warnings: 0)
+```
+
+Dua galat yang muncul lebih awal berasal dari uji Enter dengan server sengaja dimatikan:
+
+```
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/chat:0
+[ERROR] Gagal mengambil respons: TypeError: Failed to fetch
+    at kirimKeBackend (script.js:312)
+    at HTMLFormElement.handleSubmit (script.js:350)
+    at HTMLTextAreaElement.handleKolomKeydown (script.js:276)
+```
+
+Keduanya **diharapkan** — itu bukti `UI-06` bekerja saat server mati. Jejak tumpukan sekaligus
+membuktikan rantai pemanggilan yang benar: `handleKolomKeydown` memicu `handleSubmit`, bukan
+peristiwa `input`. Dengan begitu larangan WCAG 3.2.2 On Input pada `UI-01` terpenuhi.
+
+**LULUS.**
+
+---
+
+### Pemeriksaan sintaks dan larangan HTML mentah
+
+```bash
+node --check public/script.js
+grep -nE '\.(inner|outer)HTML\s*=|insertAdjacentHTML|document\.write' public/script.js
+```
+
+```
+syntax OK
+OK nol HTML mentah
+```
+
+**LULUS.**
+
+---
+
+## Temuan Fase I: placeholder terlalu panjang membuat kolom mulai dua baris
+
+Placeholder awal `Contoh: ada WA menawarkan pinjaman cair 10 menit` (47 karakter) membuat kolom
+kosong dirender **77px**, bukan 52px — karena `field-sizing: content` menghitung placeholder
+sebagai isi. Kolom yang seharusnya mulai satu baris justru mulai dua baris.
+
+Lima kandidat diukur pada lebar kolom 266px:
+
+| Placeholder | Karakter | Tinggi kolom |
+|---|---|---|
+| `Contoh: ada WA menawarkan pinjaman cair 10 menit` | 47 | **77px** |
+| `Tempelkan pesan yang Anda terima` | 32 | **77px** |
+| `Tempelkan isi pesannya di sini` | 30 | **52px** |
+| `Contoh: pinjaman cair 10 menit` | 30 | 52px |
+| `Tulis atau tempel pesannya` | 26 | 52px |
+
+Dipilih `Tempelkan isi pesannya di sini` — 52px, dan kata "tempelkan" langsung menyatakan
+tindakan yang diminta use case, sejalan dengan kemampuan inti bot pada
+`docs/USE-CASE-CEKDULU.md` §3.1.
+
+Batas ambang ada di antara 30 dan 32 karakter pada lebar kolom desktop. Catatan ini berguna
+bila placeholder diubah lagi di kemudian hari.
+
+---
+
+## Rekapitulasi Fase I
+
+| Butir | Requirement | Hasil |
+|---|---|---|
+| `#user-input` menjadi `<textarea>`, `id` tidak berubah | `UI-01` | LULUS |
+| `required` dan validasi bawaan tetap ada | `UI-01` | LULUS |
+| Tinggi tumbuh ke bawah, nol scroll horizontal | `UI-01` | LULUS |
+| Berhenti di enam baris lalu kolom menggulir | `UI-01` | LULUS |
+| Menyusut kembali saat isi dihapus | `UI-01` | LULUS |
+| Kembali satu baris setelah kirim | `UI-01`, `UI-02` | LULUS |
+| Enter mengirim | `UI-01` | LULUS |
+| Shift+Enter menyisipkan baris tanpa mengirim | `UI-01` | LULUS |
+| Tombol Kirim tetap berfungsi | `UI-01`, `UI-11` | LULUS |
+| Petunjuk papan tuts lewat `aria-describedby` | `UI-11` | LULUS |
+| Pengiriman hanya dari `keydown`, bukan `input` | `UI-01`, `UI-11` | LULUS |
+| Fallback `scrollHeight` menyusut hanya dengan reset `auto` | `UI-01` | LULUS |
+| Tombol tutup menyembunyikan blok saran dengan `hidden` | `UI-15` | LULUS |
+| Blok tetap ada di DOM | `UI-15` | LULUS |
+| Area percakapan bertambah 91px | `UI-15` | LULUS |
+| Fokus pindah ke kolom pesan, tidak ke `body` | `UI-15`, `UI-11` | LULUS |
+| Chip keluar dari urutan Tab | `UI-15`, `UI-11` | LULUS |
+| Nama tombol tutup berupa teks, target 24×24px | `UI-15`, `UI-11` | LULUS |
+| Focus trap dan Escape tetap utuh | `UI-11`, `UI-13` | LULUS |
+| Nota disclaimer muat satu baris | `UI-08`, `UI-12` | LULUS |
+| Kontras 7 pasangan | `UI-11`, `UI-12` | LULUS |
+| Nol warna literal di luar `:root` | `UI-12` | LULUS |
+| Responsif 375px | `UI-10`, `UI-01` | LULUS |
+| Pembesaran 200% | `UI-11` | LULUS |
+| `prefers-reduced-motion` | `UI-11` | LULUS |
+| Console bersih | — | LULUS |
+
+**UJI-16 LULUS.** Dengan ini seluruh 16 skenario `docs/USE-CASE-CEKDULU.md` §5 lulus.
+
+### Konsumsi kuota Fase I
+
+**Nol permintaan API.** Uji Enter dilakukan dengan server sengaja dimatikan, sehingga jalur
+pengiriman terverifikasi tanpa memanggil model. Seluruh verifikasi lain memakai inspeksi DOM,
+pengukuran geometri, pengukuran lebar teks, perhitungan kontras, dan simulasi media query.
+
+### Yang belum diverifikasi pada Fase I
+
+| Butir | Alasan |
+|---|---|
+| Fallback `scrollHeight` pada browser yang benar-benar tidak mendukung `field-sizing` | Browser uji mendukungnya. Jalur fallback diverifikasi dengan mematikan `field-sizing` lewat gaya inline — mekanismenya terbukti, tetapi bukan pada Safari atau Firefox versi lama secara langsung |
+| Avatar bot pengganti inisial `CD` | Prompt sudah ditulis di `docs/PROMPT-AVATAR.md`, tetapi gambar belum digenerate dan belum dipasang. Avatar `CD` masih berlaku |

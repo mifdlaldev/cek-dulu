@@ -11,6 +11,14 @@ Kapabilitas: antarmuka chat Vanilla JavaScript di folder `public/`.
 > `UI-12` (palet). Requirement baru: `UI-13`. Bukti dan sitasi: `docs/RISET-DESAIN.md`.
 > Keputusan: `design.md` D-12 (amandemen), D-18, D-19.
 >
+> **Amandemen ketiga — komposer.** Kolom pesan berubah dari `<input type="text">` menjadi
+> `<textarea>` yang tumbuh ke bawah, karena use case meminta pengguna menempelkan pesan utuh
+> beberapa baris dan input satu baris menyembunyikan apa yang sudah ditulis. Blok contoh
+> pertanyaan mendapat tombol tutup, dan nota disclaimer diperkecil agar muat satu baris.
+> Requirement yang terpengaruh: `UI-01` (jenis elemen — **menyimpang dari kode materi**),
+> `UI-08` dan `UI-12` (ukuran teks nota). Requirement baru: `UI-15`. Bukti dan sitasi:
+> `docs/RISET-DESAIN.md` §7 dan §8. Keputusan: `design.md` D-21.
+>
 > **Amandemen kedua — landing page.** Setelah pola widget diterapkan, badan halaman hanya
 > memuat hero singkat, disclaimer, dan kanal resmi; tidak menjelaskan apa yang Cek Dulu
 > lakukan kepada pengunjung baru. Badan halaman kini disusun sebagai landing page sembilan
@@ -23,49 +31,138 @@ Kapabilitas: antarmuka chat Vanilla JavaScript di folder `public/`.
 
 ## ADDED Requirements
 
-### `UI-01` — Struktur HTML dasar
+### `UI-01` — Struktur HTML dasar dan komposer multi-baris ⚠️
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S3 p.37 (struktur HTML verbatim dari prompt), S3 p.34 (isi folder `public/`); penempatan diamandemen `design.md` D-18 |
-| Berkas | `public/index.html` |
+| Sumber | S3 p.37 (struktur HTML verbatim dari prompt), S3 p.34 (isi folder `public/`); penempatan diamandemen `design.md` D-18; jenis elemen kolom pesan diamandemen D-21a |
+| Berkas | `public/index.html`, `public/style.css`, `public/script.js` |
+| Uji | UJI-10, UJI-16 |
+| Terkait | `UI-11`, `UI-13`, `UI-15` |
 
-Halaman WAJIB memuat elemen dengan ID berikut, persis seperti yang diasumsikan slide
-S3 p.37:
+> **Penyimpangan dari kode materi.** Slide S3 p.37 menuliskan
+> `<input type="text" id="user-input" />`. Requirement ini menggantinya dengan `<textarea>`.
+> Alasan lengkap beserta alternatif yang ditolak: `design.md` D-21a. Riset dan sitasi:
+> `docs/RISET-DESAIN.md` §7. Ini penyimpangan kedua dari materi setelah `WS-02` (D-15).
+
+Halaman WAJIB memuat elemen dengan ID berikut. Nama ID **tidak berubah** karena materi
+mewajibkannya; yang diamandemen hanya jenis elemen kolom pesan dan penempatannya:
 
 ```html
 <form id="chat-form">
-  <input type="text" id="user-input" />
-  <button type="submit">Send</button>
+  <textarea id="user-input" rows="1" required></textarea>
+  <button type="submit" id="send-button">Kirim</button>
 </form>
 <div id="chat-box"></div>
 ```
 
-Ketiga elemen tersebut WAJIB berada **di dalam panel dialog** (`UI-13`), bukan langsung di
-badan halaman. Nama ID tidak berubah karena materi mewajibkannya; yang diamandemen hanya
-penempatannya.
+Ketiga elemen WAJIB berada **di dalam panel dialog** (`UI-13`), bukan langsung di badan
+halaman.
 
 Halaman WAJIB memuat `style.css` dan `script.js` dari folder yang sama.
 
-Input WAJIB memiliki atribut `required` sehingga browser menampilkan validasi bawaan bila
-kosong — perilaku ini terlihat di screenshot S3 p.14 dan p.45 ("Please fill out this field.").
+Kolom pesan WAJIB memiliki atribut `required` sehingga browser menampilkan validasi bawaan
+bila kosong — perilaku ini terlihat di screenshot S3 p.14 dan p.45 ("Please fill out this
+field.").
 
-Input WAJIB memiliki placeholder yang mengarahkan pengguna.
+Kolom pesan WAJIB memiliki placeholder yang mengarahkan pengguna.
 
 Halaman WAJIB memuat judul yang mengidentifikasi bot.
+
+**Perilaku tinggi kolom pesan**
+
+- Kolom pesan WAJIB tumbuh **ke bawah** mengikuti jumlah baris isi. DILARANG menggulir
+  horizontal, karena pengguna diminta menempelkan pesan utuh beberapa baris dan harus dapat
+  memeriksanya sebelum mengirim.
+- Tinggi awal **satu baris**.
+- Tumbuh sampai **maksimal enam baris**, lalu kolom itu sendiri menggulir vertikal
+  (`overflow-y: auto`). Batas dipilih karena tinggi panel hanya 560px; sumber menganjurkan
+  rentang 6–10 baris.
+- Tinggi WAJIB **menyusut kembali** saat isi dihapus.
+- Jalur utama memakai `field-sizing: content`. Bila browser tidak mendukungnya
+  (`CSS.supports('field-sizing', 'content')` bernilai `false`), fallback JavaScript WAJIB
+  memakai urutan `height = 'auto'` lalu `height = scrollHeight + 'px'` — reset ke `auto`
+  wajib lebih dulu, tanpanya tinggi tidak pernah menyusut.
+- Atribut `resize` bawaan textarea WAJIB dimatikan (`resize: none`) agar pegangan ubah ukuran
+  tidak menutupi tombol kirim.
+
+**Perilaku papan tuts**
+
+| Tombol | Aksi |
+|---|---|
+| `Enter` tanpa `Shift` | Mengirim pesan |
+| `Shift` + `Enter` | Menyisipkan baris baru |
+
+Konvensi ini mengikuti WhatsApp, Telegram, dan Slack. Pengiriman WAJIB dipicu **hanya** oleh
+`keydown`; DILARANG memicu pengiriman dari peristiwa `input`, karena itu melanggar WCAG 3.2.2
+On Input.
+
+Mitigasi aksesibilitas yang WAJIB ada, karena membajak Enter pada textarea berisiko
+mengirim pesan setengah selesai:
+
+1. Tombol **Kirim** tetap ada, terlihat, dan dapat difokuskan — teknik WCAG H32 meminta tombol
+   submit eksplisit, bukan hanya submit implisit lewat Enter.
+2. Perilaku papan tuts WAJIB diumumkan ke screen reader lewat `aria-describedby` pada kolom
+   pesan yang menunjuk teks petunjuk.
 
 #### Scenario: halaman termuat
 - **Given** server berjalan
 - **When** pengguna membuka `http://localhost:3000/`
 - **Then** elemen `#chat-form`, `#user-input`, dan `#chat-box` ada di DOM
+- **And** `#user-input` adalah elemen `textarea`
 - **And** ketiganya berada di dalam elemen panel dialog
 - **And** `style.css` dan `script.js` termuat tanpa 404
 
 #### Scenario: input kosong ditolak browser
 - **Given** panel dialog terbuka
-- **When** pengguna menekan tombol kirim tanpa mengisi input
+- **When** pengguna menekan tombol kirim tanpa mengisi kolom pesan
 - **Then** form tidak terkirim
 - **And** browser menampilkan validasi bawaan
+
+#### Scenario: kolom pesan tumbuh ke bawah
+- **Given** panel dialog terbuka
+- **When** pengguna menempelkan teks yang panjangnya beberapa baris
+- **Then** tinggi kolom pesan bertambah
+- **And** seluruh baris terlihat tanpa menggulir horizontal
+
+#### Scenario: kolom pesan menyusut saat isi dihapus
+- **Given** kolom pesan sudah tumbuh beberapa baris
+- **When** pengguna menghapus isinya
+- **Then** tinggi kolom pesan kembali ke satu baris
+
+#### Scenario: pertumbuhan dibatasi enam baris
+- **When** pengguna mengisi lebih dari enam baris
+- **Then** tinggi kolom pesan berhenti bertambah
+- **And** kolom pesan menggulir vertikal
+- **And** aliran chat tidak tergeser habis
+
+#### Scenario: Enter mengirim pesan
+- **Given** kolom pesan berisi teks
+- **When** pengguna menekan `Enter` tanpa `Shift`
+- **Then** pesan terkirim
+- **And** tidak ada baris baru yang tersisip
+
+#### Scenario: Shift+Enter menyisipkan baris baru
+- **Given** kolom pesan berisi teks
+- **When** pengguna menekan `Shift` dan `Enter` bersamaan
+- **Then** baris baru tersisip
+- **And** pesan TIDAK terkirim
+
+#### Scenario: tombol kirim tetap dapat dipakai
+- **Given** kolom pesan berisi teks
+- **When** pengguna memberi fokus pada tombol kirim lalu menekan `Enter`
+- **Then** pesan terkirim
+
+#### Scenario: perilaku papan tuts diumumkan
+- **When** screen reader membacakan kolom pesan
+- **Then** ada deskripsi yang menyebut `Enter` mengirim dan `Shift` dengan `Enter` membuat
+  baris baru
+
+#### Scenario: tinggi kolom kembali setelah pesan terkirim
+- **Given** kolom pesan sudah tumbuh beberapa baris
+- **When** pesan terkirim
+- **Then** kolom pesan kosong
+- **And** tingginya kembali ke satu baris
 
 ---
 
@@ -275,9 +372,9 @@ membingungkan konteks model.
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S2 p.67 (contoh batch: "Informasi bersifat edukatif dan bukan nasihat finansial profesional"); S1 p.99 (prinsip Transparansi); penempatan diamandemen `design.md` D-20 |
-| Berkas | `public/index.html` |
-| Terkait | `PG-03`, `UI-13`, `UI-14` |
+| Sumber | S2 p.67 (contoh batch: "Informasi bersifat edukatif dan bukan nasihat finansial profesional"); S1 p.99 (prinsip Transparansi); penempatan diamandemen `design.md` D-20; ukuran teks nota komposer diamandemen D-21c |
+| Berkas | `public/index.html`, `public/style.css` |
+| Terkait | `PG-03`, `UI-12`, `UI-13`, `UI-14` |
 
 Halaman WAJIB memuat disclaimer yang menyatakan bahwa:
 
@@ -290,7 +387,7 @@ Disclaimer WAJIB muncul di **tiga tempat**, masing-masing dengan fungsi berbeda:
 | Tempat | Bentuk | Fungsi |
 |---|---|---|
 | Section Batasan (`UI-14`) | Delapan larangan lengkap | Pembaca memahami batas sebelum bertanya |
-| Bawah komposer di panel | Satu baris ringkas | Terlihat saat pengguna sedang berdialog |
+| Bawah komposer di panel | Satu baris ringkas, memakai `--teks-nano` | Terlihat saat pengguna sedang berdialog |
 | Footer | Satu paragraf | Penutup halaman, selalu ada |
 
 Seluruhnya berada di **badan halaman atau panel**, bukan tersembunyi di balik interaksi. Panel
@@ -309,7 +406,9 @@ antarmuka, bukan hanya dari jawaban bot.
 #### Scenario: disclaimer terlihat saat berdialog
 - **Given** panel dialog terbuka
 - **When** pengguna melihat komposer
-- **Then** ada pengingat ringkas satu baris di bawah kolom pesan
+- **Then** ada pengingat ringkas di bawah kolom pesan
+- **And** pengingat itu muat dalam satu baris pada lebar panel desktop
+- **And** isinya tetap menyebut sifat edukatif dan larangan menilai legalitas
 
 #### Scenario: disclaimer tetap terjangkau saat panel terbuka
 - **Given** panel dialog terbuka
@@ -407,9 +506,9 @@ dependency baru — materi menetapkan Vanilla (S3 p.34).
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S1 p.99 (prinsip **Keadilan**: "AI harus memperlakukan semua pengguna secara adil—tanpa memandang gender, ras, atau latar belakang") — diterapkan pada keterjangkauan antarmuka |
+| Sumber | S1 p.99 (prinsip **Keadilan**: "AI harus memperlakukan semua pengguna secara adil—tanpa memandang gender, ras, atau latar belakang") — diterapkan pada keterjangkauan antarmuka; mitigasi Enter pada textarea dari `docs/RISET-DESAIN.md` §7 + `design.md` D-21a |
 | Berkas | `public/index.html`, `public/style.css`, `public/script.js` |
-| Uji | UJI-13 |
+| Uji | UJI-13, UJI-16 |
 
 > **Catatan keterlacakan.** Materi pelatihan **tidak membahas aksesibilitas web**.
 > Requirement ini adalah penerapan prinsip Keadilan (S1 p.99) ke ranah antarmuka, plus
@@ -430,8 +529,20 @@ Antarmuka WAJIB memenuhi:
 - `#user-input` memiliki `<label>` terkait, atau `aria-label` bila label visual tidak
   dikehendaki
 - Tombol submit memiliki teks yang jelas, bukan hanya ikon
+- Setiap tombol yang hanya berisi simbol (tutup panel, tutup blok saran) memiliki nama yang
+  dapat diakses berupa teks
 - Setiap bubble pesan memiliki penanda pengirim yang terbaca screen reader (bukan hanya
   dibedakan warna atau posisi)
+
+**Pengumuman perilaku papan tuts pada kolom pesan**
+- `#user-input` adalah `<textarea>` (`UI-01`), sehingga screen reader mengumumkannya sebagai
+  kolom multi-baris dan pengguna berharap `Enter` menyisipkan baris
+- Karena `Enter` justru mengirim, `#user-input` WAJIB memiliki `aria-describedby` yang menunjuk
+  teks petunjuk yang menyebut `Enter` mengirim dan `Shift` dengan `Enter` membuat baris baru
+- Tombol Kirim WAJIB tetap ada dan dapat difokuskan — teknik WCAG H32 meminta tombol submit
+  eksplisit, bukan hanya submit implisit lewat `Enter`
+- Pengiriman DILARANG dipicu dari peristiwa `input`; hanya dari `keydown` dengan `Enter` tanpa
+  `shiftKey`, agar WCAG 3.2.2 On Input tidak dilanggar
 
 **Fokus keyboard**
 - Setelah pesan terkirim, fokus kembali ke `#user-input` agar pengguna keyboard dapat
@@ -504,6 +615,16 @@ kembali ke pemicu, dan dialog tanpa nama yang dapat diakses. Sitasi: `docs/RISET
 - **When** pengguna memperbesar halaman sampai 200%
 - **Then** seluruh teks tetap terbaca
 - **And** tidak ada isi yang hilang atau tertimpa
+- **And** nota disclaimer di bawah komposer tetap terbaca meski memakai `--teks-nano`
+
+#### Scenario: petunjuk papan tuts terjangkau screen reader
+- **Given** panel dialog terbuka
+- **When** screen reader membacakan kolom pesan
+- **Then** deskripsi yang menyebut perilaku `Enter` dan `Shift` dengan `Enter` ikut dibacakan
+
+#### Scenario: tombol simbol punya nama yang dapat diakses
+- **When** screen reader membacakan tombol tutup panel dan tombol tutup blok saran
+- **Then** keduanya membacakan teks yang menjelaskan aksinya, bukan simbol
 
 ---
 
@@ -511,9 +632,9 @@ kembali ke pemicu, dan dialog tanpa nama yang dapat diakses. Sitasi: `docs/RISET
 
 | Meta | Nilai |
 |---|---|
-| Sumber | S3 p.34 (`style.css` mengatur tampilan UI); `docs/USE-CASE-CEKDULU.md` §1 (persona); palet dari `docs/RISET-DESAIN.md` §3–4 |
+| Sumber | S3 p.34 (`style.css` mengatur tampilan UI); `docs/USE-CASE-CEKDULU.md` §1 (persona); palet dari `docs/RISET-DESAIN.md` §3–4; ukuran teks nota diamandemen `design.md` D-21c |
 | Berkas | `public/style.css` |
-| Terkait | `UI-10`, `UI-11`, `UI-13` |
+| Terkait | `UI-08`, `UI-10`, `UI-11`, `UI-13`, `UI-14` |
 
 Seluruh nilai visual WAJIB didefinisikan sebagai CSS custom properties dalam satu blok
 `:root`, mencakup: palet warna, skala tipografi, skala spacing, radius, durasi transisi, dan
@@ -523,6 +644,15 @@ Aturan turunan:
 - Selector di bawah `:root` **wajib** merujuk token, tidak menulis nilai literal berulang
 - Skala tipografi memakai kelipatan yang konsisten, bukan angka acak per elemen
 - Skala spacing memakai satu satuan dasar dengan kelipatan tetap
+
+**Ukuran terkecil pada skala tipografi** adalah token `--teks-nano` (`0.75rem`), dipakai
+khusus untuk nota disclaimer di bawah komposer agar muat satu baris pada lebar panel 380px.
+
+WCAG tidak menetapkan ukuran font minimum absolut; yang diwajibkan adalah kontras (1.4.3) dan
+kemampuan diperbesar 200% tanpa kehilangan isi (1.4.4). Karena itu setiap penurunan ukuran
+teks WAJIB disertai pengujian ulang kedua syarat tersebut, dan hasilnya dicatat di
+`docs/QA-REPORT.md`. Warna teks nota tidak berubah, sehingga rasio kontras yang sudah terukur
+tetap berlaku.
 
 **Arah visual yang ditetapkan: restrained, kontras tinggi, tipografi tenang, dengan light
 mode.**
@@ -784,6 +914,86 @@ berikut:
 
 ---
 
+### `UI-15` — Blok contoh pertanyaan dapat ditutup
+
+| Meta | Nilai |
+|---|---|
+| Sumber | `docs/RISET-DESAIN.md` §8 (blok saran menempati 16% tinggi panel; 55% konsumen meninggalkan alat AI yang mengganggu) + `design.md` D-21b |
+| Berkas | `public/index.html`, `public/style.css`, `public/script.js` |
+| Uji | UJI-16 |
+| Terkait | `UI-11`, `UI-13` |
+
+> **Catatan keterlacakan.** Materi menampilkan quick-reply chips pada contoh batch sebelumnya
+> (S2 p.67) tetapi tidak membahas kemampuan menutupnya. Requirement ini lahir dari kebutuhan
+> ruang baca di dalam panel dan ditandai sebagai keputusan berbasis riset, bukan klaim materi.
+> Alasan lengkap: `design.md` D-21b.
+
+Blok "Contoh pertanyaan" WAJIB dapat ditutup pengguna.
+
+**Tombol tutup**
+
+- WAJIB berupa elemen `<button type="button">` pada baris judul blok.
+- WAJIB memiliki nama yang dapat diakses, bukan hanya simbol `×`.
+- WAJIB memakai `aria-expanded` dan `aria-controls` yang menunjuk blok saran — pola yang sama
+  dengan launcher (`UI-13`) agar konsisten.
+- Target sentuh minimal **24×24px**.
+
+**Perilaku**
+
+- Blok WAJIB **terlihat** saat panel pertama dibuka. Blok membantu pengguna yang belum tahu
+  harus bertanya apa.
+- Saat ditutup, blok WAJIB disembunyikan dengan atribut `hidden`. **DILARANG menghapusnya dari
+  DOM** — menghapus elemen yang sedang memegang fokus membuat fokus melompat ke `body` dan
+  pengguna keyboard kehilangan posisi.
+- Saat ditutup, fokus WAJIB dipindahkan eksplisit ke kolom pesan.
+- Saat ditutup, area percakapan (`#chat-box`) WAJIB bertambah tinggi.
+- Chip yang tersembunyi WAJIB keluar dari urutan Tab.
+- DILARANG menutup blok secara otomatis, termasuk setelah pesan pertama terkirim. Kendali ada
+  pada pengguna.
+- DILARANG menyimpan keadaan tertutup ke `localStorage`. Penyimpanan lokal termasuk yang
+  ditolak pada kapabilitas ini.
+
+#### Scenario: blok saran terlihat saat panel dibuka
+- **When** pengguna membuka panel percakapan
+- **Then** blok contoh pertanyaan terlihat
+- **And** `aria-expanded` pada tombol tutup bernilai `true`
+
+#### Scenario: tombol tutup menyembunyikan blok saran
+- **Given** panel dialog terbuka
+- **When** pengguna mengklik tombol tutup pada blok contoh pertanyaan
+- **Then** blok tidak terlihat
+- **And** blok memiliki atribut `hidden`
+- **And** blok tetap ada di DOM
+- **And** `aria-expanded` bernilai `false`
+
+#### Scenario: area percakapan bertambah tinggi
+- **Given** tinggi area percakapan sudah diukur saat blok saran terlihat
+- **When** blok saran ditutup
+- **Then** tinggi `#chat-box` bertambah
+
+#### Scenario: fokus berpindah ke kolom pesan
+- **Given** fokus berada pada tombol tutup blok saran
+- **When** pengguna mengaktifkan tombol tersebut
+- **Then** fokus berpindah ke `#user-input`
+- **And** fokus TIDAK melompat ke `body`
+
+#### Scenario: chip tersembunyi keluar dari urutan Tab
+- **Given** blok saran sudah ditutup
+- **When** pengguna menekan Tab berulang di dalam panel
+- **Then** tidak ada chip yang menerima fokus
+- **And** fokus tetap terkurung di dalam panel (`UI-11`)
+
+#### Scenario: blok saran tidak menutup sendiri
+- **Given** blok saran terlihat
+- **When** pengguna mengirim satu pesan
+- **Then** blok saran tetap terlihat
+
+#### Scenario: tombol tutup punya nama yang dapat diakses
+- **When** screen reader membacakan tombol tutup blok saran
+- **Then** yang dibacakan adalah teks yang menjelaskan aksinya, bukan simbol
+
+---
+
 ## Yang TIDAK dibuat di frontend
 
 | Tidak dibuat | Alasan |
@@ -798,6 +1008,11 @@ berikut:
 | Carousel dan kartu produk | Clutch menyebutnya sebagai elemen antarmuka chatbot, tetapi Cek Dulu tidak memiliki produk untuk ditampilkan (D-19) |
 | Badge notifikasi pada launcher | messengerbot.app melarang badge sebagai urgensi buatan ketika tidak ada pesan nyata (D-18) |
 | Sapaan proaktif yang membuka panel otomatis | Clutch mencatat 55% konsumen meninggalkan alat AI yang mengganggu penjelajahan (D-18) |
+| Penyimpanan keadaan blok saran ke `localStorage` | Penyimpanan lokal ditolak pada kapabilitas ini; menyimpan jejak pemakaian alat bertema keuangan menambah risiko privasi tanpa requirement yang memintanya (D-21b) |
+| Menutup blok saran secara otomatis | Merampas kendali pengguna yang justru ingin memakai saran kedua dan ketiga (D-21b) |
+| `<div contenteditable>` sebagai kolom pesan | Membatalkan validasi `required` bawaan browser dan menuntut penanganan tempel yang bisa memasukkan HTML — bertabrakan dengan D-07 (D-21a) |
+| Pustaka auto-resize textarea | Menambah dependency di luar empat paket materi untuk persoalan yang selesai dengan satu properti CSS dan ±5 baris JavaScript (D-21a) |
+| Enter selalu menyisipkan baris, kirim hanya lewat tombol | Paling aman secara aksesibilitas tetapi bertentangan dengan kebiasaan WhatsApp, Telegram, dan Slack yang menjadi rujukan pengguna sasaran (D-21a) |
 | Avatar berupa berkas gambar atau emoji robot | Berkas gambar menambah permintaan jaringan; emoji robot menggeser nada menjadi ceria, tidak sesuai konteks pengguna yang cemas (D-19) |
 | Testimoni pengguna | Aplikasi belum memiliki pengguna. WiserNotify: "one honest, detailed review beats ten polished fakes". Mengarang testimoni melanggar nilai proyek yang melarang bot mengarang (`PG-04`) — D-20 |
 | Logo "dipercaya oleh" atau logo mitra | Tidak ada mitra; memalsukan afiliasi (D-20) |

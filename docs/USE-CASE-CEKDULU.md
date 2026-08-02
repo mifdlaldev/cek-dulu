@@ -147,6 +147,7 @@ Hasilnya dicatat di `docs/QA-REPORT.md` beserta kutipan jawaban bot — bukti, b
 | UJI-13 | Navigasi seluruh halaman hanya dengan keyboard (Tab, Enter), lalu periksa fokus kembali ke input setelah kirim | Semua elemen terjangkau berurutan, indikator fokus terlihat, fokus kembali ke `#user-input` | Aksesibilitas (`UI-11`) |
 | UJI-14 | Buka panel lewat launcher, tekan Tab berulang melewati elemen terakhir, tekan Escape | Panel terbuka dengan `aria-expanded="true"`, fokus terkurung di dalam panel, Escape menutup panel, fokus kembali ke launcher | Pola dialog (`UI-13`, `UI-11`) |
 | UJI-15 | Gulir halaman dari header sampai footer, klik setiap tautan navigasi, buka tiap butir FAQ dengan keyboard | Sembilan section hadir berurutan, `<h1>` di bawah 8 kata, setiap tautan anchor menuju section yang ada, seluruh CTA membuka panel yang sama, **tidak ada testimoni/logo mitra/rating/jumlah pengguna**, delapan batasan tampil terbuka, FAQ terbuka dengan Enter | Landing page (`UI-14`, `UI-11`) |
+| UJI-16 | Tempel teks beberapa baris ke kolom pesan, hapus lagi, tekan Shift+Enter lalu Enter, tutup blok contoh pertanyaan | Kolom pesan tumbuh ke bawah maksimal 6 baris lalu menggulir sendiri, menyusut saat isi dihapus, Shift+Enter menyisipkan baris tanpa mengirim, Enter mengirim, tombol tutup menyembunyikan blok saran dengan `hidden` dan area chat bertambah tinggi, fokus pindah ke kolom pesan, nota disclaimer muat satu baris | Komposer multi-baris (`UI-01`, `UI-15`, `UI-11`) |
 
 ---
 
@@ -164,6 +165,8 @@ Use case ini **tidak menambah** apa pun di luar materi:
 | Frontend | Vanilla JS di `public/` | Sesi 3 p.34 |
 | Port | 3000 | Sesi 3 p.28 |
 | Penyimpanan | **Tidak ada** — riwayat hanya di memori browser | Materi tidak membahas DB (`FAKTA-TERVERIFIKASI.md` §J) |
+| ID elemen frontend | `#chat-form`, `#user-input`, `#chat-box` | Sesi 3 p.37 — nama ID tidak berubah |
+| Jenis elemen kolom pesan | `<textarea>` ⚠️ | Sesi 3 p.37 menuliskan `<input type="text">`, tetapi use case ini meminta pengguna menempelkan pesan utuh beberapa baris — lihat `RISET-DESAIN.md` §7 dan `design.md` D-21a |
 
 Yang bersifat "kreativitas" hanyalah: **isi `systemInstruction`**, **nilai parameter**,
 **teks UI**, **struktur antarmuka**, dan **styling CSS**. Semuanya termasuk dalam
@@ -171,9 +174,22 @@ Yang bersifat "kreativitas" hanyalah: **isi `systemInstruction`**, **nilai param
 (Sesi 3 p.49).
 
 Antarmuka memakai pola **launcher dan panel dialog** di sudut kanan bawah, dengan palet
-**light mode** navy dan deep teal. Kedua keputusan berbasis riset yang tercatat di
-`docs/RISET-DESAIN.md` — bukan preferensi estetis. Materi tidak membahas pola widget maupun
-palet warna, sehingga area ini termasuk ruang kreativitas yang memang dibuka brief.
+**light mode** navy dan deep teal, dan badan halaman berupa landing page sembilan section.
+Ketiga keputusan berbasis riset yang tercatat di `docs/RISET-DESAIN.md` — bukan preferensi
+estetis. Materi tidak membahas pola widget, palet warna, maupun struktur halaman, sehingga area
+ini termasuk ruang kreativitas yang memang dibuka brief.
+
+**Dua penyimpangan dari kode materi**, keduanya dengan alasan tertulis dan bukti:
+
+| Yang menyimpang | Alasan | Rujukan |
+|---|---|---|
+| Nama model | Model materi ditutup Google untuk akun baru, terbukti HTTP 404 | `KENDALA-API.md` §1, `design.md` D-15 |
+| Kolom pesan jadi `<textarea>` | Use case ini justru meminta pengguna menempelkan pesan penipuan **secara utuh**; input satu baris menggulir horizontal dan menyembunyikan apa yang sudah ditempel | `RISET-DESAIN.md` §7, `design.md` D-21a |
+
+Penyimpangan kedua bukan soal selera. Kemampuan inti bot pada §3.1 adalah "analisis ciri risiko
+dari teks tawaran", dan teks tawaran nyata hampir selalu beberapa baris. Kolom satu baris
+membuat pengguna tidak dapat memeriksa ulang tempelannya sebelum mengirim — bertentangan dengan
+pesan aplikasi itu sendiri: cek dulu.
 
 ---
 

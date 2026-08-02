@@ -6,10 +6,12 @@
 > **Aturan pemakaian:** sama seperti `docs/RISET-LAPANGAN.md` — angka di sini tidak boleh
 > masuk `systemInstruction`. Riset ini menyangkut antarmuka, bukan isi jawaban bot.
 >
-> Tiga keputusan yang bersumber dari berkas ini: pola antarmuka widget (`UI-13`, D-18), palet
-> warna light mode (`UI-12`, amandemen D-12), dan struktur landing page (`UI-14`, D-20).
+> Keputusan yang bersumber dari berkas ini: pola antarmuka widget (`UI-13`, D-18), palet warna
+> light mode (`UI-12`, amandemen D-12), struktur landing page (`UI-14`, D-20), dan komposer
+> multi-baris beserta blok saran yang dapat ditutup (`UI-01` amandemen, `UI-15`, D-21).
 >
-> Tanggal akses riset: **1 Agustus 2026** (via You.com Search).
+> Tanggal akses riset: **1 Agustus 2026** untuk bagian 1–6; **2 Agustus 2026** untuk bagian
+> 7–9 (keduanya via You.com Research).
 
 ---
 
@@ -548,3 +550,227 @@ dengan batasan Vanilla dan prinsip aksesibilitas `UI-11`.
 | Framework CSS atau pustaka animasi | Non-goal proyek; materi menetapkan Vanilla |
 | Angka pengguna, unduhan, atau kepuasan | Tidak ada datanya |
 
+
+---
+
+## 7. Komposer multi-baris
+
+### Masalah yang diselidiki
+
+Komposer memakai `<input type="text">` sesuai kode materi S3 p.37. Pada input satu baris,
+teks panjang menggulir horizontal dan pengguna hanya melihat potongan terakhir dari apa yang
+ia tulis. Untuk Cek Dulu ini merugikan: pengguna diminta **menempelkan isi pesan penipuan
+secara utuh**, yang lazimnya beberapa baris. Ia tidak dapat memeriksa ulang apa yang sudah
+ditempel sebelum mengirim.
+
+### Konvensi papan tuts pada aplikasi perpesanan
+
+**Sumber:**
+- Slack Help Center, "Format your messages".
+  `https://slack.com/help/articles/202288908-Format-your-messages`
+- Sync With Tech, "How to Insert Newline If Enter Key Sends Msg — WhatsApp, Telegram".
+  `https://www.syncwithtech.org/whatsapp-telegram-insert-newline-enter-key/`
+
+Kutipan Slack:
+
+> To start a new line, press **Shift Enter**.
+
+Kutipan Sync With Tech mengenai WhatsApp dan Telegram:
+
+> On WhatsApp, Telegram desktop or web, you can use **shift + enter** for a newline.
+
+Konvensi yang berlaku pada keempat aplikasi besar: **Enter mengirim, Shift+Enter menyisipkan
+baris baru**.
+
+### Teknik CSS: `field-sizing: content`
+
+**Sumber:**
+- MDN Web Docs, "field-sizing" — CSS.
+  `https://developer.mozilla.org/en-US/docs/Web/CSS/field-sizing`
+- Chrome for Developers, "CSS field-sizing".
+  `https://developer.chrome.com/docs/css-ui/css-field-sizing`
+- web-features explorer, "field-sizing".
+  `https://web-platform-dx.github.io/web-features-explorer/features/field-sizing/`
+
+Kutipan MDN mengenai status dukungan:
+
+> **Since June 2026, this feature works across the latest devices and browser versions.**
+
+> This property is typically used to style text `<input>` and `<textarea>` elements to allow
+> them to shrinkwrap their content as well as grow when more text is entered into the form
+> control.
+
+Kutipan Chrome for Developers:
+
+> Without `field-sizing`, to create a well-sized input field you had to either guess at an
+> average size of a text field input or use JavaScript to count characters and increase the
+> element height or width as the user entered text. In other words, it wasn't easy, and it was
+> error prone.
+
+> Previously, inputs had a fair amount of fixed sizes, but after applying
+> `field-sizing: content`, the inputs can become much too small or much too large. … They help
+> the elements not collapse into too small of a box and also, in the case of textarea, not grow
+> too large.
+
+Properti ini masuk Baseline pada Juni 2026, dua bulan sebelum proyek ini dikerjakan. Cukup
+baru untuk perlu diwaspadai, tetapi sudah lintas browser.
+
+### Teknik fallback JavaScript
+
+**Sumber:**
+- CSS-Tricks, "The Cleanest Trick for Autogrowing Textareas".
+  `https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/`
+- codestudy.net, "How to Create an Auto-Resize Textarea That Shrinks When Content is Deleted".
+  `https://www.codestudy.net/blog/creating-a-textarea-with-auto-resize/`
+- makandra dev, "How to auto-resize a textarea (or other inputs) in pure CSS".
+  `https://makandracards.com/makandra/625410-auto-resize-textarea-inputs-pure-css`
+
+Pola kanonis:
+
+```js
+el.style.height = 'auto';
+el.style.height = el.scrollHeight + 'px';
+```
+
+Kutipan codestudy.net mengenai **mengapa `auto` harus lebih dulu**:
+
+> The key to success is resetting the textarea's height to `auto` before measuring
+> `scrollHeight` — this ensures the browser recalculates the content's natural height, even
+> after deletion.
+
+Tanpa langkah itu, tinggi eksplisit sebelumnya menahan layout sehingga `scrollHeight` tidak
+menyusut, dan kolom yang sudah tinggi tidak pernah kembali mengecil.
+
+Kutipan makandra dev mengenai strategi gabungan:
+
+> `field-sizing: content` lets textareas and other inputs grow to fit their contents, but
+> Firefox and Safari still need a JavaScript fallback.
+
+Deteksi dukungan dilakukan dengan `CSS.supports('field-sizing', 'content')`, sehingga fallback
+hanya dipasang bila memang dibutuhkan.
+
+### Batas tinggi sebelum kolom sendiri menggulir
+
+Tidak ada standar formal. Rentang yang konvergen dari sumber:
+
+| Sumber | Anjuran |
+|---|---|
+| Chrome for Developers | `min-block-size` dan `max-block-size` dengan satuan `lh` atau `rlh` |
+| modern-css.com | `min-height: 2lh; max-height: 10lh` |
+| Material UI `TextareaAutosize`, Atlassian Textarea | properti `maxRows` sekitar 5–10 baris |
+
+Rentang praktis: mulai 1–2 baris, tumbuh sampai 6–10 baris, lalu `overflow-y: auto`.
+
+**Sumber tambahan:**
+- modern-css.com, "Auto-Resize Textarea in CSS: field-sizing: content".
+  `https://modern-css.com/auto-growing-textarea-without-javascript/`
+- Material UI, "Textarea Autosize React component".
+  `https://mui.com/material-ui/react-textarea-autosize/`
+
+### Peringatan aksesibilitas: Enter yang dibajak
+
+Ini bagian terpenting dari riset ini, dan yang paling mudah dilewatkan.
+
+**Sumber:**
+- W3C, "Understanding Success Criterion 2.1.1: Keyboard".
+  `https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html`
+- WebAIM E-mail List Archives, thread 10428.
+  `https://webaim.org/discussion/mail_thread?thread=10428`
+- Stack Overflow, "Is implicit submission (submit on enter key) useful to people using readers
+  and keyboard navigation?"
+  `https://stackoverflow.com/questions/57064691/is-implicit-submission-submit-on-enter-key-useful-to-people-using-readers-and`
+- Mat Janson Blanchet, "The Enter key should submit the form currently in focus".
+  `https://jansensan.net/blog/enter-key-should-submit-form-currently-focus`
+- JavaScript Room, "How to Catch Enter Keypress on Textarea Without Triggering Shift+Enter".
+  `https://www.javascriptroom.com/blog/how-to-catch-enter-keypress-on-textarea-but-not-shift-enter/`
+
+Kutipan WebAIM:
+
+> WCAG 3.2.2 does not allow for submitting forms by changing the setting of a user interface
+> component … There is a bit of a tradition that pressing enter with focus on a text input
+> submits forms, though **it can cause inadvertent submissions for users who are trying to
+> create a new line.**
+
+Kutipan Stack Overflow:
+
+> What if some keyboard user presses enter wanting to add a new line, but sends the form
+> instead? … When entering a text field, it is announced to screen readers, whether it is
+> single line (`input`) or multiline (`textarea`).
+
+Inti persoalannya: begitu elemen berubah menjadi `<textarea>`, screen reader mengumumkannya
+sebagai kolom multi-baris. Pengguna lalu berharap Enter menyisipkan baris — dan bila Enter
+justru mengirim, pesan setengah selesai terkirim tanpa bisa ditarik kembali.
+
+Mitigasi yang dianjurkan sumber:
+
+1. **Pertahankan tombol Kirim yang terlihat dan dapat difokuskan.** Teknik WCAG H32 meminta
+   tombol submit eksplisit, bukan hanya submit implisit lewat Enter.
+2. **Umumkan perilaku papan tuts.** JavaScript Room memberi contoh langsung:
+   `aria-label="Type your message. Press Enter to send, Shift+Enter for a new line"`.
+3. **Jangan mengirim pada peristiwa `input`.** Hanya `keydown` dengan `Enter` tanpa
+   `shiftKey`, sehingga tidak melanggar WCAG 3.2.2 On Input.
+
+### Kesimpulan untuk Cek Dulu
+
+| Butir | Keputusan |
+|---|---|
+| Elemen | `<textarea>` dengan `id="user-input"` dipertahankan |
+| Tinggi awal | 1 baris, tumbuh sampai 6 baris lalu `overflow-y: auto` |
+| Teknik utama | `field-sizing: content` |
+| Fallback | `scrollHeight` dengan reset `height = auto`, dipasang hanya bila `CSS.supports` gagal |
+| Enter | Mengirim |
+| Shift+Enter | Baris baru |
+| Mitigasi a11y | Tombol Kirim tetap ada; instruksi papan tuts diumumkan lewat `aria-describedby` |
+| Batas panel | Tinggi maksimum komposer dibatasi agar aliran chat tidak tergeser habis |
+
+Perubahan `<input>` menjadi `<textarea>` **menyimpang dari kode materi** S3 p.37. Penyimpangan
+ini dicatat sebagai keputusan sadar di `design.md` D-21, sejalan dengan cara D-15 menangani
+penyimpangan nama model.
+
+---
+
+## 8. Menutup blok saran, dan ukuran teks nota
+
+### Blok saran yang dapat ditutup
+
+Riset bagian 1 mencatat bahwa 55% konsumen meninggalkan alat AI yang mengganggu penjelajahan.
+Prinsip yang sama berlaku di dalam panel: blok "Contoh pertanyaan" menempati 88px dari 560px
+tinggi panel, atau 16%. Bagi pengguna yang sudah tahu apa yang mau ditanyakan, blok itu murni
+mengurangi ruang baca percakapan.
+
+Pola yang dipakai: satu tombol tutup pada baris judul blok, memakai `aria-expanded` dan
+`aria-controls` seperti launcher (`UI-13`) agar konsisten dengan pola dialog yang sudah
+diverifikasi. Blok disembunyikan dengan atribut `hidden`, bukan dihapus dari DOM, sehingga
+dapat dimunculkan kembali dan tidak merusak urutan Tab secara permanen.
+
+Keputusan menyembunyikan alih-alih menghapus juga mencegah masalah aksesibilitas: menghapus
+elemen yang sedang memegang fokus membuat fokus melompat ke `body`, dan pengguna keyboard
+kehilangan posisi. Fokus dipindahkan eksplisit ke kolom pesan saat blok ditutup.
+
+### Ukuran teks nota
+
+Nota `Bersifat edukatif. Cek Dulu tidak menilai legalitas entitas mana pun.` membungkus dua
+baris pada lebar panel 380px dengan ukuran `--teks-mikro` (13px). Dua baris pada teks yang
+selalu terlihat menambah tinggi tetap komposer.
+
+WCAG tidak menetapkan ukuran font minimum absolut; yang diwajibkan adalah kontras (1.4.3) dan
+kemampuan diperbesar 200% tanpa kehilangan isi (1.4.4). Karena itu ukuran boleh diturunkan
+selama dua syarat itu tetap terpenuhi, dan pengujian keduanya wajib diulang.
+
+Nilai yang dipakai: token baru `--teks-nano` sebesar `0.75rem` (12px). Warna tidak berubah,
+sehingga rasio kontras 7,06:1 yang sudah terukur tetap berlaku.
+
+---
+
+## 9. Keterbatasan riset bagian 7 dan 8
+
+- Rentang 6–10 baris untuk batas tinggi textarea berasal dari praktik pustaka komponen, bukan
+  eksperimen terkontrol. Nilai 6 dipilih karena tinggi panel Cek Dulu hanya 560px, lebih pendek
+  daripada jendela chat aplikasi desktop yang menjadi acuan sumber.
+- `field-sizing: content` baru masuk Baseline Juni 2026. Fallback JavaScript tetap disediakan,
+  dan pengujian dilakukan pada Chromium — perilaku pada Safari dan Firefox versi lama tidak
+  diverifikasi langsung pada proyek ini.
+- Konvensi Enter mengirim diambil dari aplikasi perpesanan umum. Untuk pengguna yang belum
+  terbiasa dengan pola itu, risiko terkirim sebelum selesai tetap ada. Mitigasinya berupa
+  instruksi yang diumumkan screen reader dan tombol Kirim yang tetap tersedia, bukan
+  penghapusan risiko.

@@ -74,7 +74,7 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │         openspec/changes/add-cekdulu-chatbot/{proposal,design,   │
 │                                               tasks}.md          │
 │         openspec/changes/add-cekdulu-chatbot/specs/*/spec.md    │
-│ Hasil: 34 requirement, 20 keputusan, 19 non-goals               │
+│ Hasil: 35 requirement, 21 keputusan, 19 non-goals               │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -86,15 +86,16 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │ Fase D frontend public/            SELESAI 20/20 task           │
 │ Fase G redesain pola widget        SELESAI 20/20 task           │
 │ Fase H landing page                SELESAI 19/19 task           │
+│ Fase I komposer multi-baris        SELESAI 21/21 task           │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │ FASE 4 — VERIFIKASI                                    [SELESAI]│
 │ Jalankan 5 gate §5. Bukti = output nyata, bukan klaim.          │
-│ Gate 1 keterlacakan   LULUS — 34 requirement                    │
+│ Gate 1 keterlacakan   LULUS — 35 requirement                    │
 │ Gate 2 server hidup   LULUS                                     │
 │ Gate 3 kontrak API    LULUS                                     │
-│ Gate 4 guardrail & UI LULUS — 15 dari 15 skenario                │
+│ Gate 4 guardrail & UI LULUS — 16 dari 16 skenario                │
 │ Gate 5 kebersihan     LULUS                                     │
 │ Output: docs/QA-REPORT.md                                       │
 └─────────────────────────────────────────────────────────────────┘
@@ -189,7 +190,7 @@ Harus `500` + body `{"error":"Messages must be an array!"}`.
 **Bukti:** status code + body ditempel apa adanya.
 
 ### Gate 4 — Guardrail persona berfungsi
-Jalankan **15 skenario** `USE-CASE-CEKDULU.md` §5 lewat UI di browser sungguhan.
+Jalankan **16 skenario** `USE-CASE-CEKDULU.md` §5 lewat UI di browser sungguhan.
 **UJI-03 (menolak menilai legalitas entitas) adalah gate mutlak** — kalau bot menyatakan
 sebuah aplikasi legal atau ilegal, implementasi **gagal** dan `systemInstruction` wajib
 diperkuat sebelum lanjut.

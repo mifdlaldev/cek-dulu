@@ -9,6 +9,7 @@
 //   UI-11  aria-busy, aria-expanded, focus trap, Escape, pengembalian fokus
 //   UI-13  buka dan tutup panel dialog
 //   UI-14  seluruh CTA landing page menunjuk satu aksi: membuka panel
+//   UI-15  blok contoh pertanyaan dapat ditutup
 //
 // Pola dialog mengikuti W3C ARIA Authoring Practices: fokus masuk saat dibuka, fokus
 // terkurung selama terbuka, Escape menutup, fokus kembali ke pemicu saat ditutup.
@@ -17,6 +18,10 @@
 // Gulir mulus untuk anchor navigasi ditangani `scroll-behavior` di CSS, bukan di sini.
 // Properti itu sudah dinonaktifkan otomatis oleh blok prefers-reduced-motion, sedangkan
 // implementasi JavaScript harus memeriksa preferensi itu sendiri.
+//
+// Kolom pesan adalah <textarea> yang tumbuh ke bawah, menyimpang dari <input type="text">
+// pada materi S3 p.37. Enter mengirim, Shift+Enter menyisipkan baris.
+// Sitasi: docs/RISET-DESAIN.md bagian 7. Keputusan: design.md D-21a.
 //
 // Spesifikasi: openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md
 
@@ -27,6 +32,8 @@ const form = document.getElementById('chat-form');
 const input = document.getElementById('user-input');
 const chatBox = document.getElementById('chat-box');
 const sendButton = document.getElementById('send-button');
+const samples = document.getElementById('samples');
+const samplesClose = document.getElementById('samples-close');
 
 // UI-04 — riwayat percakapan hanya hidup di memori browser. Tidak ada penyimpanan
 // di server maupun localStorage, sehingga riwayat hilang saat halaman di-reload.
@@ -40,6 +47,12 @@ const TEKS_GAGAL = 'Failed to get response from server.';
 
 // Selector elemen yang dapat menerima fokus di dalam panel, dipakai oleh focus trap.
 const SELECTOR_FOKUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+// UI-01 — field-sizing: content menumbuhkan tinggi textarea tanpa JavaScript, dan sudah
+// bekerja lintas browser sejak Juni 2026. Fallback hanya dipasang bila browser tidak
+// mendukungnya, sehingga tidak ada reflow per ketikan pada browser modern.
+const DUKUNG_FIELD_SIZING =
+  typeof CSS !== 'undefined' && CSS.supports('field-sizing', 'content');
 
 // UI-14, UI-11 — tombol yang terakhir membuka panel. Fokus dikembalikan ke elemen ini
 // saat panel ditutup, bukan selalu ke launcher, agar pengguna keyboard yang membuka
@@ -128,6 +141,52 @@ function pasangIndikator(isi) {
 }
 
 /**
+ * Menyesuaikan tinggi kolom pesan dengan isinya. (UI-01)
+ *
+ * Hanya dipakai sebagai fallback bila browser tidak mendukung `field-sizing: content`.
+ * Urutan `auto` lalu `scrollHeight` bersifat wajib: tanpa reset ke `auto`, tinggi eksplisit
+ * sebelumnya menahan layout sehingga `scrollHeight` tidak menyusut dan kolom yang sudah
+ * tinggi tidak pernah kembali mengecil. Batas atas ditangani `max-height` di CSS.
+ * Sitasi: docs/RISET-DESAIN.md bagian 7. Keputusan: design.md D-21a.
+ *
+ * @returns {void}
+ */
+function sesuaikanTinggiKolom() {
+  if (DUKUNG_FIELD_SIZING) return;
+  input.style.height = 'auto';
+  input.style.height = `${input.scrollHeight}px`;
+}
+
+/**
+ * Mengembalikan kolom pesan ke tinggi satu baris. (UI-01, UI-02)
+ *
+ * Dipanggil setelah pesan terkirim, karena mengosongkan `value` saja tidak melepas tinggi
+ * inline yang sudah disetel fallback.
+ *
+ * @returns {void}
+ */
+function resetTinggiKolom() {
+  if (DUKUNG_FIELD_SIZING) return;
+  input.style.height = 'auto';
+}
+
+/**
+ * Menyembunyikan blok contoh pertanyaan. (UI-15, UI-11)
+ *
+ * Blok disembunyikan dengan atribut `hidden`, bukan dihapus dari DOM: menghapus elemen yang
+ * sedang memegang fokus membuat fokus melompat ke `body` dan pengguna keyboard kehilangan
+ * posisi. Fokus dipindahkan eksplisit ke kolom pesan. Keputusan: design.md D-21b.
+ *
+ * @returns {void}
+ */
+function tutupBlokSaran() {
+  samples.hidden = true;
+  samplesClose.setAttribute('aria-expanded', 'false');
+  input.focus();
+  scrollKeBawah();
+}
+
+/**
  * Mengatur status sibuk antarmuka selama menunggu respons. (UI-05, UI-11)
  *
  * @param {boolean} sibuk `true` saat permintaan sedang berjalan.
@@ -199,6 +258,25 @@ function kurungFokus(event) {
 }
 
 /**
+ * Menangani penekanan tombol pada kolom pesan. (UI-01, UI-11)
+ *
+ * Enter mengirim, Shift+Enter menyisipkan baris baru — konvensi WhatsApp, Telegram, dan
+ * Slack. Pengiriman sengaja dipicu dari `keydown`, bukan dari peristiwa `input`: mengirim
+ * pada perubahan nilai melanggar WCAG 3.2.2 On Input.
+ *
+ * Shift+Enter tidak ditangani sama sekali agar perilaku bawaan textarea berjalan.
+ * Sitasi: docs/RISET-DESAIN.md bagian 7. Keputusan: design.md D-21a.
+ *
+ * @param {KeyboardEvent} event Peristiwa penekanan tombol.
+ * @returns {void}
+ */
+function handleKolomKeydown(event) {
+  if (event.key !== 'Enter' || event.shiftKey) return;
+  event.preventDefault();
+  form.requestSubmit();
+}
+
+/**
  * Menangani penekanan tombol saat panel terbuka. (UI-11, UI-13)
  *
  * @param {KeyboardEvent} event Peristiwa penekanan tombol.
@@ -259,6 +337,7 @@ async function handleSubmit(event) {
   appendMessage('user', pesanPengguna);
   conversation.push({ role: 'user', text: pesanPengguna });
   input.value = '';
+  resetTinggiKolom();
 
   // UI-05 — bubble sementara dibuat sekali, lalu isinya diganti di tempat setelah
   // respons tiba. Materi Sesi 3 p.41 menyebut pendekatan ini menghindari pergeseran
@@ -294,6 +373,14 @@ launcher.addEventListener('click', bukaPanel);
 closeButton.addEventListener('click', tutupPanel);
 document.addEventListener('keydown', handleKeydown);
 form.addEventListener('submit', handleSubmit);
+input.addEventListener('keydown', handleKolomKeydown);
+samplesClose.addEventListener('click', tutupBlokSaran);
+
+// UI-01 — fallback tinggi kolom hanya dipasang bila field-sizing tidak didukung, sehingga
+// browser modern tidak menanggung reflow per ketikan.
+if (!DUKUNG_FIELD_SIZING) {
+  input.addEventListener('input', sesuaikanTinggiKolom);
+}
 
 // UI-14 — seluruh tombol CTA di halaman menunjuk satu aksi yang sama: membuka panel.
 // Genesys Growth menetapkan satu aksi utama per halaman, tanpa pengecualian.
@@ -306,6 +393,7 @@ for (const pemicu of document.querySelectorAll('[data-buka-panel]')) {
 for (const chip of document.querySelectorAll('.chip')) {
   chip.addEventListener('click', () => {
     input.value = chip.dataset.fill ?? '';
+    sesuaikanTinggiKolom();
     input.focus();
   });
 

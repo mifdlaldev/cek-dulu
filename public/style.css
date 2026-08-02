@@ -40,8 +40,12 @@
   --warna-fokus: #0b63ce;
   --warna-garis: #d3dce6;
 
-  /* Skala tipografi, kelipatan tetap dari ukuran dasar 16px. */
+  /* Skala tipografi, kelipatan tetap dari ukuran dasar 16px. --teks-nano adalah ukuran
+     terkecil, dipakai khusus untuk nota disclaimer agar muat satu baris pada panel 380px.
+     WCAG tidak menetapkan ukuran minimum absolut; yang wajib adalah kontras 1.4.3 dan
+     pembesaran 200% pada 1.4.4, keduanya diuji ulang setelah penurunan ini (D-21c). */
   --teks-dasar: 1rem;
+  --teks-nano: 0.75rem;
   --teks-mikro: 0.8125rem;
   --teks-kecil: 0.875rem;
   --teks-sedang: 1.125rem;
@@ -90,6 +94,7 @@
   --lebar-panel: 23.75rem;
   --tinggi-panel: 35rem;
   --lebar-bubble-maks: 20rem;
+  --baris-komposer-maks: 6;
   --ukuran-launcher: 3.5rem;
   --ukuran-avatar: 2rem;
   --ukuran-titik: 0.5rem;
@@ -968,13 +973,50 @@ main {
   background-color: var(--warna-latar);
 }
 
+.samples[hidden] {
+  display: none;
+}
+
+.samples__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ruang-2);
+  margin-bottom: var(--ruang-2);
+}
+
 .samples__title {
-  margin: 0 0 var(--ruang-2);
+  margin: 0;
   font-size: var(--teks-mikro);
   font-weight: var(--tebal-tegas);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--warna-teks-lembut);
+}
+
+/* UI-15 — tombol tutup blok saran. Target sentuh 24x24px sesuai spec; simbol disembunyikan
+   dari screen reader dan digantikan teks .sr-only di dalam tombol. */
+.samples__close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ruang-5);
+  height: var(--ruang-5);
+  background-color: transparent;
+  color: var(--warna-teks-lembut);
+  border: 1px solid transparent;
+  border-radius: var(--radius-kecil);
+  font-family: inherit;
+  font-size: var(--teks-dasar);
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--durasi-cepat) ease;
+}
+
+.samples__close:hover {
+  border-color: var(--warna-garis);
+  color: var(--warna-teks);
 }
 
 /* Chip digulir horizontal dalam satu baris pada semua ukuran layar. Membungkus ke
@@ -1020,6 +1062,16 @@ main {
   gap: var(--ruang-2);
 }
 
+/* Label dan petunjuk papan tuts sebaris. Pengukuran lebar teks nyata: label 103px pada 13px
+   ditambah petunjuk 192px pada 12px berjumlah 303px, muat pada ruang 328px di ponsel. Dengan
+   begitu mitigasi aksesibilitas D-21a tidak menambah baris pada komposer. */
+.composer__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ruang-2);
+}
+
 .composer__label {
   font-size: var(--teks-mikro);
   font-weight: var(--tebal-sedang);
@@ -1028,9 +1080,17 @@ main {
 
 .composer__row {
   display: flex;
+  align-items: flex-end;
   gap: var(--ruang-2);
 }
 
+/* UI-01 — kolom pesan multi-baris. field-sizing: content menumbuhkan tinggi mengikuti isi
+   tanpa JavaScript; MDN mencatat properti ini bekerja lintas browser sejak Juni 2026.
+   Fallback JavaScript dipasang script.js hanya bila CSS.supports gagal.
+
+   Batas 6 baris dipilih karena tinggi panel hanya 560px, lebih pendek daripada jendela chat
+   desktop yang menjadi acuan sumber (yang menganjurkan 6-10 baris). resize: none mematikan
+   pegangan ubah ukuran bawaan agar tidak menutupi tombol Kirim. Keputusan: design.md D-21a. */
 .composer__input {
   flex: 1 1 auto;
   min-width: 0;
@@ -1041,6 +1101,12 @@ main {
   border-radius: var(--radius-sedang);
   font-family: inherit;
   font-size: var(--teks-dasar);
+  line-height: var(--tinggi-baris);
+  field-sizing: content;
+  min-height: 1lh;
+  max-height: calc(var(--baris-komposer-maks) * 1lh);
+  overflow-y: auto;
+  resize: none;
   transition: border-color var(--durasi-cepat) ease;
 }
 
@@ -1080,9 +1146,22 @@ main {
   cursor: progress;
 }
 
+.composer__hint {
+  margin: 0;
+  flex: 0 0 auto;
+  font-size: var(--teks-nano);
+  color: var(--warna-teks-lembut);
+  white-space: nowrap;
+}
+
+/* UI-08, D-21c — nota memakai ukuran terkecil dan teks yang sudah diperpendek agar muat satu
+   baris. Pengukuran: teks asli 381px pada 12px, melebihi ruang 346px di desktop dan 328px di
+   ponsel; teks sekarang 283px sehingga muat pada keduanya. Kedua unsur wajib UI-08 tetap ada:
+   sifat edukatif dan larangan menilai legalitas. Warna tidak diubah, jadi rasio kontras
+   7,06:1 yang sudah terukur tetap berlaku. */
 .composer__note {
   margin: 0;
-  font-size: var(--teks-mikro);
+  font-size: var(--teks-nano);
   color: var(--warna-teks-lembut);
 }
 
@@ -1097,6 +1176,7 @@ main {
 .cta:focus-visible,
 .brand:focus-visible,
 .site-nav__link:focus-visible,
+.samples__close:focus-visible,
 .faq__tanya:focus-visible {
   outline: var(--tebal-fokus) solid var(--warna-fokus);
   outline-offset: 2px;

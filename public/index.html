@@ -527,9 +527,26 @@ Saya tidak menilai legalitas perusahaan atau aplikasi tertentu. Kanal resmi OJK 
       </div>
 
       <!-- Contoh pertanyaan mengikuti pola batch sebelumnya pada materi Sesi 2 p.67.
-           Berupa <button> agar terjangkau keyboard (UI-11). -->
-      <section class="samples" aria-labelledby="samples-title">
-        <h3 class="samples__title" id="samples-title">Contoh pertanyaan</h3>
+           Berupa <button> agar terjangkau keyboard (UI-11).
+
+           UI-15 — blok ini dapat ditutup. Menempati 16% tinggi panel, dan bagi pengguna yang
+           sudah tahu apa yang mau ditanyakan ruang itu murni mengurangi area baca percakapan.
+           Disembunyikan dengan atribut hidden, tidak dihapus dari DOM: menghapus elemen yang
+           sedang memegang fokus membuat fokus melompat ke body. Keputusan: design.md D-21b. -->
+      <section class="samples" id="samples" aria-labelledby="samples-title">
+        <div class="samples__head">
+          <h3 class="samples__title" id="samples-title">Contoh pertanyaan</h3>
+          <button
+            type="button"
+            id="samples-close"
+            class="samples__close"
+            aria-expanded="true"
+            aria-controls="samples"
+          >
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Sembunyikan contoh pertanyaan</span>
+          </button>
+        </div>
         <ul class="samples__list">
           <li>
             <button
@@ -561,23 +578,40 @@ Saya tidak menilai legalitas perusahaan atau aplikasi tertentu. Kanal resmi OJK 
         </ul>
       </section>
 
-      <!-- UI-01, UI-11 — form pengiriman pesan -->
+      <!-- UI-01, UI-11 — form pengiriman pesan.
+
+           Kolom pesan memakai <textarea>, menyimpang dari materi S3 p.37 yang menuliskan
+           <input type="text">. Alasannya use case meminta pengguna menempelkan isi pesan
+           penipuan secara utuh, dan pada input satu baris teks panjang menggulir horizontal
+           sehingga yang sudah ditempel tidak dapat diperiksa ulang. Nama id tetap
+           "user-input" karena materi mewajibkannya. Keputusan: design.md D-21a.
+
+           Enter mengirim, Shift+Enter menyisipkan baris — konvensi WhatsApp, Telegram, dan
+           Slack. Karena screen reader mengumumkan textarea sebagai kolom multi-baris dan
+           pengguna berharap Enter menyisipkan baris, perilaku itu diumumkan lewat
+           aria-describedby dan tombol Kirim tetap tersedia (teknik WCAG H32). -->
       <form id="chat-form" class="composer">
-        <label class="composer__label" for="user-input">Tulis pesan Anda</label>
+        <div class="composer__head">
+          <label class="composer__label" for="user-input">Tulis pesan Anda</label>
+          <p class="composer__hint" id="composer-hint">
+            Enter kirim, Shift+Enter baris baru
+          </p>
+        </div>
         <div class="composer__row">
-          <input
-            type="text"
+          <textarea
             id="user-input"
             class="composer__input"
             name="message"
-            placeholder="Contoh: ada WA menawarkan pinjaman cair 10 menit"
+            rows="1"
+            placeholder="Tempelkan isi pesannya di sini"
             autocomplete="off"
+            aria-describedby="composer-hint"
             required
-          />
+          ></textarea>
           <button type="submit" id="send-button" class="composer__button">Kirim</button>
         </div>
         <p class="composer__note">
-          Bersifat edukatif. Cek Dulu tidak menilai legalitas entitas mana pun.
+          Edukatif. Tidak menilai legalitas entitas mana pun.
         </p>
       </form>
     </section>

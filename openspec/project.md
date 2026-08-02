@@ -98,10 +98,10 @@ adalah `{ conversation: [{ role, text }] }`. Lihat `AGENTS.md` §3.2.
 Project-Akhir-Hacktiv8/
 ├── index.js              Backend, 20 requirement
 ├── package.json          4 dependency, ESM
-├── public/               Frontend, 14 requirement UI
-│   ├── index.html        UI-01, UI-07, UI-08, UI-09, UI-11, UI-13, UI-14
-│   ├── script.js         UI-02 s.d. UI-06, UI-11, UI-13
-│   └── style.css         UI-10, UI-11, UI-12, UI-13, UI-14
+├── public/               Frontend, 15 requirement UI
+│   ├── index.html        UI-01, UI-07, UI-08, UI-09, UI-11, UI-13, UI-14, UI-15
+│   ├── script.js         UI-01 s.d. UI-06, UI-11, UI-13, UI-15
+│   └── style.css         UI-01, UI-10, UI-11, UI-12, UI-13, UI-14, UI-15
 ├── .env                  🔒 JANGAN commit, JANGAN tulis nilainya ke output
 ├── .env.example
 ├── .gitignore

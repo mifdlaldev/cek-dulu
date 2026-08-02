@@ -202,7 +202,7 @@ tidak sebanding dengan risiko menyebarkan angka kedaluwarsa.
 
 ### D-10 — Verifikasi manual terdokumentasi, tanpa test framework
 
-**Keputusan:** 15 skenario uji ditulis dengan ID, input, dan ekspektasi. Dijalankan manual.
+**Keputusan:** 16 skenario uji ditulis dengan ID, input, dan ekspektasi. Dijalankan manual.
 Tidak ada Jest/Vitest/Supertest.
 
 **Alasan:** materi tidak membahas test framework, dan `package.json` di slide (S2 p.31,
@@ -702,6 +702,165 @@ baru.
 
 ---
 
+### D-21 — Komposer multi-baris, blok saran dapat ditutup, nota satu baris
+
+**Keputusan:** tiga perubahan pada komposer panel percakapan:
+
+1. `<input type="text" id="user-input">` menjadi `<textarea id="user-input">` yang tumbuh ke
+   bawah mengikuti isi. Enter mengirim, Shift+Enter menyisipkan baris baru.
+2. Blok "Contoh pertanyaan" mendapat tombol tutup.
+3. Nota disclaimer di bawah komposer memakai token ukuran baru agar muat satu baris.
+
+Riset dan sitasi lengkap: `docs/RISET-DESAIN.md` §7 dan §8.
+
+---
+
+#### D-21a — `<textarea>` menggantikan `<input type="text">` ⚠️ menyimpang dari materi
+
+**Ini penyimpangan kedua dari kode materi**, setelah D-15 mengganti nama model. Materi S3 p.37
+menuliskan `<input type="text" id="user-input" />` secara verbatim.
+
+**Alasan menyimpang.** Pada input satu baris, teks panjang menggulir horizontal dan pengguna
+hanya melihat potongan terakhir dari apa yang ia tulis. Untuk use case Cek Dulu ini merugikan
+secara langsung: persona bot meminta pengguna **menempelkan isi pesan penipuan secara utuh**
+(`docs/USE-CASE-CEKDULU.md` §3.1), yang lazimnya beberapa baris. Dengan input satu baris,
+pengguna tidak dapat memeriksa ulang apa yang sudah ia tempel sebelum mengirim.
+
+Materi tidak membahas komposer multi-baris sama sekali, sehingga tidak ada arahan yang
+dilanggar — yang ada hanya satu baris kode contoh yang ditulis untuk demo sederhana, bukan
+untuk use case yang meminta penempelan teks panjang.
+
+**Yang tidak berubah:** `id="user-input"` dipertahukan karena materi mewajibkannya, begitu pula
+`#chat-form` dan `#chat-box`. Kontrak API, field `conversation`, dan seluruh backend tidak
+tersentuh.
+
+**Teknik.** `field-sizing: content` sebagai jalur utama. MDN mencatat properti ini bekerja
+lintas browser sejak Juni 2026. Untuk browser yang belum mendukung, fallback JavaScript
+memakai pola kanonis `height = 'auto'` lalu `height = scrollHeight + 'px'` — urutan itu wajib,
+karena tanpa reset ke `auto` tinggi eksplisit sebelumnya menahan layout dan kolom yang sudah
+tinggi tidak pernah menyusut kembali. Fallback dipasang hanya bila
+`CSS.supports('field-sizing', 'content')` bernilai `false`.
+
+**Batas tinggi:** mulai satu baris, tumbuh sampai enam baris, lalu `overflow-y: auto`. Sumber
+menganjurkan 6–10 baris; nilai terendah dipilih karena panel Cek Dulu hanya 560px, lebih
+pendek daripada jendela chat aplikasi desktop yang menjadi acuan sumber.
+
+**Risiko aksesibilitas yang diterima dengan mitigasi.** Ini bagian yang paling mudah
+dilewatkan. Begitu elemen menjadi `<textarea>`, screen reader mengumumkannya sebagai kolom
+multi-baris, dan pengguna berharap Enter menyisipkan baris. WebAIM memperingatkan bahwa
+membajak Enter "can cause inadvertent submissions for users who are trying to create a new
+line". Pesan setengah selesai yang terkirim tidak bisa ditarik kembali.
+
+Mitigasi yang diterapkan:
+
+1. Tombol **Kirim** tetap ada, terlihat, dan dapat difokuskan — memenuhi teknik WCAG H32 yang
+   meminta tombol submit eksplisit, bukan hanya submit implisit lewat Enter.
+2. Perilaku papan tuts diumumkan ke screen reader lewat `aria-describedby` yang menunjuk teks
+   petunjuk, mengikuti contoh yang dianjurkan sumber.
+3. Pengiriman hanya dipicu `keydown` dengan `Enter` tanpa `shiftKey`. Tidak ada pengiriman pada
+   peristiwa `input`, sehingga WCAG 3.2.2 On Input tidak dilanggar.
+
+**Ditolak: `<div contenteditable>`.** Memberi kendali tinggi yang sama tetapi menghilangkan
+`id="user-input"` sebagai kontrol form, membatalkan validasi `required` bawaan browser
+(`UI-01`, terlihat di screenshot S3 p.14), dan menuntut penanganan tempel yang bisa memasukkan
+HTML — bertabrakan langsung dengan D-07 yang melarang HTML mentah.
+
+**Ditolak: Enter selalu menyisipkan baris, kirim hanya lewat tombol.** Paling aman secara
+aksesibilitas, tetapi bertentangan dengan kebiasaan dari WhatsApp, Telegram, dan Slack yang
+menjadi rujukan pengguna sasaran. Konsistensi dengan alat yang sudah dikenal dinilai lebih
+berharga daripada menghilangkan risiko yang sudah dimitigasi.
+
+**Ditolak: pustaka `textarea-autosize`.** Menambah dependency di luar empat paket materi.
+Persoalan ini selesai dengan satu properti CSS dan sekitar lima baris JavaScript.
+
+**Ditolak: mengubah `id="user-input"`.** Materi mewajibkan nama ID tersebut (S3 p.37).
+Penyimpangan dibatasi pada jenis elemen, bukan kontraknya.
+
+---
+
+#### D-21b — Blok "Contoh pertanyaan" dapat ditutup
+
+**Keputusan:** satu tombol tutup pada baris judul blok. Blok disembunyikan dengan atribut
+`hidden`, tidak dihapus dari DOM.
+
+**Alasan.** Blok saran menempati 88px dari 560px tinggi panel, atau 16%. Bagi pengguna yang
+sudah tahu apa yang mau ditanyakan, ruang itu murni mengurangi area baca percakapan. Prinsip
+yang sama dengan D-18: riset mencatat 55% konsumen meninggalkan alat AI yang mengganggu
+penjelajahan, dan gangguan di dalam panel berlaku setara.
+
+**Mengapa `hidden`, bukan dihapus.** Menghapus elemen yang sedang memegang fokus membuat fokus
+melompat ke `body`, dan pengguna keyboard kehilangan posisi. Dengan `hidden`, blok dapat
+dimunculkan kembali dan urutan Tab tidak rusak permanen. Fokus dipindahkan eksplisit ke kolom
+pesan saat blok ditutup.
+
+Tombol memakai `aria-expanded` dan `aria-controls`, pola yang sama dengan launcher (`UI-13`)
+agar konsisten dengan pola yang sudah diverifikasi.
+
+**Ditolak: menghapus blok saran sepenuhnya.** Blok ini mengikuti contoh batch sebelumnya pada
+materi S2 p.67 dan membantu pengguna yang belum tahu harus bertanya apa. Yang diminta adalah
+kendali, bukan penghapusan.
+
+**Ditolak: menutup otomatis setelah pesan pertama.** Terkesan cerdas, tetapi merampas kendali
+pengguna yang justru ingin memakai saran kedua dan ketiga.
+
+**Ditolak: menyimpan keadaan tertutup ke `localStorage`.** Penyimpanan lokal termasuk yang
+ditolak pada kapabilitas ini; menyimpan jejak pemakaian alat bertema keuangan menambah risiko
+privasi tanpa requirement yang memintanya.
+
+---
+
+#### D-21c — Nota disclaimer muat satu baris
+
+**Keputusan:** dua langkah bersama — token baru `--teks-nano` sebesar `0.75rem` (12px) untuk
+`.composer__note`, **dan** teks nota diperpendek menjadi
+`Edukatif. Tidak menilai legalitas entitas mana pun.`
+
+**Alasan.** Pada lebar panel 380px dengan ukuran 13px, nota membungkus dua baris dan menambah
+tinggi tetap komposer. WCAG tidak menetapkan ukuran font minimum absolut; yang diwajibkan
+adalah kontras (1.4.3) dan kemampuan diperbesar 200% tanpa kehilangan isi (1.4.4).
+
+Warna tidak diubah, sehingga rasio kontras 7,06:1 yang sudah terukur tetap berlaku. Kedua
+syarat WCAG tersebut wajib diuji ulang, dan hasilnya dicatat di `docs/QA-REPORT.md`.
+
+**Mengapa penurunan ukuran saja tidak cukup — bukti pengukuran.** Versi pertama keputusan ini
+menolak pemendekan teks dan mengandalkan `--teks-nano` semata. Pengukuran lebar teks nyata di
+browser membuktikan itu tidak mungkin berhasil:
+
+| Teks | Karakter | Lebar pada 12px | Ruang desktop 346px | Ruang ponsel 328px |
+|---|---|---|---|---|
+| `Bersifat edukatif. Cek Dulu tidak menilai legalitas entitas mana pun.` | 69 | **381px** | tidak muat | tidak muat |
+| `Edukatif. Cek Dulu tidak menilai legalitas entitas mana pun.` | 60 | 334px | muat | **tidak muat** |
+| `Edukatif. Tidak menilai legalitas entitas mana pun.` | 51 | **283px** | muat | muat |
+
+Bahkan pada 10px teks asli masih 318px dan hanya muat di desktop — sementara menurunkan ukuran
+lebih jauh justru memperburuk keterbacaan bagi pengguna lanjut usia yang menjadi target
+(`docs/RISET-DESAIN.md` §3). Jalan keluarnya bukan mengecilkan lebih jauh, tetapi membuang kata
+yang tidak menambah makna.
+
+**Yang dibuang dan alasannya.** `Bersifat` adalah kata pengisi. `Cek Dulu` redundan karena nama
+bot sudah tertera pada judul panel tepat di atasnya. Kedua unsur wajib `UI-08` tetap utuh:
+sifat **edukatif** dan larangan **menilai legalitas**. Ini pemendekan, bukan pengurangan makna.
+
+**Ditolak: memendekkan sampai menghilangkan salah satu unsur wajib.** Kandidat
+`Edukatif. Bukan penilaian legalitas.` hanya 197px dan paling ringkas, tetapi menghilangkan kata
+"entitas" yang menegaskan cakupan larangan `PG-03` — bot tidak menilai perusahaan atau aplikasi
+mana pun, bukan sekadar tidak menilai "legalitas" secara abstrak.
+
+**Ditolak: memindahkan nota ke tooltip atau ikon informasi.** `UI-08` mewajibkan disclaimer
+terlihat, bukan disembunyikan di balik interaksi.
+
+**Keputusan turunan — petunjuk papan tuts sebaris dengan label.** Teks petunjuk `Enter` dan
+`Shift`+`Enter` yang dituntut D-21a menambah satu baris lagi pada komposer. Pengukuran
+menunjukkan label `Tulis pesan Anda` (103px pada 13px) ditambah petunjuk
+`Enter kirim, Shift+Enter baris baru` (192px pada 12px) berjumlah 303px — muat sebaris pada
+kedua viewport. Keduanya ditempatkan pada satu baris flex, sehingga mitigasi aksesibilitas tidak
+membayar biaya tinggi yang justru sedang dihemat.
+
+`UI-15` ditambahkan untuk D-21b. `UI-01` diamandemen untuk D-21a. `UI-08` dan `UI-12`
+diamandemen pada bagian ukuran teks nota.
+
+---
+
 ## 3. Matriks keterlacakan requirement → sumber
 
 | Req | Isi singkat | Sumber |
@@ -726,7 +885,7 @@ baru.
 | `PG-07` | Ingatkan data pribadi | S1 p.99 (Privasi) |
 | `PG-08` | Format output 3 langkah + larangan penanda Markdown | S3 p.22; diamandemen D-17 ⚠️ temuan Fase D |
 | `PG-09` | Prompt bebas data yang berubah | `RISET-LAPANGAN.md` header |
-| `UI-01` | ID elemen `chat-form`/`user-input`/`chat-box`, ditempatkan di dalam panel | S3 p.37; S3 p.34; penempatan diamandemen D-18 |
+| `UI-01` | ID elemen `chat-form`/`user-input`/`chat-box`, ditempatkan di dalam panel | S3 p.37; S3 p.34; penempatan diamandemen D-18; `user-input` jadi `<textarea>` per D-21a ⚠️ menyimpang dari materi |
 | `UI-02` | Pesan pengguna langsung tampil | S3 p.37, p.39 |
 | `UI-03` | Payload `conversation` (perbaikan bug slide) | S3 p.29 vs p.39 |
 | `UI-04` | Riwayat multi-turn | S3 p.29, p.37 |
@@ -740,12 +899,20 @@ baru.
 | `UI-12` | Design token + light mode navy dan deep teal | S3 p.34 + D-12, `RISET-DESAIN.md` §3 ⚠️ interpretasi |
 | `UI-13` | Launcher dan panel dialog | `RISET-DESAIN.md` §1–2 + D-18 ⚠️ di luar materi |
 | `UI-14` | Struktur landing page sembilan section | `RISET-DESAIN.md` §6 + D-20 ⚠️ di luar materi |
+| `UI-15` | Blok contoh pertanyaan dapat ditutup | `RISET-DESAIN.md` §8 + D-21b ⚠️ di luar materi |
 
-**34 requirement, semuanya punya sumber.** Empat di antaranya berbasis **interpretasi atau
+**35 requirement, semuanya punya sumber.** Lima di antaranya berbasis **interpretasi atau
 riset di luar materi**, ditandai `⚠️` dengan alasan tertulis penuh: `UI-11` (D-13), `UI-12`
-(D-12), `UI-13` (D-18), `UI-14` (D-20). Satu requirement (`WS-02`) **diamandemen dari nilai
-materi** karena model yang ditetapkan materi ditutup Google; bukti dan alasan di
-`docs/KENDALA-API.md` §1 dan keputusan D-15. Sisanya merujuk nomor halaman langsung.
+(D-12), `UI-13` (D-18), `UI-14` (D-20), `UI-15` (D-21b).
+
+**Dua requirement menyimpang dari kode materi**, keduanya dengan alasan tertulis dan bukti:
+
+| Req | Materi menetapkan | Repo memakai | Alasan |
+|---|---|---|---|
+| `WS-02` | `"gemini-2.5-flash"` (S2 p.34, S3 p.28) | `process.env.GEMINI_MODEL ?? 'gemini-flash-latest'` | Model ditutup Google untuk akun baru — bukti HTTP 404 di `docs/KENDALA-API.md` §1, keputusan D-15 |
+| `UI-01` | `<input type="text" id="user-input">` (S3 p.37) | `<textarea id="user-input">` | Use case meminta pengguna menempelkan pesan utuh beberapa baris; input satu baris menyembunyikan apa yang sudah ditulis — riset `RISET-DESAIN.md` §7, keputusan D-21a |
+
+Sisanya merujuk nomor halaman langsung.
 
 ---
 
@@ -768,8 +935,9 @@ materi** karena model yang ditetapkan materi ditutup Google; bukti dan alasan di
 | UJI-13 | `UI-11` |
 | UJI-14 | `UI-13`, `UI-11` |
 | UJI-15 | `UI-14`, `UI-11` |
+| UJI-16 | `UI-01`, `UI-15`, `UI-11` |
 
-Requirement yang diverifikasi lewat gate lain (bukan 15 skenario UI):
+Requirement yang diverifikasi lewat gate lain (bukan 16 skenario UI):
 `WS-01` s.d. `WS-05` → Gate 2; `API-01`, `API-04`, `API-05` → Gate 3;
 `PG-01`, `PG-02`, `PG-09`, `UI-08`, `UI-09`, `UI-10`, `UI-12` → inspeksi kode & halaman;
 `PG-07` → uji ad-hoc saat Gate 4.
