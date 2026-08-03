@@ -33,9 +33,9 @@ tapi berdasarkan requirement ber-ID yang punya sumber tertulis.
 
 Cara kerja lengkap + 5 gate verifikasi → `docs/METODOLOGI.md`.
 
-**Progres saat ini: Fase A sampai E dan G sampai L selesai; kelima gate verifikasi LULUS.**
+**Progres saat ini: seluruh fase A sampai L selesai; kelima gate verifikasi LULUS.**
 Backend `index.js` dan frontend `public/` sudah diimplementasikan dan diverifikasi di browser
-nyata — 178 dari 180 task tuntas, dan **21 dari 21 skenario uji lulus**. Antarmuka memakai
+nyata — **180 dari 180 task tuntas**, dan **21 dari 21 skenario uji lulus**. Antarmuka memakai
 landing page sembilan section ditambah launcher dan panel dialog dengan palet light mode;
 riset dan sitasinya di `docs/RISET-DESAIN.md`.
 
@@ -57,9 +57,12 @@ Fase F7 mengarsipkan keempat spec delta menjadi spec aktif di `openspec/specs/`,
 Fase 5 metodologi. Sejak itu `openspec/changes/add-cekdulu-chatbot/` hanya memuat
 `proposal.md`, `design.md`, dan `tasks.md` sebagai riwayat keputusan.
 
-Sisa: **F5** push ke GitHub dan **F6** rilis `v1.0.0`; pengisian form submit dikerjakan
-pengguna secara manual di luar repo. Bukti mentah di `docs/QA-REPORT.md`. Sebelum mengerjakan
-apa pun, cek status per task di `openspec/changes/add-cekdulu-chatbot/tasks.md`.
+F5 mem-push commit `95ca107` — CI run `30786366119` hijau pada kelima job. F6 menerbitkan
+rilis `v1.0.0` di commit yang sama. **Seluruh 180 task tuntas.** Yang tersisa di luar
+repositori hanya pengisian form submit Final Project, dikerjakan pengguna secara manual.
+
+Bukti mentah di `docs/QA-REPORT.md`. Sebelum mengerjakan apa pun, cek status per task di
+`openspec/changes/add-cekdulu-chatbot/tasks.md`.
 
 **Larangan permanen pada halaman (`UI-14`, D-20):** DILARANG memuat testimoni, logo mitra,
 star rating, jumlah ulasan, jumlah pengguna, jumlah unduhan, atau tingkat kepuasan. Aplikasi

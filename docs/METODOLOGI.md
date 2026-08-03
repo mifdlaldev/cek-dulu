@@ -88,6 +88,8 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │ Fase H landing page                SELESAI 19/19 task           │
 │ Fase I komposer multi-baris        SELESAI 21/21 task           │
 │ Fase J avatar gambar               SELESAI 22/22 task           │
+│ Fase K lampiran berkas             SELESAI 28/28 task           │
+│ Fase L komposer satu baris         SELESAI 11/11 task           │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -102,10 +104,12 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ FASE 5 — ARSIP & SUBMIT                            [SEDANG JALAN]│
+│ FASE 5 — ARSIP & SUBMIT                                [SELESAI]│
 │ Arsip spec delta → openspec/specs/  SELESAI  4 kapabilitas      │
-│ Screenshot UI → 1 file ≤1 MB       SELESAI  554 KB              │
-│ Sisa: push, rilis v1.0.0, isi form (manual oleh pengguna)       │
+│ Screenshot UI → 1 file ≤1 MB        SELESAI  554 KB             │
+│ Push + CI hijau                     SELESAI  run 30786366119   │
+│ Rilis v1.0.0                        SELESAI  commit 95ca107     │
+│ Isi form submit → dikerjakan pengguna, di luar repositori       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

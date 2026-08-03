@@ -2,7 +2,7 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 178 dari 180 task selesai.** Fase A sampai E, G, H, I, J, K, dan L tuntas — kelima
+**Progres: 180 dari 180 task selesai.** Fase A sampai E, G, H, I, J, K, dan L tuntas — kelima
 gate verifikasi LULUS dan **21 dari 21 skenario uji lulus**. Fase K menambahkan lampiran gambar
 dan dokumen; **UJI-18 sebagai gate mutlak `PG-03` pada input gambar LULUS** — bot tidak menyebut
 nama entitas dari logo maupun menilai legalitasnya. Fase L menata komposer menjadi satu baris
@@ -13,10 +13,11 @@ Fase J mengganti inisial `CD` dengan avatar gambar. Pada keempatnya spec diamand
 dahulu sesuai `docs/METODOLOGI.md` §6.
 
 Fase F7 mengarsipkan keempat spec delta menjadi spec aktif di `openspec/specs/`, menuntaskan
-Fase 5 metodologi.
+Fase 5 metodologi. F5 mem-push commit `95ca107` dengan CI run `30786366119` hijau pada kelima
+job, dan F6 menerbitkan rilis `v1.0.0` yang menautkan `docs/QA-REPORT.md` sebagai bukti.
 
-Sisa: **F5** push ke GitHub dan **F6** rilis `v1.0.0`. Pengisian form submit dikerjakan
-pengguna secara manual di luar repo.
+**Seluruh 180 task tuntas.** Yang tersisa di luar repositori: pengisian form submit Final
+Project, dikerjakan pengguna secara manual.
 Bukti verifikasi: `docs/QA-REPORT.md`.
 
 | Fase | Isi | Task | Status |
@@ -32,7 +33,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 | J | Avatar bot berupa berkas gambar | 22/22 | ✅ Selesai — UJI-17 lulus, varian header D-23 |
 | K | Lampiran gambar dan dokumen | 28/28 | ✅ Selesai — UJI-18 s.d. UJI-21 lulus |
 | L | Komposer satu baris, tombol ikon | 11/11 | ✅ Selesai — verifikasi statis, visual oleh pengguna |
-| F | Persiapan submit | 5/7 | 🟡 Screenshot, jawaban form, dan arsip spec siap — sisa push dan rilis |
+| F | Persiapan submit | 7/7 | ✅ Selesai — CI hijau, rilis `v1.0.0` terbit |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
 > ternyata spec kurang, **perbaiki spec dulu**, baru lanjut koding
@@ -390,13 +391,23 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
   → expect ketiga jawaban siap disalin
   · Ketiganya sudah tertulis sejak Fase awal; ditautkan dari `README.md` bagian Deliverable
 
-- [ ] **F5.** Push ke GitHub (**hanya setelah user meminta eksplisit**), pastikan `.env`
+- [x] **F5.** Push ke GitHub (**hanya setelah user meminta eksplisit**), pastikan `.env`
   tidak ikut
   → expect CI hijau pada kelima job, repo tidak memuat `.env`
   · ⚠️ **Commit dan push memerlukan izin eksplisit user** (`AGENTS.md` §1.2)
+  · Izin diberikan pengguna pada 3 Agustus 2026; commit `95ca107` di-push ke `main`
+  · CI run `30786366119` — kelima job **success**, termasuk
+    `OK: 40 requirement tertelusur penuh` pada path spec yang baru
+  · `.env` tidak ter-stage dan tidak pernah masuk riwayat; dua tangkapan layar kerja pengguna
+    tertahan pola `.gitignore`
 
-- [ ] **F6.** Rilis `v1.0.0` dengan catatan rilis yang merangkum hasil verifikasi
+- [x] **F6.** Rilis `v1.0.0` dengan catatan rilis yang merangkum hasil verifikasi
   → expect rilis menautkan `docs/QA-REPORT.md` sebagai bukti
+  · Terbit di `95ca107`: `https://github.com/mifdlaldev/cek-dulu/releases/tag/v1.0.0`
+  · `draft=false`, `prerelease=false`, `target=main`
+  · Catatan rilis memuat tabel kelima gate, ketiga penyimpangan dari kode materi, struktur
+    `openspec/` setelah arsip, perbandingan angka terhadap `v0.2.0`, dan batasan yang
+    diketahui (kuota 20 RPD, MIME dapat dipalsukan)
 
 - [x] **F7.** **Fase 5 metodologi — arsip spec.** Pindahkan isi
   `openspec/changes/add-cekdulu-chatbot/specs/*/spec.md` menjadi spec aktif di

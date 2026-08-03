@@ -4059,6 +4059,10 @@ dengan menggulir tepat ke posisi bubble pengguna.
 |---|---|---|
 | Submit ke form Google | — | Dikerjakan pengguna secara manual, di luar kendali repositori |
 
+> F5, F6, dan F7 dituntaskan setelah bagian ini ditulis. Buktinya ada di dua bagian di bawah:
+> **Fase F7 — Arsip spec menjadi spec aktif** dan **Fase F5 dan F6 — Push, CI, dan rilis
+> `v1.0.0`**.
+
 ### Konsumsi kuota Fase F
 
 **2 permintaan API.** UJI-02 satu, UJI-03 satu. Kondisi 1 dan 4 tidak memanggil model.
@@ -4199,3 +4203,156 @@ mentah. Nol di antaranya berfungsi sebagai petunjuk lokasi berkas.
 ### Konsumsi kuota Fase F7
 
 **Nol permintaan API.** Fase ini murni pemindahan berkas dan penyesuaian dokumen.
+
+---
+
+## Fase F5 dan F6 — Push, CI, dan rilis `v1.0.0`
+
+Izin push diberikan pengguna pada 3 Agustus 2026. Sebelum `git add`, kelima job CI dijalankan
+lokal lebih dahulu agar kegagalan tidak dikirim ke repositori publik.
+
+### Pemeriksaan pra-push
+
+```
+$ node --check index.js && node --check public/script.js
+OK
+
+$ git ls-files | grep -x '.env'
+OK: .env tidak ter-track
+
+$ git ls-files | grep -i '\.pdf$'
+OK: tidak ada PDF ter-track
+
+$ git grep -nE 'AIza[0-9A-Za-z_-]{30,}' -- . ':!.github/workflows/*'
+OK: tidak ada pola API key
+
+$ node -e '<periksa package.json>'
+OK 5 dep
+OK tanpa devDeps
+OK type module
+
+$ grep -nE '\.(inner|outer)HTML\s*=|insertAdjacentHTML|document\.write' public/script.js
+OK: tidak ada penulisan HTML mentah
+
+$ node -e '<audit SYSTEM_INSTRUCTION>'
+OK: systemInstruction bebas data presisi (4525 karakter)
+```
+
+Isi staging diperiksa satu per satu — 15 berkas, empat di antaranya terdeteksi sebagai
+**rename** dengan similarity 96–99%, bukti `git mv` berhasil menyambungkan riwayat:
+
+```
+$ git diff --cached --name-status
+M	.github/ISSUE_TEMPLATE/bug_report.yml
+M	.github/workflows/ci.yml
+M	.gitignore
+M	AGENTS.md
+M	CONTRIBUTING.md
+M	README.md
+M	docs/METODOLOGI.md
+M	docs/QA-REPORT.md
+M	docs/USE-CASE-CEKDULU.md
+M	openspec/changes/add-cekdulu-chatbot/tasks.md
+M	openspec/project.md
+R098	openspec/changes/add-cekdulu-chatbot/specs/chat-api/spec.md	openspec/specs/chat-api/spec.md
+R099	openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md	openspec/specs/chat-ui/spec.md
+R099	openspec/changes/add-cekdulu-chatbot/specs/persona-guardrail/spec.md	openspec/specs/persona-guardrail/spec.md
+R096	openspec/changes/add-cekdulu-chatbot/specs/web-server/spec.md	openspec/specs/web-server/spec.md
+
+$ git diff --cached --name-only | grep -x '\.env'
+OK tanpa .env
+
+$ git diff --cached --name-only | grep -i 'Cuplikan\|Chatbot Edukasi'
+OK tidak ikut
+```
+
+Baris terakhir itu yang membuktikan pola `.gitignore` bekerja: dua tangkapan layar kerja
+pengguna tetap ada di disk, tetapi tidak terbawa oleh `git add -A`.
+
+### Push
+
+```
+$ git push origin main
+To https://github.com/mifdlaldev/cek-dulu.git
+   dc4f2a6..95ca107  main -> main
+```
+
+### CI pada commit `95ca107`
+
+```
+$ gh run list --limit 2
+30786366119 CI completed success 95ca107
+30777740068 CI completed success dc4f2a6
+
+$ gh run view 30786366119 --json jobs
+Validasi sintaks: success
+Audit systemInstruction (PG-09): success
+Kebersihan repo: success
+Keterlacakan requirement: success
+Batasan proyek: success
+```
+
+Keluaran substantif tiap job, diambil dari log run:
+
+```
+[Keterlacakan requirement]        OK: 40 requirement tertelusur penuh
+[Audit systemInstruction (PG-09)] OK: systemInstruction bebas data presisi (4525 karakter)
+[Batasan proyek]                  OK: dependency @google/genai, cors, dotenv, express, multer
+[Batasan proyek]                  OK: tidak ada penulisan HTML mentah
+[Kebersihan repo]                 OK: .env tidak ter-track
+[Kebersihan repo]                 OK: tidak ada PDF ter-track
+[Kebersihan repo]                 OK: tidak ada pola API key
+```
+
+Baris pertama adalah yang paling penting pada fase ini: **`traceability` membaca 40
+requirement dari `openspec/specs/`**, membuktikan skrip yang diperbaiki di F7 bekerja di
+runner, bukan hanya di mesin lokal. Angkanya identik dengan sebelum pemindahan.
+
+**Verdict F5: LULUS.**
+
+### Rilis `v1.0.0`
+
+```
+$ gh release create v1.0.0 --target main \
+    --title "v1.0.0 — Cek Dulu berfungsi dan terverifikasi" \
+    --notes-file <catatan>
+https://github.com/mifdlaldev/cek-dulu/releases/tag/v1.0.0
+
+$ git rev-parse v1.0.0
+95ca107
+
+$ gh release view v1.0.0
+tag=v1.0.0 draft=false prerelease=false target=main
+```
+
+Tag menunjuk `95ca107` — commit yang sama dengan CI hijau di atas, bukan commit lain.
+
+Angka pada catatan rilis diverifikasi terhadap repo pada tag `v0.2.0` lebih dahulu, bukan
+dikira-kira. Draf pertama menulis "empat dependency" untuk `v0.2.0`; pemeriksaan menunjukkan
+`package.json` bahkan belum ada pada tag itu:
+
+```
+$ git ls-tree -r --name-only v0.2.0 | grep -E '^(package.json|index.js|public/)'
+TIDAK ADA - v0.2.0 murni spesifikasi
+```
+
+Perbandingan yang akhirnya diterbitkan:
+
+| | `v0.2.0` | `v1.0.0` | Cara verifikasi |
+|---|---|---|---|
+| Requirement | 32 | 40 | `grep -cE '^### \`(WS\|API\|PG\|UI)-'` pada kedua tag |
+| Keputusan | 14 | 25 | `grep -c '^## D-'` pada `design.md` kedua tag |
+| Non-goals | 19 | 24 terdaftar, 22 aktif | hitung baris tabel §3 `proposal.md` |
+| Skenario lulus | 0 | 21 | `docs/USE-CASE-CEKDULU.md` §5 |
+| Dependency | belum ada `package.json` | 5 | `git ls-tree` di atas |
+
+Catatan rilis juga memuat batasan yang diketahui secara terbuka — kuota 20 permintaan per
+hari, dan validasi MIME yang memakai `file.mimetype` sehingga **dapat dipalsukan** karena
+tidak ada pemeriksaan magic byte. Menyembunyikan keduanya akan bertentangan dengan seluruh
+premis proyek ini.
+
+**Verdict F6: LULUS.**
+
+### Konsumsi kuota Fase F5 dan F6
+
+**Nol permintaan API.** Kedua fase hanya menyentuh git, GitHub, dan berkas dokumen.

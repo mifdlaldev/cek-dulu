@@ -76,10 +76,10 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | J | Avatar bot berupa berkas gambar (`UI-10`) | ✅ **Selesai — UJI-17 lulus** |
 | K | Lampiran gambar dan dokumen (`API-07`, `UI-16`) | ✅ **Selesai — UJI-18 s.d. UJI-21 lulus** |
 | L | Komposer satu baris, tombol ikon (`UI-16`) | ✅ Selesai — verifikasi statis, visual oleh pengguna |
-| F | Screenshot UI + arsip spec + submit | 🟡 Screenshot dan arsip spec selesai — sisa submit form |
+| F | Screenshot UI, arsip spec, rilis | ✅ **Selesai — CI hijau, rilis `v1.0.0` terbit** |
 
-Progres task: **178 dari 180** selesai (`tasks.md`) — sisa push dan rilis `v1.0.0`. Pengisian
-form submit dikerjakan pengguna secara manual di luar repo.
+Progres task: **180 dari 180** selesai (`tasks.md`). Yang tersisa di luar repositori hanya
+pengisian form submit Final Project, dikerjakan pengguna secara manual.
 
 Aplikasi berjalan utuh dan **seluruh gate verifikasi terpenuhi**: buka
 `http://localhost:3000/`, gulir landing page, lalu klik tombol **Cek Dulu** di sudut kanan
