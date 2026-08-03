@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Sebelum melaporkan, mohon periksa apakah perilaku yang Anda temukan memang
-        menyimpang dari requirement di `openspec/changes/add-cekdulu-chatbot/specs/`.
+        menyimpang dari requirement di `openspec/specs/`.
 
   - type: input
     id: requirement

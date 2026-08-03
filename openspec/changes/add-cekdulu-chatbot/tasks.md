@@ -2,7 +2,7 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 177 dari 180 task selesai.** Fase A sampai E, G, H, I, J, K, dan L tuntas — kelima
+**Progres: 178 dari 180 task selesai.** Fase A sampai E, G, H, I, J, K, dan L tuntas — kelima
 gate verifikasi LULUS dan **21 dari 21 skenario uji lulus**. Fase K menambahkan lampiran gambar
 dan dokumen; **UJI-18 sebagai gate mutlak `PG-03` pada input gambar LULUS** — bot tidak menyebut
 nama entitas dari logo maupun menilai legalitasnya. Fase L menata komposer menjadi satu baris
@@ -12,7 +12,11 @@ section; Fase I mengubah komposer menjadi multi-baris dan memberi tombol tutup p
 Fase J mengganti inisial `CD` dengan avatar gambar. Pada keempatnya spec diamandemen lebih
 dahulu sesuai `docs/METODOLOGI.md` §6.
 
-Sisa: tujuh task Fase F berupa screenshot dan submit.
+Fase F7 mengarsipkan keempat spec delta menjadi spec aktif di `openspec/specs/`, menuntaskan
+Fase 5 metodologi.
+
+Sisa: **F5** push ke GitHub dan **F6** rilis `v1.0.0`. Pengisian form submit dikerjakan
+pengguna secara manual di luar repo.
 Bukti verifikasi: `docs/QA-REPORT.md`.
 
 | Fase | Isi | Task | Status |
@@ -28,7 +32,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 | J | Avatar bot berupa berkas gambar | 22/22 | ✅ Selesai — UJI-17 lulus, varian header D-23 |
 | K | Lampiran gambar dan dokumen | 28/28 | ✅ Selesai — UJI-18 s.d. UJI-21 lulus |
 | L | Komposer satu baris, tombol ikon | 11/11 | ✅ Selesai — verifikasi statis, visual oleh pengguna |
-| F | Persiapan submit | 4/7 | 🟡 Screenshot dan jawaban form siap — sisa submit, rilis, arsip spec |
+| F | Persiapan submit | 5/7 | 🟡 Screenshot, jawaban form, dan arsip spec siap — sisa push dan rilis |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
 > ternyata spec kurang, **perbaiki spec dulu**, baru lanjut koding
@@ -394,11 +398,21 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 - [ ] **F6.** Rilis `v1.0.0` dengan catatan rilis yang merangkum hasil verifikasi
   → expect rilis menautkan `docs/QA-REPORT.md` sebagai bukti
 
-- [ ] **F7.** **Fase 5 metodologi — arsip spec.** Pindahkan isi
+- [x] **F7.** **Fase 5 metodologi — arsip spec.** Pindahkan isi
   `openspec/changes/add-cekdulu-chatbot/specs/*/spec.md` menjadi spec aktif di
   `openspec/specs/<kapabilitas>/spec.md`, hapus penanda `## ADDED Requirements`
   → expect `openspec/specs/` berisi 4 kapabilitas sebagai kebenaran perilaku sistem saat ini
   · Ref: `docs/METODOLOGI.md` §3 Fase 5
+  · Dipindah dengan `git mv` agar riwayat tiap berkas tetap tersambung
+  · Header tiap berkas berubah: `# Spec Delta —` → `# Spec —`, baris `Change:` diganti baris
+    `Status: **spec aktif**` + `Asal:`, dan `## ADDED Requirements` → `## Requirements`
+  · Folder `openspec/changes/add-cekdulu-chatbot/specs/` dihapus; `proposal.md`, `design.md`,
+    dan `tasks.md` tetap di tempatnya sebagai riwayat keputusan
+  · ⚠️ Job `traceability` pada `.github/workflows/ci.yml` semula memanggil `readdirSync` pada
+    path lama — akan melempar exception setelah pemindahan. Skrip disesuaikan agar membaca
+    `openspec/specs/` lebih dahulu dan tetap membaca path change bila ada, ditambah penjaga
+    baru: gagal bila nol requirement terbaca
+  · Bukti Gate 1 pada path baru: `OK: 40 requirement tertelusur penuh` — `docs/QA-REPORT.md`
 
 ---
 

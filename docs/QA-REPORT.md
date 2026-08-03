@@ -309,6 +309,26 @@ type: module
 Berkas di remote: 34 blob, tanpa `.env`, `node_modules`, `package-lock.json`, maupun PDF
 materi.
 
+Dua tangkapan layar kerja milik pengguna di `docs/assets/` sengaja tidak dimasukkan ke
+repositori — isinya sudah digantikan empat berkas di `docs/assets/ui/`. Keduanya tetap ada di
+disk pengguna, tetapi ditutup oleh dua pola `.gitignore` agar tidak ikut terbawa oleh
+`git add -A`:
+
+```
+$ git check-ignore -v docs/assets/*.png
+.gitignore:19:docs/assets/Cuplikan layar*.png	docs/assets/Cuplikan layar dari 2026-08-02 23-42-49.png
+.gitignore:20:docs/assets/Cek Dulu — *.png	docs/assets/Cek Dulu — Chatbot Edukasi Kewaspadaan Keuangan Digital.png
+
+$ git status --porcelain | grep '^??'
+OK: nol berkas untracked
+
+$ git ls-files docs/assets/ | wc -l
+7
+```
+
+Tujuh gambar resmi — `avatar.png`, `social-preview.png`, `ui-cek-dulu.png`, dan empat berkas
+`ui/` — tidak tersentuh pola tersebut dan tetap ter-track.
+
 **Verdict: LULUS.**
 
 ---
@@ -3826,6 +3846,11 @@ Cek Dulu — Chatbot Edukasi Kewaspadaan Keuangan Digital.png   1366x768 RGB  15
 Cuplikan layar dari 2026-08-02 23-42-49.png                   1366x768 RGB  144,6 KB
 ```
 
+> Kedua berkas di atas **tidak disimpan di repositori**. Keduanya dipakai sebagai acuan dimensi
+> pada saat pengambilan, lalu digantikan oleh empat berkas hasil pengambilan yang cakupannya
+> lebih lengkap. Angka di atas dicatat agar keputusan menyamakan viewport tetap dapat diaudit
+> tanpa berkas aslinya.
+
 Hasil pengambilan:
 
 ```
@@ -4032,10 +4057,145 @@ dengan menggulir tepat ke posisi bubble pengguna.
 
 | Butir | Task | Alasan |
 |---|---|---|
-| Submit ke form Google | F5 | Menunggu pengguna — pengisian form di luar kendali repositori |
-| Rilis `v1.0.0` | F6 | Menunggu permintaan eksplisit pengguna |
-| Arsip spec ke `openspec/specs/` | F7 | Fase 5 metodologi, dikerjakan setelah submit |
+| Submit ke form Google | — | Dikerjakan pengguna secara manual, di luar kendali repositori |
 
 ### Konsumsi kuota Fase F
 
 **2 permintaan API.** UJI-02 satu, UJI-03 satu. Kondisi 1 dan 4 tidak memanggil model.
+
+---
+
+## Fase F7 — Arsip spec menjadi spec aktif
+
+Fase 5 `docs/METODOLOGI.md` §3 menetapkan bahwa setelah implementasi terverifikasi, spec
+delta dipindahkan menjadi **spec aktif** di `openspec/specs/`. Sampai sebelum fase ini,
+folder itu kosong dan seluruh requirement masih tinggal di dalam change.
+
+### Pemindahan
+
+Dipindahkan dengan `git mv` agar riwayat tiap berkas tersambung, bukan terbaca sebagai
+berkas baru:
+
+```
+$ git status --porcelain
+RM openspec/changes/add-cekdulu-chatbot/specs/chat-api/spec.md -> openspec/specs/chat-api/spec.md
+RM openspec/changes/add-cekdulu-chatbot/specs/chat-ui/spec.md -> openspec/specs/chat-ui/spec.md
+RM openspec/changes/add-cekdulu-chatbot/specs/persona-guardrail/spec.md -> openspec/specs/persona-guardrail/spec.md
+RM openspec/changes/add-cekdulu-chatbot/specs/web-server/spec.md -> openspec/specs/web-server/spec.md
+```
+
+Struktur akhir:
+
+```
+$ find openspec -name '*.md' | sort
+openspec/changes/add-cekdulu-chatbot/design.md
+openspec/changes/add-cekdulu-chatbot/proposal.md
+openspec/changes/add-cekdulu-chatbot/tasks.md
+openspec/project.md
+openspec/specs/chat-api/spec.md
+openspec/specs/chat-ui/spec.md
+openspec/specs/persona-guardrail/spec.md
+openspec/specs/web-server/spec.md
+```
+
+Folder `openspec/changes/add-cekdulu-chatbot/specs/` dihapus setelah kosong. `proposal.md`,
+`design.md`, dan `tasks.md` tetap di tempatnya — ketiganya riwayat keputusan, bukan spec.
+
+**Tidak ada salinan kedua.** Menyalin dan membiarkan sumbernya akan menghasilkan dua spec
+yang bisa menyimpang diam-diam — persis jenis ambiguitas yang metodologi ini dibuat untuk
+mencegah.
+
+### Pelepasan penanda delta
+
+Tiga suntingan per berkas, agar isinya berbunyi sebagai perilaku sistem saat ini alih-alih
+perubahan terhadap sesuatu:
+
+| Sebelum | Sesudah |
+|---|---|
+| Judul `# Spec Delta — <kapabilitas>` | `# Spec — <kapabilitas>` |
+| Baris `Change: add-cekdulu-chatbot` | `Status: **spec aktif**` disusul baris `Asal:` |
+| `## ADDED Requirements` | `## Requirements` |
+
+```
+$ grep -rn 'Spec Delta\|^Change:\|ADDED Requirements' openspec/specs/ || echo 'OK bersih'
+OK bersih
+```
+
+Blok amandemen di kepala `chat-api` dan `chat-ui` **tidak dihapus**. Isinya mencatat kenapa
+requirement tertentu berubah bentuk di tengah jalan; membuangnya akan menghilangkan jejak
+keputusan yang justru dipakai agent berikutnya untuk tidak "memperbaiki" balik.
+
+### Perbaikan CI yang dipaksa oleh pemindahan
+
+Job `traceability` semula menjalankan `fs.readdirSync` langsung pada path lama:
+
+```js
+const specDir = path.join(base, "specs");
+for (const cap of fs.readdirSync(specDir)) {
+```
+
+Setelah folder itu hilang, `readdirSync` melempar exception dan Gate 1 gagal — bukan karena
+keterlacakan rusak, melainkan karena skrip menunjuk lokasi yang sudah tidak ada. Skrip
+disesuaikan agar membaca `openspec/specs/` lebih dahulu dan tetap membaca path change bila
+ada, sehingga change berikutnya yang masih berjalan ikut terjaga tanpa mengubah workflow lagi.
+
+Ditambahkan pula dua penjaga yang sebelumnya tidak ada: gagal bila **nol direktori spec**
+terbaca, dan gagal bila **nol requirement** terkumpul. Tanpa keduanya, salah path akan lolos
+sebagai "tidak ada pelanggaran" — kegagalan yang menyamar sebagai keberhasilan.
+
+### Gate 1 pada path baru
+
+Skrip `traceability` diekstrak dari `ci.yml` apa adanya lalu dijalankan lokal:
+
+```
+$ node /tmp/gate1.js
+OK: 40 requirement tertelusur penuh
+```
+
+Sebaran ID per kapabilitas:
+
+```
+$ for f in openspec/specs/*/spec.md; do echo "$(grep -cE '^### `(WS|API|PG|UI)-[0-9]+`' $f) $f"; done
+5  openspec/specs/web-server/spec.md
+8  openspec/specs/chat-api/spec.md
+10 openspec/specs/persona-guardrail/spec.md
+17 openspec/specs/chat-ui/spec.md
+
+$ grep -hoE '^### `(WS|API|PG|UI)-[0-9]+`' openspec/specs/*/spec.md | sort -u | wc -l
+40
+```
+
+Angka 40 identik dengan sebelum pemindahan — nol requirement hilang, nol ganda.
+
+### Dokumen yang ikut disesuaikan
+
+Membiarkan path lama tertulis di dokumen sama saja menanam halusinasi untuk agent berikutnya,
+jadi seluruh rujukan ditelusuri dan diperbaiki:
+
+| Berkas | Yang berubah |
+|---|---|
+| `AGENTS.md` | §0 urutan baca, §1.1 hierarki sumber butir 3, §1.2 larangan, §5 peta dokumen, progres 178/180 |
+| `README.md` | Pohon `openspec/`, tabel Status, tabel peta dokumen, progres task |
+| `CONTRIBUTING.md` | Urutan baca butir 3 |
+| `openspec/project.md` | Struktur file, aturan `specs/*/spec.md` soal penanda |
+| `docs/METODOLOGI.md` | §2 hierarki, §3 diagram Fase 2 dan Fase 5, §4 pohon artefak + tabel, format delta spec, Gate 1 |
+| `docs/USE-CASE-CEKDULU.md` | Rujukan spec `persona-guardrail` |
+| `.github/ISSUE_TEMPLATE/bug_report.yml` | Path spec pada catatan pelapor |
+
+```
+$ grep -rn 'add-cekdulu-chatbot/specs' --include='*.md' --include='*.yml' .
+.github/workflows/ci.yml:189           komentar — menjelaskan path lama tetap dibaca bila ada
+README.md:122                          narasi — mencatat asal berkas sebelum diarsipkan
+docs/METODOLOGI.md:136                 narasi — sama
+docs/QA-REPORT.md:4081-4084,4101,4186  bukti mentah pada bagian ini
+openspec/changes/.../tasks.md:402,409  isi task F7 itu sendiri
+```
+
+Semua sisa itu menyebut path lama secara sengaja — keterangan historis, komentar, atau bukti
+mentah. Nol di antaranya berfungsi sebagai petunjuk lokasi berkas.
+
+**Verdict: LULUS.**
+
+### Konsumsi kuota Fase F7
+
+**Nol permintaan API.** Fase ini murni pemindahan berkas dan penyesuaian dokumen.

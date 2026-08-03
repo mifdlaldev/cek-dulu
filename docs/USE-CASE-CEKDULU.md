@@ -201,7 +201,7 @@ pesan aplikasi itu sendiri: cek dulu.
 
 ## 7. Naskah `systemInstruction` (draf untuk implementasi)
 
-> Naskah final terikat pada spec `openspec/changes/add-cekdulu-chatbot/specs/persona-guardrail/spec.md`.
+> Naskah final terikat pada spec `openspec/specs/persona-guardrail/spec.md`.
 > Draf di bawah adalah titik awal; perubahan wajib lewat spec, bukan langsung ke kode.
 
 ```

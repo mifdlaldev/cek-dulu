@@ -1,6 +1,7 @@
-# Spec Delta — `chat-ui`
+# Spec — `chat-ui`
 
-Change: `add-cekdulu-chatbot`
+Status: **spec aktif** — perilaku sistem sebagaimana terimplementasi dan terverifikasi.
+Asal: delta change `add-cekdulu-chatbot`, diarsipkan pada Fase F7 (`docs/METODOLOGI.md` §3 Fase 5).
 Kapabilitas: antarmuka chat Vanilla JavaScript di folder `public/`.
 
 > **Amandemen setelah riset desain.** Versi pertama kapabilitas ini menempatkan seluruh
@@ -42,7 +43,7 @@ Kapabilitas: antarmuka chat Vanilla JavaScript di folder `public/`.
 
 ---
 
-## ADDED Requirements
+## Requirements
 
 ### `UI-01` — Struktur HTML dasar dan komposer multi-baris ⚠️
 

@@ -63,7 +63,7 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | — | Materi PDF (4 file, 234 halaman) | ✅ Dibaca & diekstrak penuh ke `docs/` |
 | — | Riset lapangan + sitasi | ✅ `docs/RISET-LAPANGAN.md` |
 | — | Use case terpilih | ✅ **Cek Dulu** — `docs/USE-CASE-CEKDULU.md` |
-| — | Spesifikasi (40 requirement) | ✅ `openspec/changes/add-cekdulu-chatbot/` |
+| — | Spesifikasi (40 requirement) | ✅ `openspec/specs/` — diarsipkan dari change pada F7 |
 | — | Metodologi + 5 gate verifikasi | ✅ `docs/METODOLOGI.md` |
 | A | Inisialisasi proyek (`package.json`, 4 dependency) | ✅ Selesai — menjadi 5 pada Fase K |
 | B | Backend (`index.js`) — 20 requirement | ✅ Selesai |
@@ -76,9 +76,10 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | J | Avatar bot berupa berkas gambar (`UI-10`) | ✅ **Selesai — UJI-17 lulus** |
 | K | Lampiran gambar dan dokumen (`API-07`, `UI-16`) | ✅ **Selesai — UJI-18 s.d. UJI-21 lulus** |
 | L | Komposer satu baris, tombol ikon (`UI-16`) | ✅ Selesai — verifikasi statis, visual oleh pengguna |
-| F | Screenshot UI + submit ke form | 🟡 Screenshot selesai — sisa submit form, rilis, arsip spec |
+| F | Screenshot UI + arsip spec + submit | 🟡 Screenshot dan arsip spec selesai — sisa submit form |
 
-Progres task: **177 dari 180** selesai (`tasks.md`).
+Progres task: **178 dari 180** selesai (`tasks.md`) — sisa push dan rilis `v1.0.0`. Pengisian
+form submit dikerjakan pengguna secara manual di luar repo.
 
 Aplikasi berjalan utuh dan **seluruh gate verifikasi terpenuhi**: buka
 `http://localhost:3000/`, gulir landing page, lalu klik tombol **Cek Dulu** di sudut kanan
@@ -107,17 +108,22 @@ halaman PDF materi).
 ```
 openspec/
 ├── project.md                     # Batasan stack & aturan yang selalu berlaku
-├── specs/                         # Spec aktif (terisi setelah implementasi diarsipkan)
-└── changes/add-cekdulu-chatbot/
+├── specs/                         # Spec AKTIF — perilaku sistem saat ini
+│   ├── web-server/spec.md         # WS-01 … WS-05
+│   ├── chat-api/spec.md           # API-01 … API-08
+│   ├── persona-guardrail/spec.md  # PG-01 … PG-10
+│   └── chat-ui/spec.md            # UI-01 … UI-17
+└── changes/add-cekdulu-chatbot/   # Riwayat keputusan change ini
     ├── proposal.md                # WHY: masalah, scope, 22 non-goals
     ├── design.md                  # HOW: 25 keputusan + alternatif ditolak + matriks sumber
-    ├── tasks.md                   # STEPS: 180 task dalam 12 fase
-    └── specs/
-        ├── web-server/spec.md     # WS-01 … WS-05
-        ├── chat-api/spec.md       # API-01 … API-08
-        ├── persona-guardrail/spec.md  # PG-01 … PG-10
-        └── chat-ui/spec.md        # UI-01 … UI-17
+    └── tasks.md                   # STEPS: 180 task dalam 12 fase
 ```
+
+Keempat berkas spec semula berada di `openspec/changes/add-cekdulu-chatbot/specs/`, lalu
+diarsipkan ke `openspec/specs/` pada Fase F7 setelah implementasi terverifikasi — penutup
+Fase 5 metodologi. Pemindahannya memakai `git mv` supaya riwayat tiap berkas tersambung, dan
+penanda delta `## ADDED Requirements` dilepas menjadi `## Requirements`. Tidak ada salinan
+kedua: dua spec yang bisa menyimpang justru sumber halusinasi bagi agent berikutnya.
 
 40 requirement, semuanya punya sumber. Matriks keterlacakan di
 [`design.md`](openspec/changes/add-cekdulu-chatbot/design.md) §3.
@@ -475,6 +481,7 @@ curl -s -X POST http://localhost:3000/api/chat-with-file \
 |---|---|
 | [`AGENTS.md`](AGENTS.md) | **Aturan kerja & anti-halusinasi.** Titik masuk untuk AI agent |
 | [`openspec/project.md`](openspec/project.md) | Batasan stack & aturan yang selalu berlaku |
+| [`openspec/specs/`](openspec/specs) | **Spec aktif** — 40 requirement, 4 kapabilitas |
 | [`openspec/changes/add-cekdulu-chatbot/proposal.md`](openspec/changes/add-cekdulu-chatbot/proposal.md) | Scope & non-goals |
 | [`openspec/changes/add-cekdulu-chatbot/design.md`](openspec/changes/add-cekdulu-chatbot/design.md) | Keputusan teknis + alternatif ditolak + matriks sumber |
 | [`openspec/changes/add-cekdulu-chatbot/tasks.md`](openspec/changes/add-cekdulu-chatbot/tasks.md) | 180 task dalam 12 fase |

@@ -1,11 +1,12 @@
-# Spec Delta — `web-server`
+# Spec — `web-server`
 
-Change: `add-cekdulu-chatbot`
+Status: **spec aktif** — perilaku sistem sebagaimana terimplementasi dan terverifikasi.
+Asal: delta change `add-cekdulu-chatbot`, diarsipkan pada Fase F7 (`docs/METODOLOGI.md` §3 Fase 5).
 Kapabilitas: penyiapan server Express dan penyajian aset statis.
 
 ---
 
-## ADDED Requirements
+## Requirements
 
 ### `WS-01` — Server memuat environment variable dari `.env`
 

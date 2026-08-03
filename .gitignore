@@ -14,6 +14,11 @@ package-lock.json
 .codegraph/
 .playwright-mcp/
 
+# Tangkapan layar kerja milik pengguna di docs/assets/ — bukan artefak repo.
+# Screenshot resmi ada di docs/assets/ui/ dan docs/assets/ui-cek-dulu.png.
+docs/assets/Cuplikan layar*.png
+docs/assets/Cek Dulu — *.png
+
 # Sistem operasi & editor
 .DS_Store
 Thumbs.db

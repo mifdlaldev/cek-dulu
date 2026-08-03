@@ -14,7 +14,7 @@ Sebelum mengubah apa pun, baca berurutan:
 
 1. [`openspec/project.md`](openspec/project.md) — batasan stack yang selalu berlaku
 2. [`openspec/changes/add-cekdulu-chatbot/proposal.md`](openspec/changes/add-cekdulu-chatbot/proposal.md) — scope dan **non-goals**
-3. `openspec/changes/add-cekdulu-chatbot/specs/*/spec.md` — 40 requirement + skenario
+3. [`openspec/specs/`](openspec/specs) — 40 requirement aktif + skenario, per kapabilitas
 4. [`openspec/changes/add-cekdulu-chatbot/design.md`](openspec/changes/add-cekdulu-chatbot/design.md) — keputusan dan alternatif yang ditolak
 5. [`docs/METODOLOGI.md`](docs/METODOLOGI.md) — alur kerja dan lima gate verifikasi
 

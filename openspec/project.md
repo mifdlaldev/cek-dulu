@@ -111,6 +111,10 @@ Project-Akhir-Hacktiv8/
 ├── README.md
 ├── docs/
 └── openspec/
+    ├── project.md        Berkas ini
+    ├── specs/            Spec AKTIF — 40 requirement, 4 kapabilitas
+    └── changes/add-cekdulu-chatbot/
+                          Riwayat keputusan: proposal.md, design.md, tasks.md
 ```
 
 Progres task terkini: `openspec/changes/add-cekdulu-chatbot/tasks.md`.
@@ -130,7 +134,10 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 - Setiap requirement punya **≥1 skenario** format `#### Scenario:` dengan Given/When/Then
 - Setiap requirement punya **kolom Sumber** — nomor halaman PDF atau nama dokumen
 - Requirement tanpa sumber = tidak sah
-- Pakai penanda `## ADDED Requirements` / `## MODIFIED Requirements` / `## REMOVED Requirements`
+- Selama masih delta di `openspec/changes/`, pakai penanda `## ADDED Requirements` /
+  `## MODIFIED Requirements` / `## REMOVED Requirements`
+- Setelah diarsipkan ke `openspec/specs/`, penanda dilepas menjadi `## Requirements` — spec
+  aktif menyatakan perilaku sistem apa adanya, bukan perubahan terhadap sesuatu
 
 ### design.md
 - Setiap keputusan teknis punya alasan tertulis

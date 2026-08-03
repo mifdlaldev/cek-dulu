@@ -1,6 +1,7 @@
-# Spec Delta — `persona-guardrail`
+# Spec — `persona-guardrail`
 
-Change: `add-cekdulu-chatbot`
+Status: **spec aktif** — perilaku sistem sebagaimana terimplementasi dan terverifikasi.
+Asal: delta change `add-cekdulu-chatbot`, diarsipkan pada Fase F7 (`docs/METODOLOGI.md` §3 Fase 5).
 Kapabilitas: konfigurasi perilaku model — persona, tone, batasan, format output, parameter.
 
 > **Kapabilitas paling kritis di proyek ini.** Di sinilah anti-halusinasi ditegakkan pada
@@ -8,7 +9,7 @@ Kapabilitas: konfigurasi perilaku model — persona, tone, batasan, format outpu
 
 ---
 
-## ADDED Requirements
+## Requirements
 
 ### `PG-01` — Konfigurasi dikirim lewat `config` pada `generateContent()`
 

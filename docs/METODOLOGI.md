@@ -28,7 +28,7 @@ Dipakai untuk memutuskan **konflik**. Nomor kecil menang.
 ```
 1. Kode aktual di repo               <- baca file, jangan menebak
 2. openspec/specs/  (spec aktif)     <- kebenaran perilaku sistem saat ini
-3. openspec/changes/*/specs/         <- kebenaran perilaku yang sedang dibangun
+3. openspec/changes/*/specs/         <- perilaku yang sedang dibangun (kosong: tak ada change berjalan)
 4. docs/SPEC-API.md                  <- kode verbatim dari slide + nomor halaman
 5. docs/FAKTA-TERVERIFIKASI.md       <- ledger fakta + nomor halaman
 6. PDF materi di root                <- sumber asli
@@ -73,7 +73,7 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 │ Output: openspec/project.md                                     │
 │         openspec/changes/add-cekdulu-chatbot/{proposal,design,   │
 │                                               tasks}.md          │
-│         openspec/changes/add-cekdulu-chatbot/specs/*/spec.md    │
+│         specs/*/spec.md  (diarsipkan ke openspec/specs/ di F5)  │
 │ Hasil: 40 requirement, 25 keputusan, 22 non-goals               │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
@@ -103,8 +103,9 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │ FASE 5 — ARSIP & SUBMIT                            [SEDANG JALAN]│
-│ Pindahkan spec delta ke openspec/specs/ sebagai spec aktif.     │
-│ Screenshot UI → 1 file ≤1 MB. Isi form.                         │
+│ Arsip spec delta → openspec/specs/  SELESAI  4 kapabilitas      │
+│ Screenshot UI → 1 file ≤1 MB       SELESAI  554 KB              │
+│ Sisa: push, rilis v1.0.0, isi form (manual oleh pengguna)       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -120,24 +121,30 @@ Yang diambil adalah **disiplin artefaknya**, bukan tooling-nya.
 openspec/
 ├── project.md                        # Konteks & aturan proyek untuk agent
 ├── specs/                            # Spec AKTIF (perilaku sistem saat ini)
-│   └── (kosong sampai Fase 5)
+│   ├── web-server/spec.md            #   WS-01 … WS-05
+│   ├── chat-api/spec.md              #   API-01 … API-08
+│   ├── persona-guardrail/spec.md     #   PG-01 … PG-10
+│   └── chat-ui/spec.md               #   UI-01 … UI-17
 └── changes/
-    └── add-cekdulu-chatbot/
+    └── add-cekdulu-chatbot/          # Riwayat keputusan, folder specs/ sudah diarsipkan
         ├── proposal.md               # WHY: masalah, scope, non-goals
         ├── design.md                 # HOW: keputusan teknis + alternatif ditolak
-        ├── tasks.md                  # STEPS: checklist implementasi atomik
-        └── specs/                    # WHAT: delta requirement per kapabilitas
-            ├── web-server/spec.md
-            ├── chat-api/spec.md
-            ├── persona-guardrail/spec.md
-            └── chat-ui/spec.md
+        └── tasks.md                  # STEPS: checklist implementasi atomik
 ```
+
+Sebelum Fase 5, keempat berkas spec berada di
+`openspec/changes/add-cekdulu-chatbot/specs/`. Pemindahannya memakai `git mv` agar riwayat
+tiap berkas tetap tersambung, lalu penanda delta dilepas: `# Spec Delta —` → `# Spec —`,
+baris `Change:` diganti `Status: **spec aktif**`, dan `## ADDED Requirements` →
+`## Requirements`. Sejak itu **`openspec/specs/` adalah satu-satunya salinan** — spec tidak
+diduplikasi, karena dua salinan yang bisa menyimpang justru sumber halusinasi bagi agent
+berikutnya.
 
 | Artefak | Menjawab | Kenapa mencegah halusinasi |
 |---|---|---|
 | `project.md` | Batasan apa yang berlaku selalu? | Agent tahu stack & larangan tanpa harus baca ulang 234 halaman PDF |
 | `proposal.md` | Apa yang dibangun & **apa yang tidak**? | Non-goals eksplisit mematikan scope creep |
-| `specs/*/spec.md` | Perilaku apa yang benar? | Requirement ber-ID + skenario Given/When/Then → bisa diuji, tidak bisa ditafsir bebas |
+| `openspec/specs/*/spec.md` | Perilaku apa yang benar? | Requirement ber-ID + skenario Given/When/Then → bisa diuji, tidak bisa ditafsir bebas |
 | `design.md` | Kenapa memilih cara ini? | Alternatif yang ditolak dicatat, agar tidak "diperbaiki" balik oleh agent lain |
 | `tasks.md` | Langkah apa berikutnya? | Task atomik + rujukan requirement → agent tidak improvisasi |
 
@@ -146,6 +153,10 @@ openspec/
 Mengikuti konvensi OpenSpec: bagian ditandai `## ADDED Requirements`,
 `## MODIFIED Requirements`, `## REMOVED Requirements`. Karena ini proyek greenfield,
 semuanya `ADDED`.
+
+Penanda itu berlaku selama spec masih berupa **delta** di dalam `openspec/changes/`. Begitu
+diarsipkan ke `openspec/specs/` pada Fase 5, penandanya dilepas menjadi `## Requirements` —
+spec aktif menyatakan perilaku sistem apa adanya, bukan perubahan terhadap sesuatu.
 
 Setiap requirement wajib:
 - Punya **ID** unik (`WS-01`, `API-03`, dst.) supaya bisa dirujuk dari `tasks.md`
@@ -165,7 +176,9 @@ Setiap requirement punya nomor halaman PDF atau nama dokumen sumber.
 Setiap keputusan di `design.md` punya alasan tertulis.
 **Bukti:** kolom "Sumber" terisi di semua tabel requirement.
 Dijaga otomatis oleh CI job `traceability` — memastikan setiap requirement yang
-didefinisikan di spec muncul di matriks `design.md` dan dirujuk `tasks.md`.
+didefinisikan di spec muncul di matriks `design.md` dan dirujuk `tasks.md`. Sejak Fase 5,
+requirement dibaca dari `openspec/specs/`; job juga gagal bila **nol** requirement terbaca,
+supaya salah path tidak lolos sebagai "tidak ada pelanggaran".
 
 ### Gate 2 — Server hidup
 ```bash

@@ -20,7 +20,7 @@ tapi berdasarkan requirement ber-ID yang punya sumber tertulis.
 
 1. `openspec/project.md` — batasan stack & aturan yang selalu berlaku
 2. `openspec/changes/add-cekdulu-chatbot/proposal.md` — scope & **non-goals**
-3. `openspec/changes/add-cekdulu-chatbot/specs/*/spec.md` — requirement + skenario
+3. `openspec/specs/*/spec.md` — 40 requirement aktif + skenario (diarsipkan dari change pada F7)
 4. `openspec/changes/add-cekdulu-chatbot/design.md` — keputusan & alternatif yang ditolak
 5. `openspec/changes/add-cekdulu-chatbot/tasks.md` — task berurutan yang dikerjakan
 
@@ -33,9 +33,9 @@ tapi berdasarkan requirement ber-ID yang punya sumber tertulis.
 
 Cara kerja lengkap + 5 gate verifikasi → `docs/METODOLOGI.md`.
 
-**Progres saat ini: Fase A sampai E, G, H, I, dan J selesai; kelima gate verifikasi LULUS.**
+**Progres saat ini: Fase A sampai E dan G sampai L selesai; kelima gate verifikasi LULUS.**
 Backend `index.js` dan frontend `public/` sudah diimplementasikan dan diverifikasi di browser
-nyata — 177 dari 180 task tuntas, dan **21 dari 21 skenario uji lulus**. Antarmuka memakai
+nyata — 178 dari 180 task tuntas, dan **21 dari 21 skenario uji lulus**. Antarmuka memakai
 landing page sembilan section ditambah launcher dan panel dialog dengan palet light mode;
 riset dan sitasinya di `docs/RISET-DESAIN.md`.
 
@@ -53,9 +53,13 @@ beserta alasannya tercatat di `proposal.md` §3; lima non-goal baru ditambahkan 
 kembali scope di sekitarnya (audio, Files API, folder `uploads/`, base64 di riwayat, magic
 byte).
 
-Sisa: Fase F berupa screenshot dan submit. Bukti mentah di `docs/QA-REPORT.md`. Sebelum
-mengerjakan apa pun, cek status per task di
-`openspec/changes/add-cekdulu-chatbot/tasks.md`.
+Fase F7 mengarsipkan keempat spec delta menjadi spec aktif di `openspec/specs/`, menutup
+Fase 5 metodologi. Sejak itu `openspec/changes/add-cekdulu-chatbot/` hanya memuat
+`proposal.md`, `design.md`, dan `tasks.md` sebagai riwayat keputusan.
+
+Sisa: **F5** push ke GitHub dan **F6** rilis `v1.0.0`; pengisian form submit dikerjakan
+pengguna secara manual di luar repo. Bukti mentah di `docs/QA-REPORT.md`. Sebelum mengerjakan
+apa pun, cek status per task di `openspec/changes/add-cekdulu-chatbot/tasks.md`.
 
 **Larangan permanen pada halaman (`UI-14`, D-20):** DILARANG memuat testimoni, logo mitra,
 star rating, jumlah ulasan, jumlah pengguna, jumlah unduhan, atau tingkat kepuasan. Aplikasi
@@ -77,7 +81,8 @@ bot ada di `docs/QA-REPORT.md`. Bila di kemudian hari uji ini gagal, implementas
 
 1. **Kode aktual di repo** — baca file, jangan mengarang.
 2. **`openspec/specs/`** — spec aktif (perilaku sistem saat ini).
-3. **`openspec/changes/*/specs/`** — spec yang sedang dibangun.
+3. **`openspec/changes/*/specs/`** — spec yang sedang dibangun. Saat ini **kosong** — tidak ada
+   change yang berjalan; seluruh requirement sudah pindah ke `openspec/specs/`.
 4. **`docs/SPEC-API.md`** — spesifikasi endpoint verbatim dari slide.
 5. **`docs/FAKTA-TERVERIFIKASI.md`** — ledger fakta + halaman sumber.
 6. **PDF materi di root** — sumber asli.
@@ -93,7 +98,7 @@ bot ada di `docs/QA-REPORT.md`. Bila di kemudian hari uji ini gagal, implementas
 - ❌ Menambah dependency di luar daftar `docs/SPEC-API.md` tanpa persetujuan user.
 - ❌ Menulis `.env` atau meng-echo nilai API key ke output/log/commit.
 - ❌ Commit tanpa permintaan eksplisit user.
-- ❌ Menulis kode yang tidak punya requirement ID di `openspec/changes/*/specs/`.
+- ❌ Menulis kode yang tidak punya requirement ID di `openspec/specs/` (atau di delta change yang sedang berjalan).
 - ❌ Mengerjakan apa pun yang tercantum di Non-Goals `proposal.md` §3.
 - ❌ Menanam angka statistik dari `docs/RISET-LAPANGAN.md` ke dalam `systemInstruction`.
 - ❌ Menyerahkan data presisi (nomor telepon, email, URL, nomor peraturan) ke LLM.
@@ -244,8 +249,8 @@ Ini bukan inkonsistensi di dalam materi, tetapi **materi versus kondisi API aktu
 | `docs/QA-REPORT.md` | Bukti verifikasi mentah — output terminal, `curl`, kutipan jawaban bot |
 | `docs/METODOLOGI.md` | Alur kerja spec-driven + 5 gate verifikasi |
 | `openspec/project.md` | Konteks & batasan proyek untuk agent |
-| `openspec/changes/add-cekdulu-chatbot/` | Requirement yang sedang dibangun |
-| `openspec/specs/` | Spec aktif (terisi setelah implementasi diarsipkan) |
+| `openspec/specs/` | **Spec aktif** — 40 requirement, 4 kapabilitas |
+| `openspec/changes/add-cekdulu-chatbot/` | Riwayat keputusan: `proposal.md`, `design.md`, `tasks.md` |
 
 ---
 

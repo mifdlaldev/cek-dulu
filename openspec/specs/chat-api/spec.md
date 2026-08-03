@@ -1,6 +1,7 @@
-# Spec Delta — `chat-api`
+# Spec — `chat-api`
 
-Change: `add-cekdulu-chatbot`
+Status: **spec aktif** — perilaku sistem sebagaimana terimplementasi dan terverifikasi.
+Asal: delta change `add-cekdulu-chatbot`, diarsipkan pada Fase F7 (`docs/METODOLOGI.md` §3 Fase 5).
 Kapabilitas: endpoint API proyek — `POST /api/chat` untuk percakapan teks, dan
 `POST /api/chat-with-file` untuk analisis lampiran gambar atau dokumen.
 
@@ -13,7 +14,7 @@ Kapabilitas: endpoint API proyek — `POST /api/chat` untuk percakapan teks, dan
 
 ---
 
-## ADDED Requirements
+## Requirements
 
 ### `API-01` — Endpoint menerima field `conversation`
 

@@ -184,19 +184,35 @@ jobs:
 
       # Gate 1 docs/METODOLOGI.md: setiap requirement yang didefinisikan di spec harus
       # muncul di matriks design.md dan dirujuk oleh tasks.md.
+      #
+      # Spec dibaca dari openspec/specs/ (spec aktif) sejak Fase F7 mengarsipkan delta ke
+      # sana. openspec/changes/add-cekdulu-chatbot/specs/ tetap dibaca bila ada, supaya
+      # change berikutnya yang masih berjalan ikut terjaga tanpa mengubah workflow.
       - name: Setiap requirement dirujuk design.md dan tasks.md
         run: |
           node -e '
             const fs = require("fs");
             const path = require("path");
             const base = "openspec/changes/add-cekdulu-chatbot";
-            const specDir = path.join(base, "specs");
+            const specDirs = ["openspec/specs", path.join(base, "specs")].filter(
+              (dir) => fs.existsSync(dir)
+            );
+            if (!specDirs.length) {
+              console.error("GAGAL: tidak ada direktori spec yang dapat dibaca");
+              process.exit(1);
+            }
             const ids = new Set();
-            for (const cap of fs.readdirSync(specDir)) {
-              const file = path.join(specDir, cap, "spec.md");
-              if (!fs.existsSync(file)) continue;
-              const src = fs.readFileSync(file, "utf8");
-              for (const m of src.matchAll(/^### `((?:WS|API|PG|UI)-\d+)`/gm)) ids.add(m[1]);
+            for (const specDir of specDirs) {
+              for (const cap of fs.readdirSync(specDir)) {
+                const file = path.join(specDir, cap, "spec.md");
+                if (!fs.existsSync(file)) continue;
+                const src = fs.readFileSync(file, "utf8");
+                for (const m of src.matchAll(/^### `((?:WS|API|PG|UI)-\d+)`/gm)) ids.add(m[1]);
+              }
+            }
+            if (!ids.size) {
+              console.error("GAGAL: nol requirement terbaca dari " + specDirs.join(", "));
+              process.exit(1);
             }
             const design = fs.readFileSync(path.join(base, "design.md"), "utf8");
             const tasks = fs.readFileSync(path.join(base, "tasks.md"), "utf8");
