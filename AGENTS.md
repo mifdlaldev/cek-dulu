@@ -35,7 +35,7 @@ Cara kerja lengkap + 5 gate verifikasi → `docs/METODOLOGI.md`.
 
 **Progres saat ini: Fase A sampai E, G, H, I, dan J selesai; kelima gate verifikasi LULUS.**
 Backend `index.js` dan frontend `public/` sudah diimplementasikan dan diverifikasi di browser
-nyata — 173 dari 180 task tuntas, dan **21 dari 21 skenario uji lulus**. Antarmuka memakai
+nyata — 177 dari 180 task tuntas, dan **21 dari 21 skenario uji lulus**. Antarmuka memakai
 landing page sembilan section ditambah launcher dan panel dialog dengan palet light mode;
 riset dan sitasinya di `docs/RISET-DESAIN.md`.
 

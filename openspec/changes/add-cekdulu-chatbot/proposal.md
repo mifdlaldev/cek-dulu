@@ -7,7 +7,7 @@
 | Tanggal dibuat | 1 Agustus 2026 |
 | Terakhir diperbarui | 1 Agustus 2026 |
 | Kapabilitas tersentuh | `web-server` ✅, `chat-api` ✅, `persona-guardrail` ✅, `chat-ui` ✅ |
-| Progres task | 173 dari 180 (`tasks.md`) |
+| Progres task | 177 dari 180 (`tasks.md`) |
 | Bukti verifikasi | `docs/QA-REPORT.md` |
 
 ---

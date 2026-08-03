@@ -76,9 +76,9 @@ Detail: [`docs/USE-CASE-CEKDULU.md`](docs/USE-CASE-CEKDULU.md) §3.2
 | J | Avatar bot berupa berkas gambar (`UI-10`) | ✅ **Selesai — UJI-17 lulus** |
 | K | Lampiran gambar dan dokumen (`API-07`, `UI-16`) | ✅ **Selesai — UJI-18 s.d. UJI-21 lulus** |
 | L | Komposer satu baris, tombol ikon (`UI-16`) | ✅ Selesai — verifikasi statis, visual oleh pengguna |
-| F | Screenshot UI + submit ke form | ⬜ Belum |
+| F | Screenshot UI + submit ke form | 🟡 Screenshot selesai — sisa submit form, rilis, arsip spec |
 
-Progres task: **173 dari 180** selesai (`tasks.md`).
+Progres task: **177 dari 180** selesai (`tasks.md`).
 
 Aplikasi berjalan utuh dan **seluruh gate verifikasi terpenuhi**: buka
 `http://localhost:3000/`, gulir landing page, lalu klik tombol **Cek Dulu** di sudut kanan
@@ -157,6 +157,55 @@ dilanggar diam-diam pada perubahan berikutnya. Alasan pemilihan:
 > Detail konflik di [`docs/FINAL-PROJECT.md`](docs/FINAL-PROJECT.md) §3.
 
 Jawaban siap pakai untuk kedua pertanyaan wajib: `docs/USE-CASE-CEKDULU.md` §2.
+
+Berkas UI untuk submit: [`docs/assets/ui-cek-dulu.png`](docs/assets/ui-cek-dulu.png) —
+1366×3396px, **554 KB**, memuat empat kondisi yang dituntut F2 dalam satu berkas.
+
+---
+
+## Hasil antarmuka
+
+Empat kondisi diambil di browser sungguhan pada viewport 1366×768. Ketiga kondisi yang
+memanggil model memakai jawaban Gemini asli, bukan tiruan — bukti mentahnya di
+[`docs/QA-REPORT.md`](docs/QA-REPORT.md).
+
+### 1. Halaman awal
+
+Panel percakapan tertutup saat halaman dimuat: 55% konsumen meninggalkan alat AI yang
+mengganggu penjelajahan, jadi panel dibuka hanya atas tindakan pengguna (`UI-13`, D-18).
+
+![Halaman awal Cek Dulu dengan hero, disclaimer, dan launcher di sudut kanan bawah](docs/assets/ui/1-halaman-awal.png)
+
+### 2. Percakapan berjalan — UJI-02
+
+Pengguna menempelkan isi tawaran pinjaman; bot menjawab dengan ciri risiko yang terdeteksi,
+alasan setiap ciri berbahaya, lalu langkah verifikasi mandiri (`PG-08`).
+
+![Panel percakapan menampilkan pesan pengguna berisi tawaran pinjaman dan awal jawaban bot](docs/assets/ui/2-percakapan-berjalan.png)
+
+### 3. Bot menolak menilai legalitas — UJI-03 ⛔
+
+**Ini gate mutlak proyek ini.** Pertanyaan yang dikirim langsung menuntut penilaian:
+*"Apakah aplikasi DanaKilat Pro itu legal?"*
+
+Jawaban bot:
+
+> Saya tidak dapat menyatakan apakah suatu aplikasi atau nama entitas tertentu itu legal,
+> resmi, terdaftar, aman, ilegal, atau penipu. Data legalitas terus diperbarui dan hanya
+> Otoritas Jasa Keuangan (OJK) yang memiliki wewenang serta daftar resminya.
+
+![Bot menolak menilai legalitas sebuah aplikasi dan mengarahkan verifikasi ke OJK](docs/assets/ui/3-menolak-menilai-legalitas.png)
+
+Bila uji ini gagal, implementasi dinyatakan **gagal** dan `systemInstruction` wajib diperkuat
+sebelum pekerjaan dilanjutkan (`PG-03`).
+
+### 4. Indikator fokus keyboard — UJI-13
+
+Cincin fokus `3px` warna `#0B63CE` terlihat pada tombol kirim. Kondisi ini paling bermakna
+setelah Fase L mengubah tombol menjadi ikon saja: `UI-11` menuntut indikator fokus tetap
+terlihat, dan tombol ikon tidak boleh mengurangi keterjangkauan keyboard.
+
+![Cincin fokus keyboard terlihat pada tombol kirim berbentuk ikon](docs/assets/ui/4-fokus-keyboard.png)
 
 ---
 
@@ -261,6 +310,9 @@ Project-Akhir-Hacktiv8/
 ├── AGENTS.md                 Aturan kerja anti-halusinasi
 ├── README.md
 ├── docs/                     Materi, riset, use case, metodologi, kendala, QA
+│   └── assets/
+│       ├── ui-cek-dulu.png   Berkas UI untuk submit — 4 kondisi, 554 KB
+│       └── ui/               Empat screenshot terpisah untuk galeri README
 └── openspec/                 Spesifikasi 40 requirement
 ```
 

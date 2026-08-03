@@ -2,7 +2,7 @@
 
 Checklist implementasi. Dikerjakan **berurutan**. Setiap task merujuk requirement ID.
 
-**Progres: 173 dari 180 task selesai.** Fase A sampai E, G, H, I, J, K, dan L tuntas — kelima
+**Progres: 177 dari 180 task selesai.** Fase A sampai E, G, H, I, J, K, dan L tuntas — kelima
 gate verifikasi LULUS dan **21 dari 21 skenario uji lulus**. Fase K menambahkan lampiran gambar
 dan dokumen; **UJI-18 sebagai gate mutlak `PG-03` pada input gambar LULUS** — bot tidak menyebut
 nama entitas dari logo maupun menilai legalitasnya. Fase L menata komposer menjadi satu baris
@@ -28,7 +28,7 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 | J | Avatar bot berupa berkas gambar | 22/22 | ✅ Selesai — UJI-17 lulus, varian header D-23 |
 | K | Lampiran gambar dan dokumen | 28/28 | ✅ Selesai — UJI-18 s.d. UJI-21 lulus |
 | L | Komposer satu baris, tombol ikon | 11/11 | ✅ Selesai — verifikasi statis, visual oleh pengguna |
-| F | Persiapan submit | 0/7 | ⬜ Belum |
+| F | Persiapan submit | 4/7 | 🟡 Screenshot dan jawaban form siap — sisa submit, rilis, arsip spec |
 
 > **Aturan:** dilarang menulis kode yang tidak punya requirement. Bila di tengah jalan
 > ternyata spec kurang, **perbaiki spec dulu**, baru lanjut koding
@@ -362,23 +362,29 @@ Bukti verifikasi: `docs/QA-REPORT.md`.
 
 ## Fase F — Persiapan submit
 
-- [ ] **F1.** `README.md`: perbarui bagian Status — tandai backend dan frontend selesai,
+- [x] **F1.** `README.md`: perbarui bagian Status — tandai backend dan frontend selesai,
   cantumkan use case terpilih
   → expect status mencerminkan kondisi nyata
 
-- [ ] **F2.** Ambil screenshot UI — minimal empat kondisi: halaman awal dengan disclaimer,
+- [x] **F2.** Ambil screenshot UI — minimal empat kondisi: halaman awal dengan disclaimer,
   percakapan berjalan (UJI-02), bot menolak menilai legalitas (UJI-03), dan indikator fokus
   keyboard terlihat (UJI-13)
   → expect empat gambar tersedia
+  · Viewport 1366×768 disamakan dengan tangkapan layar pengguna agar seragam
+  · **2 permintaan kuota** — UJI-02 dan UJI-03; dua kondisi lain nol kuota
+  · Berkas: `docs/assets/ui/1-halaman-awal.png` s.d. `4-fokus-keyboard.png`
 
-- [ ] **F3.** Gabungkan screenshot ke **satu file** PDF atau image, kompres di bawah
+- [x] **F3.** Gabungkan screenshot ke **satu file** PDF atau image, kompres di bawah
   **1 MB**
   → expect satu file ≤ 1 MB
   · Ref: `docs/FINAL-PROJECT.md` §3.1 field #10
+  · Hasil: `docs/assets/ui-cek-dulu.png` — 1366×3396px, **554 KB**, empat panel berlabel
+  · Empat berkas terpisah dipertahankan untuk galeri `README.md`
 
-- [ ] **F4.** Siapkan jawaban form dari `docs/USE-CASE-CEKDULU.md` §2 — Nama project
+- [x] **F4.** Siapkan jawaban form dari `docs/USE-CASE-CEKDULU.md` §2 — Nama project
   (`Cek Dulu`), target pengguna, cara membantu pengguna
   → expect ketiga jawaban siap disalin
+  · Ketiganya sudah tertulis sejak Fase awal; ditautkan dari `README.md` bagian Deliverable
 
 - [ ] **F5.** Push ke GitHub (**hanya setelah user meminta eksplisit**), pastikan `.env`
   tidak ikut
